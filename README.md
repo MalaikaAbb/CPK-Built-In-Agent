@@ -1,0 +1,405 @@
+# CopilotKit + Built-in Agent Test Suite
+
+A navigable, working test harness for CopilotKit's **built-in agent** — each doc page is a route that actually runs the thing it describes.
+
+| | |
+|---|---|
+| **Doc sync date** | 2026-08-05 |
+| **CopilotKit packages** | `@copilotkit/react-core` 1.66.2 · `@copilotkit/runtime` 1.66.2 · `@copilotkit/shared` 1.66.2 |
+| **AG-UI packages** | `@ag-ui/client` 0.0.57 · `@ag-ui/core` 0.0.57 |
+| **Model routers** | `ai` 6.0.242 · `@ai-sdk/openai` 3.0.90 · `@tanstack/ai` 0.43.0 · `@tanstack/ai-openai` 0.18.0 |
+| **Frontend** | Next.js 16.3.0 (App Router) · React 19.2 · TypeScript 5 · Tailwind 4 |
+| **Build status** | No CI. Verified locally: `next build` ✅ (48 routes) · lint ✅ 0 errors, 13 warnings (unused imports left by trimmed callouts, plus the doc samples unused bindings) · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200, and transcripts survive tab switches ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
+
+---
+
+## 2. Overview
+
+CopilotKit's **built-in agent** is the one integration in this family with no third-party agent framework in it. `BuiltInAgent`, from `@copilotkit/runtime/v2`, *is* the agent: it owns the model call, the tool loop, MCP, and the AG-UI state tools, and it runs inside the Next.js process.
+
+This repo covers a **scoped set of 21 doc pages** (§8) — every page listed in §12 — as one navigable Next app. Each route implements what its page teaches and shows the exact source that makes it work, read off disk at render time.
+
+**Everything comes from the documentation.** No tool, prompt, or config value was invented. Where a doc sample cannot run as written — because it calls a helper the docs never define, or because it does not compile against the shipped types — the sample is shown verbatim and the page says exactly what is wrong with it.
+
+Tracks: **<https://docs.copilotkit.ai/quickstart>** (the built-in agent's pages sit at the site root, not under a framework slug).
+
+---
+
+## 3. Architecture
+
+```
+Browser (React 19)
+  │  @copilotkit/react-core/v2 — <CopilotKit>, CopilotChat, hooks
+  │  POST /api/copilotkit/agent/:agentId/run   (SSE)
+  │  GET  /api/copilotkit/info
+  ▼
+Next.js 16 App Router  ·  localhost:3000
+  │  app/api/copilotkit/[[...slug]]/route.ts
+  │    CopilotRuntime (v2)  +  createCopilotRuntimeHandler
+  │    runner: MyRunner extends InMemoryAgentRunner
+  ▼
+BuiltInAgent × 10  —  in the same process
+  │  src/copilotkit/agents.ts
+  ▼
+OpenAI · Google · Anthropic
+  (openai:gpt-4.1 by default; /model-selection drives one agent per provider)
+```
+
+**There is no backend directory, and no agent framework.** The agent ships inside `@copilotkit/runtime`. One command, one port.
+
+A second, token-gated runtime is mounted at `app/api/copilotkit-auth/[[...slug]]/route.ts` purely so the Authentication page's `onRequest` hook can be demonstrated without 401-ing the rest of the harness.
+
+### The ten agents
+
+| Agent id | Config that matters | Used by |
+|---|---|---|
+| `default` | model only | Quickstart, Prebuilt Components, Slots, Headless UI, Display-only, Interactive, Frontend Tools, Agent Context, AgentRunner, Authentication |
+| `serverToolsAgent` | `tools: [getWeather]` · `maxSteps: 2` | Server Tools |
+| `renderingAgent` | `tools: [get_weather]` · `maxSteps: 2` | Tool Rendering, Programmatic Control, AG-UI, Runtime endpoints, Inspector |
+| `advancedAgent` | prompt · sampling params · `overridableProperties` | Advanced Configuration |
+| `sharedStateAgent` | `maxSteps: 5` (state tools need >1) | Shared State |
+| `openAiAgent` | `openai:…` · `apiKey: OPENAI_API_KEY` | Model Selection — Agent A |
+| `googleAgent` | `google:…` · `apiKey: GOOGLE_API_KEY` | Model Selection — Agent B |
+| `anthropicAgent` | `anthropic:…` · `apiKey: ANTHROPIC_API_KEY` | Model Selection — Agent C |
+| `aiSdkAgent` | `type: "aisdk"` · `streamText` + `openai("gpt-4o")` | Use any model router |
+| `tanStackAgent` | `type: "tanstack"` · `chat` + `openaiText("gpt-4o")` | Use any model router |
+
+Ten rather than one because what these pages teach *is* constructor configuration — tools, `maxSteps`, sampling parameters, factory mode. Those cannot share an instance without one page silently changing another page's behaviour. Agent ids are the keys of the record passed to `new CopilotRuntime({ agents })`; a component with no `agentId` resolves to `default`.
+
+---
+
+## 4. Prerequisites
+
+| Requirement | Version | Notes |
+|---|---|---|
+| Node.js | 20+ | Next.js 16 requires 20+. Developed on 24.16. |
+| npm | 10+ | Or pnpm/yarn/bun. |
+| OpenAI API key | — | Required. Must have access to the model in `OPENAI_MODEL`, and to `gpt-4o` for both factories on `/backend/custom-agent`. |
+| Google / Anthropic keys | — | Optional. Only `/model-selection` Agents B and C use them. |
+
+No Python, no second runtime, no separate agent process, no framework CLI.
+
+---
+
+## 5. Setup
+
+```bash
+git clone <this-repo> built-in-agent && cd built-in-agent
+cd frontend && npm install
+cp ../.env.example .env.local
+```
+
+Then edit `frontend/.env.local`:
+
+| Variable | What it does |
+|---|---|
+| `OPENAI_API_KEY` | **Required.** Read server-side by `BuiltInAgent`; never exposed to the browser. |
+| `OPENAI_MODEL` | Model id for every agent, and for Agent A on `/model-selection`. Defaults to `openai:gpt-4.1`. |
+| `GOOGLE_API_KEY` / `ANTHROPIC_API_KEY` | Optional. Needed only for Agents B and C on `/model-selection`; that route reports which keys are set and skips the columns whose key is missing. |
+| `GOOGLE_MODEL` / `ANTHROPIC_MODEL` | Optional model ids for those two. Default to `google:gemini-2.5-flash` and `anthropic:claude-sonnet-4.5`. |
+| `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` | Optional; no route here needs it. |
+
+**Default port:** **3000** — the only one.
+
+---
+
+## 6. Running the project
+
+One process, one terminal.
+
+```bash
+cd frontend
+npm run dev
+```
+
+Success looks like:
+
+```
+▲ Next.js 16.3.0 (Turbopack)
+- Local:   http://localhost:3000
+✓ Ready in 375ms
+```
+
+Open **<http://localhost:3000>**.
+
+Two quick health checks that need no model call:
+
+```bash
+curl -s http://localhost:3000/api/copilotkit/info          # → JSON listing all ten agents
+curl -s -o /dev/null -w "%{http_code}\n" \
+     http://localhost:3000/api/copilotkit-auth/info        # → 401, by design
+```
+
+If chats fail, the usual cause is a missing `OPENAI_API_KEY` — Next reads `.env.local` at startup, so restart after setting it.
+
+---
+
+## 7. What to expect — walkthrough per section
+
+### How each route is split
+
+| | |
+|---|---|
+| **`<route>`** | Notes, pass/fail criteria, and **the exact source**, read off disk at render time. No live chat. |
+| **`<route>/demo-chat`** | Just the running feature, no chrome — built for screen recording. Reached via **Open demo ↗**, which always opens a new tab. |
+
+Code on a page is never a re-typed approximation: each page reads real files via `src/lib/source.ts` and syntax-highlights them with Shiki. Excerpts use `#region` markers, which stay visible in the source and are labelled with line numbers. Where a page shows the *documentation's* code rather than this repo's, it is captioned as such.
+
+### Getting Started
+
+**`/`** — Orientation and the agent roster.
+
+**`/quickstart`** — `BuiltInAgent` + `CopilotSidebar`, the whole stack. **Try:** `What can you do?` **Pass:** tokens stream and render as markdown. **Fail:** an error banner — check `OPENAI_API_KEY`.
+
+### Basics
+
+**`/prebuilt-components`** — `CopilotChat`, `CopilotSidebar`, `CopilotPopup` in tabs. **Try:** say `Hello`, switch tabs, ask `what did I just say?` **Pass:** all three drive the same agent and the conversation survives the switch.
+
+### Custom Look and Feel
+
+**`/custom-look-and-feel/slots`** *(live but absent from the doc sidebar)* — Four override levels. **Pass:** L1 tints the message area, L2 auto-focuses the input, L3 renders bare aligned text with no bubbles, L4 shows a "My Agent" header with the welcome screen gone.
+
+**`/custom-look-and-feel/headless-ui`** *(absent from the sidebar)* — A chat with zero CopilotKit chrome. **Try:** `Write a long paragraph about otters`. **Pass:** text streams into hand-written bubbles and Stop halts it mid-sentence.
+
+**`/programmatic-control`** — The agent as an object. **Try:** press **Run Agent** with the pre-filled weather prompt. **Pass:** status flips to Running, the subscriber list fills with `onRunStartedEvent` → `onRunFinalized`, and a weather card renders in the conversation column. **Fail:** nothing happens on Run — `addMessage` alone does not start a run.
+
+**`/inspector`** — The overlay, mounted by the provider. **Pass:** a CopilotKit button in the viewport corner; opening it lists all six agents and the run's events. **Fail:** no button — the provider is `CopilotKitProvider`, which defaults it off.
+
+### Generative UI
+
+**`/generative-ui/your-components/display-only`** *(absent from the sidebar)* — `useComponent`. **Try:** `Show the weather card for Tokyo: 77 degrees, clear`. **Pass:** a bordered card renders inline. **Fail:** the agent describes the weather in prose.
+
+**`/generative-ui/your-components/interactive`** *(absent from the sidebar)* — `useHumanInTheLoop`. **Try:** `Run the command rm -rf /tmp/cache`. **Pass:** the command appears in a code block with Approve/Deny and **nothing further streams** until you click; the next message reflects your choice. **Fail:** it continues without waiting.
+
+**`/generative-ui/tool-rendering`** — Named renderer plus wildcard. **Try:** `What's the weather in Tokyo?` **Pass:** "Calling weather API..." becomes "Called the weather API for Tokyo." **Fail:** the wildcard ⏳/JSON row renders instead — the names no longer match.
+
+### App Control
+
+**`/frontend-tools`** — `sayHello` executing in the browser. **Try:** `Say hello to Malaika`. **Pass:** a native browser alert, then the agent confirms. **Fail:** a text reply with no alert.
+
+**`/shared-state`** — `agent.state` written from both sides. **Try:** `Add a task to buy groceries`, then press **Dark Mode** and ask `what theme am I using?` **Pass:** the list grows without a reload and the agent answers "dark". **Fail:** the list never changes, or the agent calls a state tool and then says nothing (`maxSteps` back at 1).
+
+**`/agent-app-context`** — `useAgentContext`. **Try:** `Who am I, and what am I working on?` **Pass:** the agent names Jane Smith and both projects with **no tool call** in the transcript. **Fail:** it says it has no information about you.
+
+### Built-in Agent
+
+**`/server-tools`** — `defineTool`, executing in the runtime. **Try:** `What's the weather in Lisbon?` **Pass:** a ⏳→✓ `getWeather` row with `{ temperature: 72, … }`, then a prose answer using it. **Fail:** an answer with no tool row, or a tool row followed by silence.
+
+**`/model-selection`** — Three agents in three tabs, one per provider: **Agent A** OpenAI, **Agent B** Google, **Agent C** Anthropic. Identical `BuiltInAgent` construction; the only difference is the model prefix and which key each reads. **Try:** `Which model and provider are you?` in each tab, then switch back to the first. **Pass:** each tab answers independently and names its own provider, and its transcript is still there when you return; a tab whose key is missing says so instead of offering a chat. **Fail:** a run error naming the model — the id does not exist, or that tab's key has no access to it.
+
+**`/advanced-configuration`** — Every `BuiltInAgent` knob, plus `overridableProperties`. **Try:** the same question under each of the three presets. **Pass:** the pirate prompt visibly takes effect (whitelisted) and the 12-token cap does not (not whitelisted). **Fail:** preset 2 reads the same as preset 1, or preset 3 truncates.
+
+### Runtime
+
+**`/backend/copilot-runtime`** — Routing across all six agents. **Try:** `Hello`, then switch ids. **Pass:** every id streams and each keeps its own transcript. **Fail:** an agent-not-found error.
+
+**`/backend/runtime-endpoints`** — The HTTP surface, probed live. **Try:** press **GET /api/copilotkit/info**. **Pass:** `200 OK` and a JSON body listing six agents. **Fail:** 404 — the handler is on a fixed segment rather than a catch-all.
+
+**`/backend/custom-agent`** — Factory mode in two tabs: **AI SDK** (`type: "aisdk"`, `streamText`) and **TanStack AI** (`type: "tanstack"`, `chat`). **Try:** `Write two sentences about tide pools` in both tabs. **Pass:** both stream like any other route — the client cannot tell them apart, because both come out as AG-UI events — and each tab keeps its own transcript across switches. **Fail:** an immediate run error — both factories use the doc's hardcoded `gpt-4o`, so a key without access to it fails on this route and nowhere else.
+
+**`/backend/agent-runner`** — `MyRunner`, installed on the live runtime. **Try:** send two messages. **Pass:** each adds a `run` line to the log, all sharing one thread id. **Fail:** the log stays empty while the chat works.
+
+**`/backend/ag-ui`** — Live event capture. **Try:** `Hello`, then `What's the weather in Tokyo?` **Pass:** `RUN_STARTED` → a burst of `TEXT_MESSAGE_CONTENT` → `RUN_FINISHED`, and a `TOOL_CALL_END` line on the second. **Fail:** no events while text appears.
+
+**`/auth`** — A bearer token and an `onRequest` hook. **Try:** send under each of the three token settings. **Pass:** only the valid token works; the other two fail to send at all, because the 401 lands on `GET /info` at mount. **Fail:** all three work.
+
+**`/status`** — Every route in one table.
+
+---
+
+## 8. Testing checklist / current status
+
+| Doc page | Route | Status | Notes |
+|---|---|---|---|
+| `/quickstart` | `/` | 📖 Reference | Orientation + agent roster. |
+| `/quickstart` | `/quickstart` | ✅ Working | Runtime route restructured (§9.1); provider needs `useSingleEndpoint={false}` (§9.3). |
+| `/prebuilt-components` | `/prebuilt-components` | ✅ Working | |
+| `/custom-look-and-feel/slots` | `/custom-look-and-feel/slots` | ✅ Working | **Not in the doc sidebar**; resolves. Sample does not typecheck (§9.5). |
+| `/custom-look-and-feel/headless-ui` | `/custom-look-and-feel/headless-ui` | ✅ Working | **Not in the doc sidebar**; resolves. `msg.content` does not typecheck (§9.7). |
+| `/programmatic-control` | `/programmatic-control` | ✅ Working | `defineToolCallRenderer` needed an `args` schema (§9.4). |
+| `/inspector` | `/inspector` | ✅ Working | Dev-only by design. |
+| `/generative-ui/your-components/display-only` | `/generative-ui/your-components/display-only` | ✅ Working | **Not in the doc sidebar**; resolves. |
+| `/generative-ui/your-components/interactive` | `/generative-ui/your-components/interactive` | ✅ Working | **Not in the doc sidebar**; resolves. Compiles unmodified. |
+| `/generative-ui/tool-rendering` | `/generative-ui/tool-rendering` | ✅ Working | Wildcard sample destructures a non-existent `args` (§9.6). |
+| `/frontend-tools` | `/frontend-tools` | ✅ Working | |
+| `/shared-state` | `/shared-state` | ✅ Working | Needs seeded state and `maxSteps > 1`, neither documented (§9.9). |
+| `/agent-app-context` | `/agent-app-context` | ✅ Working | |
+| `/server-tools` | `/server-tools` | ✅ Working | `getWeather` runs end to end. The page's other samples call undefined helpers and stay as reference code (§9.10). |
+| `/model-selection` | `/model-selection` | ✅ Working | Three agents, one per provider. Each column runs if its key is set; Azure needs a package this repo does not install. |
+| `/advanced-configuration` | `/advanced-configuration` | ✅ Working | `mcpServers`/`mcpClients` out of scope. |
+| `/backend/copilot-runtime` | `/backend/copilot-runtime` | ✅ Working | Page mixes v1 and v2 runtimes (§9.2). |
+| `/backend/runtime-endpoints` | `/backend/runtime-endpoints` | ✅ Working | `/info` probed live; samples are Express. |
+| `/backend/custom-agent` | `/backend/custom-agent` | ⚠️ Partial | AI SDK **and** TanStack AI factories both live; raw-event variant shown as code (§9.11). |
+| `/backend/agent-runner` | `/backend/agent-runner` | ✅ Working | `MyRunner` wired into the live runtime. |
+| `/backend/ag-ui` | `/backend/ag-ui` | ✅ Working | |
+| `/auth` | `/auth` | ✅ Working | Second endpoint; `verifyJwt` stubbed (§9.8). |
+
+**Legend:** ✅ Working · ⚠️ Partial · 📖 Reference · 🚧 Not started · ❌ Broken
+
+> **Caveat on "Working":** every route builds, lints, renders, and was confirmed to return 200 in dev, and the full run path was exercised end to end (`POST /agent/default/run` produced a real SSE `RUN_STARTED` and reached the model call). Individual agent *behaviours* were not each driven against a live model — the verification key was a placeholder, so runs terminated at `RUN_ERROR: Incorrect API key`. Anything downstream of a successful model response is unverified.
+
+---
+
+## 9. Known issues / doc-vs-implementation discrepancies
+
+Found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242.
+
+**1. The Quickstart's runtime route cannot serve the documented HTTP surface**
+[`/quickstart`](https://docs.copilotkit.ai/quickstart) mounts a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` — the endpoints [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents — 404. The `runner` option that [`/backend/agent-runner`](https://docs.copilotkit.ai/backend/agent-runner) teaches is also v2-only. This repo mounts `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts` instead.
+
+**2. Two different runtimes share the name `CopilotRuntime`**
+[`/backend/copilot-runtime`](https://docs.copilotkit.ai/backend/copilot-runtime) shows a Next.js sample importing it from `@copilotkit/runtime` (v1, needs a `serviceAdapter`) and then documents `a2ui`, `mcpApps`, and `forwardHeaders`, which are options on the **v2** runtime in `@copilotkit/runtime/v2`. Nothing on the page distinguishes them.
+
+**3. `<CopilotKit>` defaults to single-endpoint transport, and no page says so**
+This is the one that will bite hardest. `<CopilotKit>` passes `useSingleEndpoint: props.useSingleEndpoint ?? true` down to the provider, so unless you explicitly pass `false` the client POSTs `{ method: "info" }` to the **bare** runtime URL instead of calling `GET /info`. Against a multi-route runtime that 404s — and the client then caches single-endpoint transport for the rest of the session, so every subsequent agent lookup reports `Agent default not found`:
+
+```
+POST /api/copilotkit 404
+[browser] Failed to load runtime info (/api/copilotkit/info): ... status 404
+[browser] Agent default not found
+```
+
+The error text names `/api/copilotkit/info`, which is misleading: that URL is never requested, and `curl`ing it returns a healthy 200. Only the browser is affected.
+
+[`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents `useSingleEndpoint` as the client half of single-route mode, but never mentions that it is the default, and the Quickstart's provider omits it. This repo passes `useSingleEndpoint={false}` on both providers to pin the REST transport. If you would rather keep the default, set `mode: "single-route"` on the handler instead — but then `GET /info` and `/agent/:agentId/run` stop existing, along with the live probe on `/backend/runtime-endpoints`.
+
+**4. `defineToolCallRenderer` requires an `args` schema**
+[`/programmatic-control`](https://docs.copilotkit.ai/programmatic-control) calls it with only `name` and `render`. The shipped function has two overloads — a wildcard where `name` must be the literal `"*"`, and a named one requiring `args` — so the sample matches neither. This repo passes the tool's own Zod schema.
+
+**5. The Slots page's `CustomMessageView` produces four type errors**
+[`/custom-look-and-feel/slots`](https://docs.copilotkit.ai/custom-look-and-feel/slots): implicit `any` on `messages`, `isRunning`, and `msg`; and a plain function is not assignable to `SlotValue<typeof CopilotChatMessageView>`, which requires a `Cursor` static. Separately, `"data-testid"` in the props-override sample is not a known property of the `messageView` props type. All render correctly at runtime.
+
+**6. `useDefaultRenderTool`'s sample destructures a prop that does not exist**
+[`/generative-ui/tool-rendering`](https://docs.copilotkit.ai/generative-ui/tool-rendering) reads `args` from the render props. `DefaultRenderProps` carries `name`, `status`, and `result` — not `args`. It is `undefined` at runtime and the sample never reads it.
+
+**7. `msg.content` is rendered as a React child without narrowing**
+[`/custom-look-and-feel/headless-ui`](https://docs.copilotkit.ai/custom-look-and-feel/headless-ui) and [`/programmatic-control`](https://docs.copilotkit.ai/programmatic-control) both do this. `content` is a union of string, record, and content-part array; only the string branch is a valid child. Programmatic Control's tool-message lookup has the same character of problem — the `.find()` predicate is not a type guard, so the result is not assignable to `renderToolCall`'s `toolMessage`.
+
+**8. `verifyJwt` is called but never defined**
+[`/auth`](https://docs.copilotkit.ai/auth) calls it inside `onRequest` and assigns the result to an unused `const user`. There is no signing key, library, or implementation anywhere on the page. This repo substitutes a comparison against a demo token, clearly marked. The page also mounts the gated handler at `/api/copilotkit` — the same path as the ungated one — which cannot both be true in one app.
+
+**9. Shared State omits the two things that make it work**
+[`/shared-state`](https://docs.copilotkit.ai/shared-state) shows frontend code only. The built-in agent injects the state section into its system prompt and hands itself `AGUISendStateSnapshot`/`AGUISendStateDelta` **only when the run arrives with a non-empty state object** — with the default `{}` the agent has no idea state exists. And `maxSteps` defaults to 1, so a state write ends the run before the agent replies. Neither is mentioned.
+
+**10. Three of the four Server Tools samples reference undefined helpers**
+[`/server-tools`](https://docs.copilotkit.ai/server-tools): `search()`, `db.tickets.create()`, `searchFlights()`, `db.users.findByEmail()`. They are shown verbatim on the route page rather than wired up.
+
+**11. The `custom-agent` samples use a Hono-style default export**
+[`/backend/custom-agent`](https://docs.copilotkit.ai/backend/custom-agent) ends every sample with `export default copilotEndpoint` from `createCopilotEndpoint`. A Next.js App Router route needs named `GET`/`POST` exports. The file is captioned `src/copilotkit.ts`, so this is arguably framework-neutral, but it will not work if pasted into `app/api/…/route.ts`.
+
+**12. One tool, two names across pages**
+Server Tools calls its weather tool `getWeather`; Tool Rendering and Programmatic Control render `get_weather`. A renderer binds only on an exact match, so no single tool satisfies both. This repo defines the sample under both names and puts each on a different agent.
+
+**13. The Anthropic model ids in the docs are not Anthropic's model ids**
+[`/model-selection`](https://docs.copilotkit.ai/model-selection) lists Claude ids with dotted versions — "Claude Sonnet 4.5", "Claude Opus 4.1", "Claude 3.5 Haiku" — and `BuiltInAgentModel` carries literals in the same shape (`"anthropic/claude-sonnet-4.5"`). But `resolveModel` passes everything after the prefix straight to `createAnthropic()(model)` with no normalisation, and Anthropic's API separates the version with **hyphens**. `anthropic:claude-sonnet-4.5` gets:
+
+```
+404  {"type":"error","error":{"type":"not_found_error","message":"model: claude-sonnet-4.5"}}
+```
+
+The working id is `claude-sonnet-4-5`, confirmed against `GET https://api.anthropic.com/v1/models`. Agent C uses the hyphenated form. This does not affect the other two providers — `gpt-4.1` and `gemini-2.5-flash` are exactly what OpenAI and Google expect, dots included.
+
+**14. Four different model ids, one of them unsupported**
+`openai:gpt-5.4-mini` (Quickstart, Server Tools, Advanced Configuration), `openai:gpt-4.1` (Copilot Runtime, Model Selection), `openai/gpt-4o-mini` (Runtime endpoints, AgentRunner), `gpt-4o` (custom-agent). `gpt-5.4-mini` does not appear in the Model Selection page's own list of supported OpenAI models, so the Quickstart pasted verbatim fails with a model-not-found error. All agents here read one `OPENAI_MODEL`.
+
+**15. `@copilotkit/react-ui` in the Quickstart install line**
+It is the v1 UI package and nothing on the page imports from it. Not a dependency here.
+
+**16. AI SDK provider version has to be pinned down, not up**
+`@copilotkit/runtime` 1.66.2 depends on `ai` ^6.0.104, whose `LanguageModel` type is `LanguageModelV3 | LanguageModelV2`. The current `@ai-sdk/openai` 4.x emits spec `v4` and is rejected. This repo pins `@ai-sdk/openai` ^3.0.90.
+
+### Why `typescript.ignoreBuildErrors` is on
+
+Items 5, 6, and 7 are doc samples reproduced verbatim, which is this repo's whole purpose — correcting them would defeat it. They produce **9 `tsc` errors across 4 demo files**, and Next refuses to build with any. `next.config.ts` sets `ignoreBuildErrors: true` with that reasoning recorded inline. `npm run typecheck` still prints the full list, and every one of them is called out on its own route page. No error outside those four files is being suppressed.
+
+---
+
+## 10. Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Every chat errors immediately | No `OPENAI_API_KEY` | Set it in `frontend/.env.local` and restart — Next reads env at startup. |
+| `RUN_ERROR: Incorrect API key provided` | Placeholder or wrong key | The key reaches the provider fine; it is the key itself that is rejected. |
+| Model-not-found errors | A `gpt-5.4*` id from the docs | Set `OPENAI_MODEL` to something your account has, e.g. `openai:gpt-4.1`. |
+| `404 not_found_error: model: claude-sonnet-4.5` | Anthropic ids use hyphens, the docs print dots | Use `anthropic:claude-sonnet-4-5`. Already the default here; if you set `ANTHROPIC_MODEL` yourself, hyphenate it. See §9.13. |
+| `/backend/custom-agent` alone fails | That factory hardcodes the doc's `gpt-4o` | Either grant the key access or edit the model in `src/copilotkit/agents.ts`. |
+| Tool runs but custom UI never renders | Renderer name ≠ tool name | `useRenderTool({ name })` must equal the tool's `name` exactly — `get_weather` ≠ `getWeather`. |
+| Tool result appears, then silence | `maxSteps` is 1 | The run ended on the tool call. Raise `maxSteps` on that agent. |
+| Agent never writes shared state | State was empty at run start | Seed a shape with `agent.setState` first; an empty `{}` means no state tools are offered. |
+| No Inspector button | Provider is `CopilotKitProvider` | Use `<CopilotKit>`, which defaults `enableInspector` on in dev. Never mount `<CopilotKitInspector />` by hand. |
+| "CopilotKit core not attached" | A hand-mounted inspector | Same fix — let the provider mount it. |
+| `GET /api/copilotkit/info` 404s | Route on a fixed segment | It must be `app/api/copilotkit/[[...slug]]/route.ts`. |
+| Everything 401s | Pointed at `/api/copilotkit-auth` | That endpoint is gated on purpose. The app-wide provider uses `/api/copilotkit`. |
+| `POST /api/copilotkit 404` + `Agent default not found`, but `curl …/info` returns 200 | `<CopilotKit>` defaults `useSingleEndpoint` to **true**, so the browser speaks single-route to a multi-route runtime | Pass `useSingleEndpoint={false}` on the provider. Already set here — if you see this, check you have not removed it. See §9.3. |
+| Runner log empty but chat works | Runtime using the default runner | Check `runner: new MyRunner()` in the route file. |
+| State/threads reset on restart | `InMemoryAgentRunner` | By design. Subclass it and write through to a store, or use the Intelligence runner. |
+| `LanguageModelV4 is not assignable` | `@ai-sdk/openai` 4.x | Pin to ^3.0.90 — see §9.16. |
+
+---
+
+## 11. Project structure
+
+```
+built-in-agent/
+├── CLAUDE.md
+├── README.md
+├── .env.example
+│
+└── frontend/                  # the whole app — Next.js + the agent in one process
+    └── src/
+        ├── copilotkit/
+        │   ├── agents.ts             # ★ the 6 BuiltInAgent instances
+        │   ├── tools.ts              # ★ defineTool server tools
+        │   ├── runner.ts             # ★ MyRunner extends InMemoryAgentRunner
+        │   ├── model.ts              # single model id for every agent
+        │   └── auth-demo.ts          # demo token shared by the gated route + page
+        ├── app/
+        │   ├── layout.tsx
+        │   ├── page.tsx              # / — orientation + agent roster
+        │   ├── status/page.tsx
+        │   ├── api/
+        │   │   ├── copilotkit/[[...slug]]/route.ts       # ★ the runtime
+        │   │   ├── copilotkit-auth/[[...slug]]/route.ts  # ★ gated runtime (auth page)
+        │   │   └── runner-log/route.ts                   # harness instrumentation
+        │   └── <doc route>/
+        │       ├── page.tsx          # notes + exact source (server component)
+        │       └── demo-chat/page.tsx # ★ the running feature, chrome-free
+        ├── components/
+        │   ├── providers.tsx         # ★ <CopilotKit> + renderToolCalls
+        │   ├── weather-tool.tsx      # ★ defineToolCallRenderer
+        │   ├── source-code.tsx       # renders a repo file verbatim
+        │   ├── code-figure.tsx       # shared, Shiki-highlighted code block
+        │   ├── app-chrome.tsx        # sidebar layout, skipped on /demo-chat
+        │   ├── demo-frame.tsx        # thin bar + back link for demo routes
+        │   ├── nav-sidebar.tsx
+        │   ├── route-header.tsx
+        │   └── ui.tsx                # Panel, Callout, CodeBlock, TryIt
+        └── lib/
+            ├── nav-config.ts         # ★ single source of truth: routes, docs, status
+            ├── source.ts             # server-only file reader
+            └── highlight.ts          # server-only Shiki wrapper
+```
+
+---
+
+## 12. References
+
+**Getting Started** — [Quickstart](https://docs.copilotkit.ai/quickstart)
+
+**Basics** — [Prebuilt Components](https://docs.copilotkit.ai/prebuilt-components)
+
+**Custom Look and Feel** — [Slots](https://docs.copilotkit.ai/custom-look-and-feel/slots) † · [Headless UI](https://docs.copilotkit.ai/custom-look-and-feel/headless-ui) † · [Programmatic Control](https://docs.copilotkit.ai/programmatic-control) · [Inspector](https://docs.copilotkit.ai/inspector)
+
+**Generative UI** — [Display-only](https://docs.copilotkit.ai/generative-ui/your-components/display-only) † · [Interactive](https://docs.copilotkit.ai/generative-ui/your-components/interactive) † · [Tool Rendering](https://docs.copilotkit.ai/generative-ui/tool-rendering)
+
+**App Control** — [Frontend Tools](https://docs.copilotkit.ai/frontend-tools) · [Shared State](https://docs.copilotkit.ai/shared-state) · [Agent Context](https://docs.copilotkit.ai/agent-app-context)
+
+**Built-in Agent** — [Server Tools](https://docs.copilotkit.ai/server-tools) · [Model Selection](https://docs.copilotkit.ai/model-selection) · [Advanced Configuration](https://docs.copilotkit.ai/advanced-configuration)
+
+**Runtime** — [Copilot Runtime](https://docs.copilotkit.ai/backend/copilot-runtime) · [Runtime HTTP endpoints](https://docs.copilotkit.ai/backend/runtime-endpoints) · [Use any model router](https://docs.copilotkit.ai/backend/custom-agent) · [AgentRunner and persistence](https://docs.copilotkit.ai/backend/agent-runner) · [Connect AG-UI agents](https://docs.copilotkit.ai/backend/ag-ui) · [Authentication](https://docs.copilotkit.ai/auth)
+
+**In the doc sidebar but outside this repo's scope** — MCP Servers · MCP Apps · A2UI · Rich Threads · Self-managed agents · Deploy to any runtime · Anonymous Telemetry · Intelligence Platform
+
+**External** — [AG-UI protocol](https://ag-ui.com) · [Vercel AI SDK](https://ai-sdk.dev)
+
+† Resolves but is absent from the doc sidebar as of the sync date.
