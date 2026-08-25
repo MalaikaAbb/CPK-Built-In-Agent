@@ -3,6 +3,7 @@
 > Get started with CopilotKit's Built-in Agent in minutes.
 
 
+
 <OpsPlatformCTA
   variant="card"
   title="Ship the Built-in Agent to production"
@@ -46,8 +47,12 @@ Before you begin, you'll need the following:
         ### Install CopilotKit packages
 
         ```npm
-        npm install @copilotkit/react-core @copilotkit/react-ui @copilotkit/runtime
+        npm install @copilotkit/react-core @copilotkit/runtime
         ```
+
+        The components used below (`CopilotKit`, `CopilotSidebar`) and the
+        stylesheet all come from `@copilotkit/react-core/v2`, so
+        `@copilotkit/react-ui` is not needed for this setup.
     </Step>
     <Step>
         ### Configure your environment
@@ -66,6 +71,20 @@ Before you begin, you'll need the following:
         ### Setup Copilot Runtime
 
         Create an API route with the `BuiltInAgent` and `CopilotRuntime`:
+
+        <Callout type="warn" title="Already have an agent? Do not use BuiltInAgent">
+          `BuiltInAgent` is CopilotKit's *own* agent — it calls the model
+          directly. Registering it as `default` means chat talks to it, not to
+          any agent you already wrote. It replaces your agent rather than
+          connecting to it.
+
+          If you already have a LangGraph, CrewAI, Mastra, ADK, Pydantic AI or
+          other agent, take the frontend steps from this page but get the runtime
+          wiring from **your framework's** quickstart, which registers *your*
+          agent instead — for example
+          [LangGraph (Python)](/langgraph-python/quickstart). Pick yours from
+          [the docs landing](/).
+        </Callout>
 
         ```ts title="app/api/copilotkit/route.ts"
         import {
@@ -97,6 +116,14 @@ Before you begin, you'll need the following:
         ### Configure CopilotKit Provider
 
         Wrap your application with the CopilotKit provider:
+
+        <Callout type="info" title="Which provider goes with which handler?">
+          `<CopilotKit>` here is the backward-compatible wrapper. It sets no transport
+          by default, so it detects the single-route `copilotRuntimeNextJSAppRouterEndpoint`
+          above on its own. `<CopilotKitProvider>` is the v2 provider from the same
+          package and detects the transport the same way. They are not aliases — see
+          [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+        </Callout>
 
         ```tsx title="app/layout.tsx"
         import { CopilotKit } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -200,6 +227,20 @@ Before you begin, you'll need the following:
         </Accordions>
 
     </Step>
+
+    <Step>
+        ### Open Inspector and confirm setup
+
+On localhost, click the Inspector button in the corner of the app.
+
+1. Open **Agents**, then **Agent**. Your agent is listed.
+2. Send a chat message. Open **Agents**, then **AG-UI Events**. Events are moving.
+3. Open **Threads**. The list is unlocked (Intelligence is on), or locked with Enable Intelligence (Intelligence is off).
+
+More detail: [Inspector](/inspector).
+
+    </Step>
+
 </Steps>
 
 ## What's next?
