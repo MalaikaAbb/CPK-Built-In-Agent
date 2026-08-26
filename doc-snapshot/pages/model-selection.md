@@ -3,7 +3,11 @@
 > Choose and configure models for your Built-in Agent.
 
 The Built-in Agent uses the [Vercel AI SDK](https://sdk.vercel.ai), so you can use
+<<<<<<< HEAD
 models from OpenAI, Anthropic, and Google, or pass any custom AI SDK model.
+=======
+built-in model strings or pass any custom AI SDK model.
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 
 ## Supported Models
 
@@ -11,6 +15,7 @@ Specify a model using the `"provider:model"` format. `"provider/model"` also wor
 
 ### OpenAI
 
+<<<<<<< HEAD
 | Model | Specifier |
 |-------|-----------|
 | GPT-5 | `openai:gpt-5` |
@@ -23,6 +28,20 @@ Specify a model using the `"provider:model"` format. `"provider/model"` also wor
 | o3 | `openai:o3` |
 | o3-mini | `openai:o3-mini` |
 | o4-mini | `openai:o4-mini` |
+=======
+| Model        | Specifier             |
+| ------------ | --------------------- |
+| GPT-5        | `openai:gpt-5`        |
+| GPT-5 Mini   | `openai:gpt-5-mini`   |
+| GPT-4.1      | `openai:gpt-4.1`      |
+| GPT-4.1 Mini | `openai:gpt-4.1-mini` |
+| GPT-4.1 Nano | `openai:gpt-4.1-nano` |
+| GPT-4o       | `openai:gpt-4o`       |
+| GPT-4o Mini  | `openai:gpt-4o-mini`  |
+| o3           | `openai:o3`           |
+| o3-mini      | `openai:o3-mini`      |
+| o4-mini      | `openai:o4-mini`      |
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -32,6 +51,7 @@ const agent = new BuiltInAgent({
 
 ### Anthropic
 
+<<<<<<< HEAD
 | Model | Specifier |
 |-------|-----------|
 | Claude Sonnet 4.5 | `anthropic:claude-sonnet-4-5` |
@@ -44,15 +64,34 @@ const agent = new BuiltInAgent({
 ```typescript
 const agent = new BuiltInAgent({
   model: "anthropic:claude-sonnet-4-5",
+=======
+| Model             | Specifier                     |
+| ----------------- | ----------------------------- |
+| Claude Opus 4.8   | `anthropic:claude-opus-4-8`   |
+| Claude Sonnet 4.6 | `anthropic:claude-sonnet-4-6` |
+| Claude Haiku 4.5  | `anthropic:claude-haiku-4-5`  |
+| Claude Sonnet 4.5 | `anthropic:claude-sonnet-4-5` |
+
+```typescript
+const agent = new BuiltInAgent({
+  model: "anthropic:claude-sonnet-4-6",
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 });
 ```
 
 ### Google
 
+<<<<<<< HEAD
 | Model | Specifier |
 |-------|-----------|
 | Gemini 2.5 Pro | `google:gemini-2.5-pro` |
 | Gemini 2.5 Flash | `google:gemini-2.5-flash` |
+=======
+| Model                 | Specifier                      |
+| --------------------- | ------------------------------ |
+| Gemini 2.5 Pro        | `google:gemini-2.5-pro`        |
+| Gemini 2.5 Flash      | `google:gemini-2.5-flash`      |
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 | Gemini 2.5 Flash Lite | `google:gemini-2.5-flash-lite` |
 
 ```typescript
@@ -61,6 +100,22 @@ const agent = new BuiltInAgent({
 });
 ```
 
+<<<<<<< HEAD
+=======
+### MiniMax
+
+| Model        | Specifier              |
+| ------------ | ---------------------- |
+| MiniMax M3   | `minimax:MiniMax-M3`   |
+| MiniMax M2.7 | `minimax:MiniMax-M2.7` |
+
+```typescript
+const agent = new BuiltInAgent({
+  model: "minimax:MiniMax-M3",
+});
+```
+
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 ## Environment Variables
 
 Set the API key for your chosen provider:
@@ -74,6 +129,15 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 # Google
 GOOGLE_API_KEY=...
+<<<<<<< HEAD
+=======
+
+# MiniMax
+MINIMAX_API_KEY=...
+
+# Optional: use the China endpoint
+MINIMAX_BASE_URL=https://api.minimaxi.com/v1
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 ```
 
 Alternatively, pass the API key directly in your configuration:
@@ -93,7 +157,12 @@ For models not in the built-in list, you can pass any Vercel AI SDK `LanguageMod
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
 import { createOpenAI } from "@ai-sdk/openai"; // [!code highlight]
 
+<<<<<<< HEAD
 const customProvider = createOpenAI({ // [!code highlight]
+=======
+const customProvider = createOpenAI({
+  // [!code highlight]
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
   apiKey: process.env.MY_API_KEY, // [!code highlight]
   baseURL: "https://my-proxy.example.com/v1", // [!code highlight]
 }); // [!code highlight]
@@ -132,13 +201,22 @@ import { BuiltInAgent } from "@copilotkit/runtime/v2";
 import { createOpenAI } from "@ai-sdk/openai"; // [!code highlight]
 
 // OpenRouter: one key, hundreds of models behind an OpenAI-compatible API
+<<<<<<< HEAD
 const openrouter = createOpenAI({ // [!code highlight]
+=======
+const openrouter = createOpenAI({
+  // [!code highlight]
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
   apiKey: process.env.OPENROUTER_API_KEY, // [!code highlight]
   baseURL: "https://openrouter.ai/api/v1", // [!code highlight]
 }); // [!code highlight]
 
 const agent = new BuiltInAgent({
+<<<<<<< HEAD
   model: openrouter("anthropic/claude-sonnet-4-5"), // [!code highlight]
+=======
+  model: openrouter("anthropic/claude-sonnet-4-6"), // [!code highlight]
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 });
 ```
 
@@ -151,6 +229,7 @@ AI SDK can talk to it, the Built-in Agent can use it.
   switching the model at request time. The model is configured **on the agent**,
   either as a `"provider:model"` string or an AI SDK `LanguageModel` instance:
 
+<<<<<<< HEAD
   ```typescript
   new BuiltInAgent({ model: "openai:gpt-4.1" });        // built-in string
   new BuiltInAgent({ model: openrouter("...") });        // any LanguageModel
@@ -159,17 +238,36 @@ AI SDK can talk to it, the Built-in Agent can use it.
   To switch models per user, request, or feature flag, construct the agent with
   the desired `model` on your own backend. For full control over the runtime you
   can also use a [Custom Agent](/backend/custom-agent).
+=======
+```typescript
+new BuiltInAgent({ model: "openai:gpt-4.1" }); // built-in string
+new BuiltInAgent({ model: openrouter("...") }); // any LanguageModel
+```
+
+To switch models per user, request, or feature flag, construct the agent with
+the desired `model` on your own backend. For full control over the runtime you
+can also use a [Custom Agent](/backend/custom-agent).
+
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 </Callout>
 
 ## How it works
 
 The Built-in Agent resolves model strings to AI SDK provider instances:
 
+<<<<<<< HEAD
 | Model string | AI SDK provider | Resolved call |
 |---|---|---|
 | `"openai:gpt-4.1"` | `@ai-sdk/openai` | `openai("gpt-4.1")` |
 | `"anthropic:claude-sonnet-4-5"` | `@ai-sdk/anthropic` | `anthropic("claude-sonnet-4-5")` |
 | `"google:gemini-2.5-pro"` | `@ai-sdk/google` | `google("gemini-2.5-pro")` |
+=======
+| Model string                    | AI SDK provider     | Resolved call                    |
+| ------------------------------- | ------------------- | -------------------------------- |
+| `"openai:gpt-4.1"`              | `@ai-sdk/openai`    | `openai("gpt-4.1")`              |
+| `"anthropic:claude-sonnet-4-6"` | `@ai-sdk/anthropic` | `anthropic("claude-sonnet-4-6")` |
+| `"google:gemini-2.5-pro"`       | `@ai-sdk/google`    | `google("gemini-2.5-pro")`       |
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 
 Both `"provider:model"` and `"provider/model"` separators are supported and work identically.
 

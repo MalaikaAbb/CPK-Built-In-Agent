@@ -1,19 +1,32 @@
 {
   "schema": 1,
   "docsRoot": "https://docs.copilotkit.ai/quickstart",
+<<<<<<< HEAD
   "syncedAt": "2026-08-17T12:35:31.868Z",
   "pages": {
     "/advanced-configuration": {
       "file": "advanced-configuration.md",
       "sha256": "507d657cb12446b56e8a2a384d39aae8c260d1ff18d91e93141da13720c4458d",
       "bytes": 5738,
+=======
+  "syncedAt": "2026-08-26T09:46:39.969Z",
+  "pages": {
+    "/advanced-configuration": {
+      "file": "advanced-configuration.md",
+      "sha256": "65adfb543edeb6418f5bea120ca1463bdae36d60981c44646ac49c30c9502d2a",
+      "bytes": 5734,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "lines": 149,
       "routes": [
         "/advanced-configuration"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/agent-app-context": {
       "file": "agent-app-context.md",
@@ -25,6 +38,7 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
     },
     "/auth": {
@@ -32,35 +46,63 @@
       "sha256": "93a4d207d91cd544185e7bff471d75a320ffd758eb6e552fa5122b17ea2bb65c",
       "bytes": 17461,
       "lines": 455,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+    },
+    "/auth": {
+      "file": "auth.md",
+      "sha256": "ff1a9bf4625db9fd556da84af6657e30819196aa8ef8a55fb98e712c6faea9c4",
+      "bytes": 17883,
+      "lines": 365,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "routes": [
         "/auth"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
     },
     "/backend/ag-ui": {
       "file": "backend__ag-ui.md",
       "sha256": "1a8f74523a2df1df59f1327d5538e92fd56ba9da1c3d8c43badcaa0a935b2d6d",
       "bytes": 3927,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+    },
+    "/backend/ag-ui": {
+      "file": "backend__ag-ui.md",
+      "sha256": "4507db28452fd2976db0842ebb8299565386fb0a1f25e908ffd23e8f9f0f8942",
+      "bytes": 3916,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "lines": 125,
       "routes": [
         "/backend/ag-ui"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
     },
     "/backend/agent-runner": {
       "file": "backend__agent-runner.md",
       "sha256": "c55a63904ef58ecdde0648ac480832b991dba570ece9c71ccbd5eff646cb2422",
       "bytes": 12204,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+    },
+    "/backend/agent-runner": {
+      "file": "backend__agent-runner.md",
+      "sha256": "d143f29ea45de1c60ceba277da5c30a00cf1e4abb7d76423e5223b0f4d417ef7",
+      "bytes": 12198,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "lines": 235,
       "routes": [
         "/backend/agent-runner"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
     },
     "/backend/copilot-runtime": {
@@ -68,11 +110,21 @@
       "sha256": "4835b79f903b431bddea33adb7ea1e0234608418ab3170744d562f246c0f1250",
       "bytes": 11414,
       "lines": 266,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+    },
+    "/backend/copilot-runtime": {
+      "file": "backend__copilot-runtime.md",
+      "sha256": "60dfea30200b75dadf75baa8ba8b9f5ffa0d462fc91bb55ebd096481fb2c700c",
+      "bytes": 13385,
+      "lines": 316,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "routes": [
         "/backend/copilot-runtime"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
     },
     "/backend/custom-agent": {
@@ -80,11 +132,21 @@
       "sha256": "0d3f2c10f80d9c38076e793d73d9d79313f45c944fefeece5793d454ef539f00",
       "bytes": 15518,
       "lines": 521,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+    },
+    "/backend/custom-agent": {
+      "file": "backend__custom-agent.md",
+      "sha256": "20ce9e7c80fc3c13d412e2be2af9d44aec61fe19b3833f5090daf21b0dd83528",
+      "bytes": 16921,
+      "lines": 547,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "routes": [
         "/backend/custom-agent"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
     },
     "/backend/runtime-endpoints": {
@@ -92,12 +154,25 @@
       "sha256": "721a1e8c43c01bf0314e31960b0be472926985a83f75aa5e742a6cece1732d07",
       "bytes": 14378,
       "lines": 363,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+    },
+    "/backend/runtime-endpoints": {
+      "file": "backend__runtime-endpoints.md",
+      "sha256": "4d1b3e806acfbf5a2bc1874e559134a3361952ed7c60b6a283621634dc9256bd",
+      "bytes": 20326,
+      "lines": 487,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "routes": [
         "/backend/runtime-endpoints"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/custom-look-and-feel/headless-ui": {
       "file": "custom-look-and-feel__headless-ui.md",
@@ -109,7 +184,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/custom-look-and-feel/slots": {
       "file": "custom-look-and-feel__slots.md",
@@ -121,7 +200,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:32 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/frontend-tools": {
       "file": "frontend-tools.md",
@@ -133,7 +216,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/generative-ui/tool-rendering": {
       "file": "generative-ui__tool-rendering.md",
@@ -145,7 +232,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:40 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/generative-ui/your-components/display-only": {
       "file": "generative-ui__your-components__display-only.md",
@@ -157,7 +248,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/generative-ui/your-components/interactive": {
       "file": "generative-ui__your-components__interactive.md",
@@ -169,6 +264,7 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
     },
     "/inspector": {
@@ -176,11 +272,21 @@
       "sha256": "6a3455d6ded7d51bc22e24cd0f0feec86bc0dced9391a9acfc6411c6333b4cf6",
       "bytes": 5149,
       "lines": 112,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+    },
+    "/inspector": {
+      "file": "inspector.md",
+      "sha256": "0c3fba2bc17eb6db838fe56da5b74bcaa55ff90072f33a126ab2efa56afecc43",
+      "bytes": 5952,
+      "lines": 127,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "routes": [
         "/inspector"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
     },
     "/model-selection": {
@@ -188,12 +294,25 @@
       "sha256": "2f4c1ffc0d17c15de451b6418117ef7cba359dbd84197da04267568e359a2744",
       "bytes": 5561,
       "lines": 180,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+    },
+    "/model-selection": {
+      "file": "model-selection.md",
+      "sha256": "fecde3bf25aeae568036d1ce2912b9ecf8860f83088395ba201c243a4de0fbce",
+      "bytes": 6256,
+      "lines": 200,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "routes": [
         "/model-selection"
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/prebuilt-components": {
       "file": "prebuilt-components.md",
@@ -205,7 +324,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/programmatic-control": {
       "file": "programmatic-control.md",
@@ -217,6 +340,7 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
     },
     "/quickstart": {
@@ -224,6 +348,15 @@
       "sha256": "f199bd02b7ba8ee4a66e4e0edced4dac3152b4e1b57c53267e1d2de15dc23a87",
       "bytes": 6665,
       "lines": 235,
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+    },
+    "/quickstart": {
+      "file": "quickstart.md",
+      "sha256": "7a36dfe465d5fb142ee291addd65e8465f88d3996325f4da055bdb23d60fcbba",
+      "bytes": 10317,
+      "lines": 309,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       "routes": [
         "/",
         "/quickstart",
@@ -231,7 +364,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/server-tools": {
       "file": "server-tools.md",
@@ -243,7 +380,11 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     },
     "/shared-state": {
       "file": "shared-state.md",
@@ -255,11 +396,19 @@
       ],
       "status": "ok",
       "age": 0,
+<<<<<<< HEAD
       "date": "Mon, 17 Aug 2026 12:35:33 GMT"
     }
   },
   "sitemap": {
     "fetchedAt": "2026-08-17T12:35:31.868Z",
+=======
+      "date": "Wed, 26 Aug 2026 09:46:41 GMT"
+    }
+  },
+  "sitemap": {
+    "fetchedAt": "2026-08-26T09:46:39.969Z",
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
     "urlsUnderRoot": 0,
     "knownUnmapped": []
   }

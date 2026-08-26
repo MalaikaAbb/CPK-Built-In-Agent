@@ -30,7 +30,11 @@ You have an existing LLM backend and you want a CopilotKit copilot using it. Pic
 ```typescript title="src/copilotkit.ts"
 import {
   CopilotRuntime,
+<<<<<<< HEAD
   createCopilotEndpoint,
+=======
+  createCopilotRuntimeHandler,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
   InMemoryAgentRunner,
   BuiltInAgent,
   convertMessagesToVercelAISDKMessages,
@@ -64,7 +68,11 @@ export default copilotEndpoint;
 ```typescript title="src/copilotkit.ts"
 import {
   CopilotRuntime,
+<<<<<<< HEAD
   createCopilotEndpoint,
+=======
+  createCopilotRuntimeHandler,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
   InMemoryAgentRunner,
   BuiltInAgent,
   convertInputToTanStackAI,
@@ -101,7 +109,11 @@ export default copilotEndpoint;
 ```typescript title="src/copilotkit.ts"
 import {
   CopilotRuntime,
+<<<<<<< HEAD
   createCopilotEndpoint,
+=======
+  createCopilotRuntimeHandler,
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
   InMemoryAgentRunner,
   BuiltInAgent,
 } from "@copilotkit/runtime/v2";
@@ -311,9 +323,21 @@ const agent = new BuiltInAgent({
   type: "aisdk",
   factory: ({ input, abortSignal }) =>
     streamText({
+<<<<<<< HEAD
       model: anthropic("claude-sonnet-4", {
         thinking: { type: "enabled", budgetTokens: 10000 },
       }),
+=======
+      model: anthropic("claude-sonnet-4-6"),
+      providerOptions: {
+        anthropic: {
+          thinking: { type: "adaptive" },
+          // `effort` replaces the fixed token budget used by the older
+          // `{ type: "enabled", budgetTokens }` form.
+          effort: "high",
+        },
+      },
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       messages: convertMessagesToVercelAISDKMessages(input.messages),
       abortSignal,
     }),
@@ -321,6 +345,15 @@ const agent = new BuiltInAgent({
 ```
 
 Reasoning events (`REASONING_START`, `REASONING_MESSAGE_CONTENT`, `REASONING_END`) are automatically extracted from the AI SDK stream.
+<<<<<<< HEAD
+=======
+
+<Callout type="info">
+Pick the model with reasoning **visibility** in mind. From Claude Opus 4.7 onward (including Sonnet 5 and Opus 5), Anthropic defaults thinking `display` to `"omitted"` — the model still reasons, but no reasoning text comes back, so the events above arrive empty. `@ai-sdk/anthropic` does not expose `display` yet, so choose a model that defaults to summarized thinking (such as `claude-sonnet-4-6`) when you want the reasoning to be visible.
+</Callout>
+
+Using `BuiltInAgent` without a custom factory? The same options go through its `providerOptions` — see [Advanced Configuration](/advanced-configuration#provider-specific-options).
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 </Tab>
 <Tab value="TanStack AI">
 <Callout type="warn">
@@ -337,10 +370,19 @@ const agent = new BuiltInAgent({
   factory: ({ input, abortController }) => {
     const { messages, systemPrompts } = convertInputToTanStackAI(input);
     return chat({
+<<<<<<< HEAD
       adapter: anthropicText("claude-sonnet-4"),
       messages,
       systemPrompts,
       modelOptions: { thinking: { type: "enabled", budgetTokens: 10000 } },
+=======
+      adapter: anthropicText("claude-sonnet-4-6"),
+      messages,
+      systemPrompts,
+      modelOptions: {
+        thinking: { type: "adaptive", display: "summarized" },
+      },
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
       abortController,
     });
   },
@@ -474,8 +516,13 @@ const agent = new BuiltInAgent({
     const { messages, systemPrompts } = convertInputToTanStackAI(input);
 
     const adapter =
+<<<<<<< HEAD
       props.model === "anthropic/claude-sonnet-4"
         ? anthropicText("claude-sonnet-4")
+=======
+      props.model === "anthropic/claude-sonnet-4-6"
+        ? anthropicText("claude-sonnet-4-6")
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
         : openaiText((props.model as string) ?? "gpt-4o");
 
     const modelOptions: Record<string, unknown> = {};
@@ -499,11 +546,30 @@ Forward properties from the frontend provider:
 
 
 ```tsx title="app/page.tsx"
+<<<<<<< HEAD
 <CopilotKit properties={{ model: "anthropic/claude-sonnet-4", temperature: 0.3 }}>
+=======
+<CopilotKit
+  properties={{ model: "anthropic/claude-sonnet-4-6", temperature: 0.3 }}
+  useSingleEndpoint={false}
+>
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
   <CopilotChat />
 </CopilotKit>
 ```
 
+<<<<<<< HEAD
+=======
+<Callout type="info" title="About the explicit useSingleEndpoint">
+  The route above serves multi-route, the default. `<CopilotKitProvider>`
+  negotiates the transport when the prop is omitted, but every released
+  `<CopilotKit>` still pins it to `true` internally — which selects the
+  single-route transport and 404s against a multi-route route. Keep the
+  `{false}`. See
+  [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+</Callout>
+
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 
 
 

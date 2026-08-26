@@ -81,11 +81,19 @@ const agent = new BuiltInAgent({
 ```
 
 ```typescript
+<<<<<<< HEAD
 // Anthropic with extended thinking
 const agent = new BuiltInAgent({
   model: "anthropic:claude-sonnet-4-5",
   providerOptions: { // [!code highlight:3]
     anthropic: { thinking: { type: "enabled", budgetTokens: 10000 } },
+=======
+// Anthropic with adaptive thinking
+const agent = new BuiltInAgent({
+  model: "anthropic:claude-sonnet-4-6",
+  providerOptions: { // [!code highlight:3]
+    anthropic: { thinking: { type: "adaptive" }, effort: "high" },
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
   },
 });
 ```
