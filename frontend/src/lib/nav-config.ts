@@ -81,6 +81,44 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    title: "Rich Threads",
+    routes: [
+      {
+        path: "/prebuilt-components/copilot-threads-drawer",
+        hasDemo: true,
+        title: "Threads Drawer",
+        docPath: "/prebuilt-components/copilot-threads-drawer",
+        summary:
+          "The prebuilt conversation sidebar: list, switch, start, archive, delete — with no thread state of your own.",
+        status: "working",
+        statusNote:
+          "Needs INTELLIGENCE_API_KEY for real rows and COPILOTKIT_LICENSE_TOKEN to unlock the UI. Without the second it renders its locked Upgrade view even when threads work.",
+      },
+      {
+        path: "/headless-threads",
+        hasDemo: true,
+        title: "Headless Threads",
+        docPath: "/headless-threads",
+        summary:
+          "The same thread data through useThreads, with a hand-built list — including rename, which the drawer omits.",
+        status: "working",
+        statusNote:
+          "Not license-gated, so it lists threads whenever the runtime serves them. Rows persist only in Intelligence mode.",
+      },
+      {
+        path: "/threads-lifecycle",
+        hasDemo: true,
+        title: "Thread & History Lifecycle",
+        docPath: "/threads-lifecycle",
+        summary:
+          "Where a threadId comes from, and what setActiveThreadId's explicit flag changes about replay.",
+        status: "working",
+        statusNote:
+          "The precedence rules and the prop-vs-setter split work in either runtime mode; only persistence needs Intelligence.",
+      },
+    ],
+  },
+  {
     title: "Custom Look and Feel",
     routes: [
       {

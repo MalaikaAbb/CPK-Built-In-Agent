@@ -107,6 +107,17 @@ export default function Page() {
         </div>
       </Panel>
 
+      <Callout tone="warn" title="Intelligence mode takes the runner away">
+        <code>runner</code> is an option on the <em>SSE</em> runtime only —{" "}
+        <code>CopilotRuntimeOptions</code> is a union, and the Intelligence shape
+        has no such field. So the moment{" "}
+        <code>INTELLIGENCE_API_KEY</code> is set, this repo&apos;s runtime stops
+        passing <code>MyRunner</code> and the call log below goes quiet: the
+        platform&apos;s <code>IntelligenceAgentRunner</code> is doing the work
+        instead. That is the trade the page describes as the fix for the
+        in-memory default, seen from the other side.
+      </Callout>
+
       <Callout tone="warn" title="The in-memory default is a deployment decision">
         History dies with the process and is not shared between instances, so two
         replicas behind a load balancer cannot re-attach to each other&apos;s runs.

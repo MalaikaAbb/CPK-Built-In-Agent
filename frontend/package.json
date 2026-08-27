@@ -10,12 +10,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ag-ui/client": "^0.0.57",
-    "@ag-ui/core": "^0.0.57",
+    "@ag-ui/client": "^0.0.58",
+    "@ag-ui/core": "^0.0.58",
     "@ai-sdk/openai": "^3.0.90",
-    "@copilotkit/react-core": "^1.66.2",
-    "@copilotkit/runtime": "^1.66.2",
-    "@copilotkit/shared": "^1.66.2",
+    "@copilotkit/react-core": "^1.69.2",
+    "@copilotkit/runtime": "^1.69.2",
+    "@copilotkit/shared": "^1.69.2",
     "@tanstack/ai": "^0.43.0",
     "@tanstack/ai-openai": "^0.18.0",
     "ai": "^6.0.0",
