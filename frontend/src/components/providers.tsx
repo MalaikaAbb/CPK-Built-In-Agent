@@ -28,18 +28,32 @@ import { weatherToolRender } from "./weather-tool";
  * afterwards reports "Agent default not found".
  *
  * Passing `false` pins the transport to REST, which is the half of the pairing
- * the Runtime HTTP endpoints page documents from the client side.
+ * the Runtime HTTP endpoints page documents from the client side. The Quickstart
+ * now passes it too — it did not when this harness first hit the bug.
+ *
+ * `headers` carries the identity that `identifyUser` reads on the runtime.
+ * Threads are per-user, so without it every visitor of a deployed copy would
+ * share one history. A real app would derive this from a verified session; a
+ * local harness has none, so it sends a fixed demo identity you can override
+ * with NEXT_PUBLIC_DEMO_USER_ID to watch thread lists diverge.
  */
 
 const RUNTIME_URL = "/api/copilotkit";
 
 const LICENSE_KEY = process.env.NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY;
 
+const DEMO_USER_ID = process.env.NEXT_PUBLIC_DEMO_USER_ID ?? "harness-local";
+const DEMO_USER_NAME = process.env.NEXT_PUBLIC_DEMO_USER_NAME ?? "Harness User";
+
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <CopilotKit
       runtimeUrl={RUNTIME_URL}
       useSingleEndpoint={false}
+      headers={{
+        "x-user-id": DEMO_USER_ID,
+        "x-user-name": DEMO_USER_NAME,
+      }}
       {...(LICENSE_KEY ? { publicLicenseKey: LICENSE_KEY } : {})}
       renderToolCalls={[weatherToolRender]}
       onError={(event) => {
