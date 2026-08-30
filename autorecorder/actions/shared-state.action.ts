@@ -4,115 +4,88 @@ import { type PageActionHandler, type PageRecordConfig } from '../core/types';
 import { promptsFor, sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
 
 /**
- * The two Shared State pages, which share one agent and one state model.
+ * `agent.state` written from both ends, in the order that makes the difference
+ * legible.
  *
- * `language_agent` is built with `deps_type=StateDeps[AgentState]`, and its
- * `@agent.instructions()` interpolates `ctx.deps.state.language` on every run.
- * That is what makes either direction observable: the state does not just sit
- * in a panel, it changes the language the agent answers in.
+ * The demo seeds `{ todos, userPreferences }` on mount -- the built-in agent
+ * only offers itself the AG-UI state tools when a run arrives with a non-empty
+ * state object, so the seed is what turns the feature on at all.
+ *
+ * Three steps, and each proves a different direction:
+ *
+ * 1. The agent writes. "Add a task..." makes it call the state tool, and the
+ *    todo list on the left fills in without the page doing anything.
+ * 2. The browser writes. Clicking "Dark Mode" is `agent.setState` straight from
+ *    React -- no run, no agent involvement, just the readout flipping.
+ * 3. The agent reads that back. Asking which theme is selected can only be
+ *    answered from state the button wrote a moment earlier, which is the half a
+ *    prompt-only recording never showed.
  */
 
-/** The `Language: <value>` readout in the left pane. */
-const LANGUAGE_READOUT = 'p:has-text("Language:")';
+/** The `Current: <theme>` readout under the Settings heading. */
+const THEME_READOUT = 'p:has-text("Current:")';
 
-async function restOnStatePanel(page: Page): Promise<void> {
-  const readout = page.locator(LANGUAGE_READOUT).first();
-  const box = await readout.boundingBox().catch(() => null);
+/** The seeded + agent-written todo list. */
+const TODO_LIST = 'h2:text-is("My Todos")';
+
+async function restOn(page: Page, selector: string, fallback: [number, number]): Promise<void> {
+  const box = await page.locator(selector).first().boundingBox().catch(() => null);
   if (box) {
-    await humanGlide(page, box.x + box.width / 2, box.y + box.height / 2, 22);
+    await humanGlide(page, box.x + Math.min(box.width / 2, 220), box.y + box.height / 2, 22);
   } else {
-    await humanGlide(page, 420, 220, 22);
+    await humanGlide(page, fallback[0], fallback[1], 22);
   }
   await sleep(2000);
 }
 
-/**
- * Reading: ask the agent to switch language, watch `agent.state` follow, then
- * ask something neutral to prove the agent is now answering in that language.
- */
-export const runSharedStateReadAction: PageActionHandler = async (
+export const runSharedStateAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
 ) => {
   const prompts = promptsFor(config);
 
-  for (let i = 0; i < prompts.length; i++) {
-    console.log(`   [Shared State read] ${i + 1}/${prompts.length}: "${prompts[i]}"`);
-    const msgCount = await sendPrompt(page, prompts[i], {
-      timeoutMs: i === 0 ? 12000 : 8000,
-    });
-    await waitForAgentResponseCompletion(
-      page,
-      config.waitAfterPromptMs ?? 4000,
-      msgCount,
-    );
+  // ── 1. The agent writes state ─────────────────────────────────────────────
+  console.log(`   [Shared State] 1/3: "${prompts[0]}" -- the agent writes agent.state...`);
+  const firstCount = await sendPrompt(page, prompts[0], { timeoutMs: 12000 });
+  await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 3000, firstCount);
 
-    // After the first turn the panel should have flipped -- show it before the
-    // follow-up, which is the turn that proves the agent read it back.
-    if (i === 0) {
-      console.log(`   Showing the updated agent.state panel...`);
-      await restOnStatePanel(page);
-    }
-  }
+  console.log(`   Showing the todo list the agent just wrote into...`);
+  await restOn(page, TODO_LIST, [300, 200]);
 
-  await restOnStatePanel(page);
-};
-
-/**
- * Writing: both doc variants, in the order that makes the difference legible.
- *
- * `Toggle Language` writes state and stops -- the agent only notices on its
- * next turn, so a prompt has to follow it. `Toggle & re-run` writes, appends a
- * hint message and calls `runAgent` itself, so a reply arrives with nothing
- * typed at all. Recording only one of them would not show what separates them.
- */
-export const runSharedStateWriteAction: PageActionHandler = async (
-  page: Page,
-  config: PageRecordConfig,
-) => {
-  // ── Variant 1: setState alone, then a prompt to observe it ────────────────
-  console.log(`   [Shared State write] 1/2: agent.setState via "Toggle Language"...`);
-  const toggle = page.locator('button:text-is("Toggle Language")').first();
-  await toggle.waitFor({ state: 'visible', timeout: 15000 });
-  const tBox = await toggle.boundingBox();
-  if (tBox) {
-    await humanGlide(page, tBox.x + tBox.width / 2, tBox.y + tBox.height / 2, 20);
+  // ── 2. The browser writes state ───────────────────────────────────────────
+  console.log(`   [Shared State] 2/3: clicking "Dark Mode" -- agent.setState from React...`);
+  const darkMode = page.locator('button:text-is("Dark Mode")').first();
+  await darkMode.waitFor({ state: 'visible', timeout: 10000 });
+  const dBox = await darkMode.boundingBox();
+  if (dBox) {
+    await humanGlide(page, dBox.x + dBox.width / 2, dBox.y + dBox.height / 2, 20);
     await humanClick(page);
   } else {
-    await toggle.click();
+    await darkMode.click();
   }
-  await sleep(1200);
-  await restOnStatePanel(page);
+  await sleep(1000);
 
-  console.log(`   Prompting so the agent picks the new language up...`);
-  const msgCount = await sendPrompt(page, config.prompt, { timeoutMs: 12000 });
-  await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 4000, msgCount);
-
-  // ── Variant 2: setState + hint message + explicit re-run ──────────────────
-  console.log(`   [Shared State write] 2/2: "Toggle & re-run" -- no typing at all...`);
-  const toggleAndRun = page.locator('button:has-text("re-run")').first();
-  if (!(await toggleAndRun.isVisible({ timeout: 5000 }).catch(() => false))) {
+  // The readout is the cheap confirmation; the raw pane below it is the proof.
+  const theme = await page
+    .locator(THEME_READOUT)
+    .first()
+    .textContent()
+    .catch(() => null);
+  if (!theme?.toLowerCase().includes('dark')) {
     throw new Error(
-      'The "Toggle & re-run" button is missing: the advanced variant from the ' +
-        'doc page is not rendered, so only half of this page was recorded.',
+      `Clicking "Dark Mode" did not update agent.state: the readout still says ` +
+        `"${(theme ?? '').trim()}".`,
     );
   }
+  console.log(`   ✅ ${theme.trim()}`);
+  await restOn(page, THEME_READOUT, [300, 420]);
+  await restOn(page, 'pre', [300, 560]);
 
-  // Count before clicking -- the button drives the run itself, so there is no
-  // sendPrompt to hand a baseline back.
-  const before = await page
-    .locator('.copilotKitAssistantMessage, [data-message-role="assistant"]')
-    .count()
-    .catch(() => 0);
+  // ── 3. The agent reads it back ────────────────────────────────────────────
+  const followUp = prompts[1] ?? 'Which theme is currently selected?';
+  console.log(`   [Shared State] 3/3: "${followUp}" -- the agent reads the new state...`);
+  const secondCount = await sendPrompt(page, followUp, { timeoutMs: 8000 });
+  await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 3000, secondCount);
 
-  const rBox = await toggleAndRun.boundingBox();
-  if (rBox) {
-    await humanGlide(page, rBox.x + rBox.width / 2, rBox.y + rBox.height / 2, 20);
-    await humanClick(page);
-  } else {
-    await toggleAndRun.click();
-  }
-
-  await restOnStatePanel(page);
-  await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 4000, before);
+  await restOn(page, 'pre', [300, 560]);
 };

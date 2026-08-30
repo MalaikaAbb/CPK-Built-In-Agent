@@ -105,14 +105,14 @@ export class RecordingEngine {
     };
 
     const browser = await chromium.launch({
-      headless: false,
-      args: [
-        '--start-maximized',
-        '--force-dark-mode',
-        '--background-color=#1e1e1e',
-      ],
-    });
-
+  channel: "chrome",
+  headless: false,
+  args: [
+    "--start-maximized",
+    "--force-dark-mode",
+    "--background-color=#1e1e1e",
+  ],
+});
     const context = await browser.newContext({
       viewport: { width: 1920, height: 1080 },
       colorScheme: 'dark',

@@ -14,11 +14,17 @@
  * ── How this map was built ─────────────────────────────────────────────────
  * A specialised handler is wired only where this repo's demo page actually
  * contains the DOM that handler drives — the tab labels it clicks, the
- * placeholder it types into, the button it presses. Pages that look similar but
- * render differently are deliberately left on `runStandardAction` rather than
- * wired optimistically, because a handler pointed at the wrong DOM fails the
- * run. Unwired handler files are kept: they are the closest starting point when
- * one of those pages does need driving.
+ * placeholder it types into, the button it presses. Each entry below was
+ * written against that page's own markup rather than adapted from a page that
+ * merely looked similar, because a handler pointed at the wrong DOM fails the
+ * run. Two handler files are deliberately left unwired — `state-rendering` and
+ * `multi-agent-flows` have no route in this repo — and are kept as the closest
+ * starting point if one is ever added.
+ *
+ * A page stays on `runStandardAction` only when typing one prompt into one chat
+ * box really is the whole of it. Anything with tabs, a Run button, an approval
+ * gate or a panel to press gets a handler: without one those controls are never
+ * touched, and the page reports [PASS] with half its surface unexercised.
  *
  * Handlers should build on the helpers in `core/actions.ts`:
  *
@@ -39,12 +45,21 @@ import { type Page } from 'playwright';
 
 import { waitForPageReady } from './page-ready';
 
+import { runAdvancedConfigurationAction } from './advanced-configuration.action';
 import { runAgUiAction } from './ag-ui.action';
+import { runAuthAction } from './auth.action';
+import { runCustomAgentAction } from './custom-agent.action';
 import { runDisplayOnlyAction } from './display-only.action';
 import { runFrontendToolsAction } from './frontend-tools.action';
 import { runHeadlessUiAction } from './headless-ui.action';
 import { runInspectorAction } from './inspector.action';
+import { runInteractiveAction } from './interactive.action';
+import { runModelSelectionAction } from './model-selection.action';
 import { runPrebuiltAction } from './prebuilt.action';
+import { runProgrammaticAction } from './programmatic.action';
+import { runRuntimeAction } from './runtime.action';
+import { runRuntimeEndpointsAction } from './runtime-endpoints.action';
+import { runSharedStateAction } from './shared-state.action';
 import { runSlotsAction } from './slots.action';
 import { runToolRenderingAction } from './tool-rendering.action';
 
@@ -53,11 +68,20 @@ export const ACTION_MAP: Record<string, PageActionHandler> = {
   "prebuilt-components": runPrebuiltAction,
   "custom-look-and-feel-slots": runSlotsAction,
   "custom-look-and-feel-headless-ui": runHeadlessUiAction,
+  "programmatic-control": runProgrammaticAction,
   "inspector": runInspectorAction,
   "generative-ui-your-components-display-only": runDisplayOnlyAction,
+  "generative-ui-your-components-interactive": runInteractiveAction,
   "generative-ui-tool-rendering": runToolRenderingAction,
   "frontend-tools": runFrontendToolsAction,
+  "shared-state": runSharedStateAction,
+  "model-selection": runModelSelectionAction,
+  "advanced-configuration": runAdvancedConfigurationAction,
+  "backend-copilot-runtime": runRuntimeAction,
+  "backend-runtime-endpoints": runRuntimeEndpointsAction,
+  "backend-custom-agent": runCustomAgentAction,
   "backend-ag-ui": runAgUiAction,
+  "auth": runAuthAction,
 };
 
 export async function executePageAction(

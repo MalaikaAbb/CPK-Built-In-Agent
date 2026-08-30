@@ -56,8 +56,16 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/prebuilt-components/demo-chat/page.tsx",
     startLine: 28,
     endLine: 62,
+    // One per tab: CopilotChat, then CopilotSidebar, then CopilotPopup. The
+    // three share the provider, so asking something different in each also
+    // shows the conversation carrying across the swap.
     prompt: "Can you tell me a joke?",
-    waitAfterPromptMs: 4000,
+    prompts: [
+      "Can you tell me a joke?",
+      "Now give me one fun fact about the ocean.",
+      "And one short travel tip, please.",
+    ],
+    waitAfterPromptMs: 2500,
   },
   {
     id: "custom-look-and-feel-slots",
@@ -92,7 +100,9 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/programmatic-control/demo-chat/page.tsx",
     startLine: 15,
     endLine: 81,
-    prompt: "Can you tell me a joke?",
+    // Sent by clicking "Run Agent", not by a chat submit. `renderingAgent`
+    // carries `get_weather`, so this also exercises the page's tool renderer.
+    prompt: "What's the weather in Tokyo?",
     waitAfterPromptMs: 4000,
   },
   {
@@ -116,7 +126,7 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/generative-ui/your-components/display-only/demo-chat/page.tsx",
     startLine: 38,
     endLine: 53,
-    prompt: "Display a weather card for a city.",
+    prompt: "Show the weather card for Tokyo, 77 degrees and clear.",
     waitAfterPromptMs: 4000,
   },
   {
@@ -128,7 +138,7 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/generative-ui/your-components/interactive/demo-chat/page.tsx",
     startLine: 23,
     endLine: 45,
-    prompt: "Ask human for approval to run a command.",
+    prompt: "Run the command rm -rf /tmp/cache, and ask me to approve it first.",
     waitAfterPromptMs: 4000,
   },
   {
@@ -152,7 +162,7 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/frontend-tools/demo-chat/page.tsx",
     startLine: 19,
     endLine: 29,
-    prompt: "Say hello to the user.",
+    prompt: "Say hello to Damien.",
     waitAfterPromptMs: 4000,
   },
   {
@@ -164,8 +174,14 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/shared-state/demo-chat/page.tsx",
     startLine: 25,
     endLine: 29,
-    prompt: "Switch to Spanish",
-    waitAfterPromptMs: 4000,
+    // Turn 1 makes the agent write state; the handler then flips the theme from
+    // the UI and turn 2 makes the agent read that back.
+    prompt: "Add a task to buy groceries.",
+    prompts: [
+      "Add a task to buy groceries.",
+      "Which theme is currently selected?",
+    ],
+    waitAfterPromptMs: 3000,
   },
   {
     id: "agent-app-context",
@@ -176,7 +192,7 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/agent-app-context/demo-chat/page.tsx",
     startLine: 29,
     endLine: 38,
-    prompt: "Can you tell me a joke?",
+    prompt: "What is my name, and what is my role?",
     waitAfterPromptMs: 4000,
   },
   {
@@ -188,7 +204,7 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/server-tools/demo-chat/page.tsx",
     startLine: 18,
     endLine: 31,
-    prompt: "Can you tell me a joke?",
+    prompt: "What's the weather in Lisbon?",
     waitAfterPromptMs: 4000,
   },
   {
@@ -200,8 +216,14 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/model-selection/demo-chat/page.tsx",
     startLine: 23,
     endLine: 53,
-    prompt: "Can you tell me a joke?",
-    waitAfterPromptMs: 4000,
+    // Both turns are replayed against every provider tab, so what changes on
+    // screen is the provider rather than the question.
+    prompt: "Which model are you running on?",
+    prompts: [
+      "Which model are you running on?",
+      "Now tell me a joke.",
+    ],
+    waitAfterPromptMs: 2000,
   },
   {
     id: "advanced-configuration",
@@ -212,8 +234,18 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/advanced-configuration/demo-chat/page.tsx",
     startLine: 47,
     endLine: 51,
-    prompt: "Can you tell me a joke?",
-    waitAfterPromptMs: 4000,
+    // One per preset, in the page's own order. The middle two ask the same
+    // question so the only variable between them is the forwarded prop; the
+    // last one asks for length, because the point of that preset is that its
+    // 12-token cap is ignored.
+    prompt: "Which model are you running on?",
+    prompts: [
+      "Which model are you running on?",
+      "Do you sell replacement widgets?",
+      "Do you sell replacement widgets?",
+      "Explain your return policy in detail.",
+    ],
+    waitAfterPromptMs: 2500,
   },
   {
     id: "backend-copilot-runtime",
@@ -224,8 +256,9 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/backend/copilot-runtime/demo-chat/page.tsx",
     startLine: 30,
     endLine: 64,
+    // Ten agent ids get this same question, so the pause after each is short.
     prompt: "Can you tell me a joke?",
-    waitAfterPromptMs: 4000,
+    waitAfterPromptMs: 1500,
   },
   {
     id: "backend-runtime-endpoints",
@@ -248,8 +281,13 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/backend/custom-agent/demo-chat/page.tsx",
     startLine: 47,
     endLine: 81,
+    // One per factory tab: AI SDK, then TanStack AI.
     prompt: "Can you tell me a joke?",
-    waitAfterPromptMs: 4000,
+    prompts: [
+      "Can you tell me a joke?",
+      "Write two sentences about tide pools.",
+    ],
+    waitAfterPromptMs: 2500,
   },
   {
     id: "backend-agent-runner",
@@ -284,7 +322,8 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/auth/demo-chat/page.tsx",
     startLine: 28,
     endLine: 62,
+    // Sent from all three token tabs. Two of them are meant to never answer it.
     prompt: "Can you tell me a joke?",
-    waitAfterPromptMs: 4000,
+    waitAfterPromptMs: 3000,
   },
 ]);

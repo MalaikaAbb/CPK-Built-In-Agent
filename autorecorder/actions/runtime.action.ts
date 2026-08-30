@@ -1,31 +1,63 @@
 import { type Page } from 'playwright';
 import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
 import { type PageActionHandler, type PageRecordConfig } from '../core/types';
-import { promptsFor, sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
+import { getAssistantMessageCount, sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
 import { waitForDomSettled } from './page-ready';
 
 /**
- * This app registers four agent ids -- `default`, `my_agent`, `weather_agent`
- * and `language_agent` -- and they are not interchangeable: `default` is an
- * alias for the tool-less quickstart agent, while `weather_agent` carries a
- * real `get_weather` tool (see `api/copilotkit/route.ts` and
- * `backend/agents/__init__.py`). The demo renders one button per id, labelled
- * with the id itself, and remounts the chat on switch so each carries its own
- * conversation.
+ * Every id in the runtime's routing table, asked the same question.
  *
- * Two ids are driven rather than all four: the point is that routing actually
- * changes which agent answers, and `default` vs `weather_agent` shows that in
- * one question -- prose from the first, a tool call from the second. Recording
- * four near-identical turns would only make the video longer.
+ * `agents: { … }` is a map and `agentId` is the key into it, so the thing worth
+ * recording is that all ten keys resolve -- including the two factory-mode
+ * agents and the three per-provider ones, which reach entirely different code
+ * paths inside the runtime. An id that is not in the table fails the run rather
+ * than falling back to `default`, so a typo'd key shows up here as a page that
+ * never answers.
+ *
+ * The second half is the part the switcher exists for. `CopilotChat` carries no
+ * `key` prop, deliberately: switching ids swaps `agentId` on one mounted
+ * component instead of remounting it, and messages live on the agent inside the
+ * CopilotKit core rather than in React state. So going back to an id already
+ * asked should still show its answer -- that is checked, not just filmed, by
+ * counting the assistant messages after the switch.
+ *
+ * Because each id owns its own transcript, the message count restarts on every
+ * switch; each turn reads its baseline fresh rather than carrying a total over.
  */
-const AGENT_IDS = ['default', 'weather_agent'] as const;
+const AGENT_IDS = [
+  'default',
+  'serverToolsAgent',
+  'renderingAgent',
+  'advancedAgent',
+  'sharedStateAgent',
+  'openAiAgent',
+  'googleAgent',
+  'anthropicAgent',
+  'aiSdkAgent',
+  'tanStackAgent',
+] as const;
+
+/** Ids revisited at the end to show their transcripts survived the switching. */
+const REVISIT = ['default', 'renderingAgent'] as const;
+
+async function selectAgent(page: Page, agentId: string): Promise<void> {
+  const tab = page.locator(`button:text-is("${agentId}")`).first();
+  await tab.waitFor({ state: 'visible', timeout: 10000 });
+  const box = await tab.boundingBox();
+  if (box) {
+    await humanGlide(page, box.x + box.width / 2, box.y + box.height / 2, 18);
+    await humanClick(page);
+  } else {
+    await tab.click();
+  }
+  await sleep(350);
+  await waitForDomSettled(page, { settleMs: 600 });
+}
 
 export const runRuntimeAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
 ) => {
-  const prompts = promptsFor(config);
-
   for (let i = 0; i < AGENT_IDS.length; i++) {
     const agentId = AGENT_IDS[i];
     console.log(
@@ -33,34 +65,33 @@ export const runRuntimeAction: PageActionHandler = async (
     );
 
     // The first id is already selected on load; only later ones need a click.
-    if (i > 0) {
-      const tab = page.locator(`button:text-is("${agentId}")`).first();
-      if (await tab.isVisible({ timeout: 4000 }).catch(() => false)) {
-        const box = await tab.boundingBox();
-        if (box) {
-          await humanGlide(page, box.x + box.width / 2, box.y + box.height / 2, 20);
-          await humanClick(page);
-        } else {
-          await tab.click();
-        }
-        // The chat remounts on `key={agentId}`; wait for that to finish rather
-        // than guessing at how long it takes.
-        await sleep(400);
-        await waitForDomSettled(page, { settleMs: 800 });
-      }
-    }
+    if (i > 0) await selectAgent(page, agentId);
 
-    const prompt = prompts[i] ?? prompts[prompts.length - 1];
-    // A remount empties the message list, so the count restarts at 0 each time
-    // -- read it fresh rather than carrying the previous id's total over.
-    const msgCount = await sendPrompt(page, prompt, { timeoutMs: i === 0 ? 12000 : 8000 });
+    const msgCount = await sendPrompt(page, config.prompt, {
+      timeoutMs: i === 0 ? 12000 : 8000,
+    });
     await waitForAgentResponseCompletion(
       page,
-      config.waitAfterPromptMs ?? 2000,
+      config.waitAfterPromptMs ?? 1500,
       msgCount,
     );
   }
 
-  await humanGlide(page, 960, 300, 25);
-  await sleep(1500);
+  // ── Does each id still hold what it was told? ─────────────────────────────
+  for (const agentId of REVISIT) {
+    console.log(`   [Copilot Runtime] revisiting "${agentId}" -- transcript still there?`);
+    await selectAgent(page, agentId);
+    await sleep(800);
+
+    const kept = await getAssistantMessageCount(page);
+    if (kept === 0) {
+      throw new Error(
+        `Switching back to "${agentId}" showed an empty transcript: the per-agent ` +
+          'message history did not survive the id swap.',
+      );
+    }
+    console.log(`   ✅ "${agentId}" still shows ${kept} assistant message(s).`);
+    await humanGlide(page, 960, 420, 22);
+    await sleep(1800);
+  }
 };

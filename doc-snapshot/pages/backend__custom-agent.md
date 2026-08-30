@@ -30,7 +30,7 @@ You have an existing LLM backend and you want a CopilotKit copilot using it. Pic
 ```typescript title="src/copilotkit.ts"
 import {
   CopilotRuntime,
-  createCopilotEndpoint,
+  createCopilotRuntimeHandler,
   InMemoryAgentRunner,
   BuiltInAgent,
   convertMessagesToVercelAISDKMessages,
@@ -64,7 +64,7 @@ export default copilotEndpoint;
 ```typescript title="src/copilotkit.ts"
 import {
   CopilotRuntime,
-  createCopilotEndpoint,
+  createCopilotRuntimeHandler,
   InMemoryAgentRunner,
   BuiltInAgent,
   convertInputToTanStackAI,
@@ -101,7 +101,7 @@ export default copilotEndpoint;
 ```typescript title="src/copilotkit.ts"
 import {
   CopilotRuntime,
-  createCopilotEndpoint,
+  createCopilotRuntimeHandler,
   InMemoryAgentRunner,
   BuiltInAgent,
 } from "@copilotkit/runtime/v2";
@@ -311,7 +311,7 @@ const agent = new BuiltInAgent({
   type: "aisdk",
   factory: ({ input, abortSignal }) =>
     streamText({
-      model: anthropic("claude-sonnet-4", {
+      model: anthropic("claude-sonnet-4-6", {
         thinking: { type: "enabled", budgetTokens: 10000 },
       }),
       messages: convertMessagesToVercelAISDKMessages(input.messages),
@@ -337,7 +337,7 @@ const agent = new BuiltInAgent({
   factory: ({ input, abortController }) => {
     const { messages, systemPrompts } = convertInputToTanStackAI(input);
     return chat({
-      adapter: anthropicText("claude-sonnet-4"),
+      adapter: anthropicText("claude-sonnet-4-6"),
       messages,
       systemPrompts,
       modelOptions: { thinking: { type: "enabled", budgetTokens: 10000 } },
@@ -474,8 +474,8 @@ const agent = new BuiltInAgent({
     const { messages, systemPrompts } = convertInputToTanStackAI(input);
 
     const adapter =
-      props.model === "anthropic/claude-sonnet-4"
-        ? anthropicText("claude-sonnet-4")
+      props.model === "anthropic/claude-sonnet-4-6"
+        ? anthropicText("claude-sonnet-4-6")
         : openaiText((props.model as string) ?? "gpt-4o");
 
     const modelOptions: Record<string, unknown> = {};
@@ -499,10 +499,22 @@ Forward properties from the frontend provider:
 
 
 ```tsx title="app/page.tsx"
-<CopilotKit properties={{ model: "anthropic/claude-sonnet-4", temperature: 0.3 }}>
+<CopilotKit
+  properties={{ model: "anthropic/claude-sonnet-4-6", temperature: 0.3 }}
+  useSingleEndpoint={false}
+>
   <CopilotChat />
 </CopilotKit>
 ```
+
+<Callout type="info" title="About the explicit useSingleEndpoint">
+  The route above serves multi-route, the default. `<CopilotKitProvider>`
+  negotiates the transport when the prop is omitted, but every released
+  `<CopilotKit>` still pins it to `true` internally — which selects the
+  single-route transport and 404s against a multi-route route. Keep the
+  `{false}`. See
+  [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+</Callout>
 
 
 
