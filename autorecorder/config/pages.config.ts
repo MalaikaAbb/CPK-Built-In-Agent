@@ -28,9 +28,44 @@
  * markers it also checks the range still covers one.
  */
 
-import { definePages } from '../core/types';
+import { definePages, type IdeTabConfig, type PageDefinition } from '../core/types';
 
-export const PAGES = definePages([
+/**
+ * Every recording ends on the dependency list.
+ *
+ * The IDE step shows the code a page teaches, which answers "how is this
+ * written" but never "against which version" -- and for a harness that exists
+ * to catch the docs drifting away from the packages, that second question is
+ * half the point. A clip of an API that has since been renamed looks identical
+ * to a clip of one that still works, unless the versions are on screen too.
+ *
+ * So `frontend/package.json` is appended as a final tab to every page rather
+ * than repeated in each entry, and the highlight covers the whole
+ * `dependencies` block: the `@copilotkit/*` line-up, the AG-UI client, the two
+ * model-router SDKs, and the Next/React pair they all run on.
+ *
+ * Pages that already show the file are skipped rather than given it twice --
+ * Quickstart opens on it, because there the install list *is* the lesson.
+ */
+const PACKAGE_JSON = 'frontend/package.json';
+
+const PACKAGE_JSON_TAB: IdeTabConfig = {
+  filePath: PACKAGE_JSON,
+  startLine: 12,
+  endLine: 30,
+};
+
+function withPackageJson(defs: PageDefinition[]): PageDefinition[] {
+  return defs.map((def) => {
+    const alreadyShown =
+      def.ideFile === PACKAGE_JSON ||
+      (def.extraTabs ?? []).some((tab) => tab.filePath === PACKAGE_JSON);
+    if (alreadyShown) return def;
+    return { ...def, extraTabs: [...(def.extraTabs ?? []), PACKAGE_JSON_TAB] };
+  });
+}
+
+const PAGE_DEFS: PageDefinition[] = [
   {
     id: "quickstart",
     name: "Getting Started - Quickstart",
@@ -326,4 +361,6 @@ export const PAGES = definePages([
     prompt: "Can you tell me a joke?",
     waitAfterPromptMs: 3000,
   },
-]);
+];
+
+export const PAGES = definePages(withPackageJson(PAGE_DEFS));
