@@ -9,7 +9,7 @@ A navigable, working test harness for CopilotKit's **built-in agent** — each d
 | **AG-UI packages** | `@ag-ui/client` 0.0.57 · `@ag-ui/core` 0.0.57 |
 | **Model routers** | `ai` 6.0.242 · `@ai-sdk/openai` 3.0.90 · `@tanstack/ai` 0.43.0 · `@tanstack/ai-openai` 0.18.0 |
 | **Frontend** | Next.js 16.3.0 (App Router) · React 19.2 · TypeScript 5 · Tailwind 4 |
-| **Build status** | No CI. Verified locally: `next build` ✅ (48 routes) · lint ✅ 0 errors, 13 warnings (unused imports left by trimmed callouts, plus the doc samples unused bindings) · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200, and transcripts survive tab switches ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
+| **Build status** | No CI. Verified locally: `next build` ✅ (55 routes) · lint ✅ 0 errors, 21 warnings (unused imports left by trimmed callouts, plus the doc samples' unused bindings) · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200; with Intelligence keyed, `/info` reports `mode: "intelligence"` + `licenseStatus: "valid"` and all three Rich Threads routes were exercised end to end (drawer unlocked and auto-named a thread, headless rename applied, `explicit` replay verified) ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
 
 ---
 
@@ -17,7 +17,7 @@ A navigable, working test harness for CopilotKit's **built-in agent** — each d
 
 CopilotKit's **built-in agent** is the one integration in this family with no third-party agent framework in it. `BuiltInAgent`, from `@copilotkit/runtime/v2`, *is* the agent: it owns the model call, the tool loop, MCP, and the AG-UI state tools, and it runs inside the Next.js process.
 
-This repo covers a **scoped set of 21 doc pages** (§8) — every page listed in §12 — as one navigable Next app. Each route implements what its page teaches and shows the exact source that makes it work, read off disk at render time.
+This repo covers a **scoped set of 24 doc pages** (§8) — every page listed in §12 — as one navigable Next app. Each route implements what its page teaches and shows the exact source that makes it work, read off disk at render time.
 
 **Everything comes from the documentation.** No tool, prompt, or config value was invented. Where a doc sample cannot run as written — because it calls a helper the docs never define, or because it does not compile against the shipped types — the sample is shown verbatim and the page says exactly what is wrong with it.
 
@@ -36,7 +36,8 @@ Browser (React 19)
 Next.js 16 App Router  ·  localhost:3000
   │  app/api/copilotkit/[[...slug]]/route.ts
   │    CopilotRuntime (v2)  +  createCopilotRuntimeHandler
-  │    runner: MyRunner extends InMemoryAgentRunner
+  │    intelligence: CopilotKitIntelligence  +  identifyUser   (when keyed)
+  │    runner: MyRunner extends InMemoryAgentRunner            (SSE fallback)
   ▼
 BuiltInAgent × 10  —  in the same process
   │  src/copilotkit/agents.ts
@@ -96,7 +97,10 @@ Then edit `frontend/.env.local`:
 | `OPENAI_API_KEY` | **Required.** Read server-side by `BuiltInAgent`; never exposed to the browser. |
 | `OPENAI_MODEL` | Model id for every agent, and for Agent A on `/model-selection`. Defaults to `openai:gpt-4.1`. |
 | `GOOGLE_API_KEY` / `ANTHROPIC_API_KEY` | Optional. Needed only for Agents B and C on `/model-selection`; that route reports which keys are set and skips the columns whose key is missing. |
-| `GOOGLE_MODEL` / `ANTHROPIC_MODEL` | Optional model ids for those two. Default to `google:gemini-2.5-flash` and `anthropic:claude-sonnet-4.5`. |
+| `GOOGLE_MODEL` / `ANTHROPIC_MODEL` | Optional model ids for those two. Default to `google:gemini-2.5-flash` and `anthropic:claude-sonnet-4-5` (hyphens — see §9.13). |
+| `INTELLIGENCE_API_KEY` | Optional. Turns on CopilotKit Intelligence: `/info` reports `mode: "intelligence"` and threads persist. Without it the runtime falls back to SSE + `MyRunner` and every route still works. |
+| `COPILOTKIT_LICENSE_TOKEN` | Optional, and **separate** from the key above. Sets `/info`'s `licenseStatus`, which is what `<CopilotThreadsDrawer>` gates its locked Upgrade view on. |
+| `NEXT_PUBLIC_DEMO_USER_ID` / `NEXT_PUBLIC_DEMO_USER_NAME` | Optional. The identity the provider sends as `x-user-id`/`x-user-name` for `identifyUser`. Threads are per-user, so changing it gives a different thread list. |
 | `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` | Optional; no route here needs it. |
 
 **Default port:** **3000** — the only one.
@@ -154,6 +158,14 @@ Code on a page is never a re-typed approximation: each page reads real files via
 ### Basics
 
 **`/prebuilt-components`** — `CopilotChat`, `CopilotSidebar`, `CopilotPopup` in tabs. **Try:** say `Hello`, switch tabs, ask `what did I just say?` **Pass:** all three drive the same agent and the conversation survives the switch.
+
+### Rich Threads
+
+**`/prebuilt-components/copilot-threads-drawer`** — The prebuilt sidebar: list, switch, start, archive, delete, with no thread state of your own. **Try:** say `Hello`, then click **New Conversation** and say hello again. **Pass:** two rows in the drawer; clicking the first replays its messages. **Fail:** an **Upgrade** button instead of a list — that is the no-license-token state, *not* a threads failure. Check `/headless-threads` to confirm threads work.
+
+**`/headless-threads`** — The same data through `useThreads`, hand-rendered, including **rename** (the drawer omits it). **Try:** send a message, press **Rename** on the row. **Pass:** the row renames without a reload; Archive greys it, Delete removes it. **Fail:** the list stays empty while chat works — the runtime is in SSE mode; check the home page's Connection panel.
+
+**`/threads-lifecycle`** — Where a `threadId` comes from and what `explicit` changes. **Try:** press **New chat**, then **Open conversation**, then **Set id, no replay**. **Pass:** New chat mints a new id; Open conversation replays history with `explicit: true`; Set id lands on the *same* id with the welcome screen and `explicit: false`. **Fail:** the buttons no-op and warn in the console — a `threadId` prop crept back onto the chat.
 
 ### Custom Look and Feel
 
@@ -214,6 +226,9 @@ Code on a page is never a re-typed approximation: each page reads real files via
 | `/quickstart` | `/` | 📖 Reference | Orientation + agent roster. |
 | `/quickstart` | `/quickstart` | ✅ Working | Runtime route restructured (§9.1); provider needs `useSingleEndpoint={false}` (§9.3). |
 | `/prebuilt-components` | `/prebuilt-components` | ✅ Working | |
+| `/prebuilt-components/copilot-threads-drawer` | `/prebuilt-components/copilot-threads-drawer` | ✅ Working | Verified unlocked with both credentials set; drawer listed and auto-named a real thread. |
+| `/headless-threads` | `/headless-threads` | ✅ Working | `useThreads` list + rename/archive/delete verified against a live runtime. |
+| `/threads-lifecycle` | `/threads-lifecycle` | ✅ Working | `explicit: true` replays history; `explicit: false` keeps the id and shows the welcome screen. Both verified. |
 | `/custom-look-and-feel/slots` | `/custom-look-and-feel/slots` | ✅ Working | **Not in the doc sidebar**; resolves. Sample does not typecheck (§9.5). |
 | `/custom-look-and-feel/headless-ui` | `/custom-look-and-feel/headless-ui` | ✅ Working | **Not in the doc sidebar**; resolves. `msg.content` does not typecheck (§9.7). |
 | `/programmatic-control` | `/programmatic-control` | ✅ Working | `defineToolCallRenderer` needed an `args` schema (§9.4). |
@@ -416,6 +431,8 @@ built-in-agent/
 
 **Basics** — [Prebuilt Components](https://docs.copilotkit.ai/prebuilt-components)
 
+**Rich Threads** — [Threads Drawer](https://docs.copilotkit.ai/prebuilt-components/copilot-threads-drawer) · [Headless Threads](https://docs.copilotkit.ai/headless-threads) · [Thread & History Lifecycle](https://docs.copilotkit.ai/threads-lifecycle)
+
 **Custom Look and Feel** — [Slots](https://docs.copilotkit.ai/custom-look-and-feel/slots) † · [Headless UI](https://docs.copilotkit.ai/custom-look-and-feel/headless-ui) † · [Programmatic Control](https://docs.copilotkit.ai/programmatic-control) · [Inspector](https://docs.copilotkit.ai/inspector)
 
 **Generative UI** — [Display-only](https://docs.copilotkit.ai/generative-ui/your-components/display-only) † · [Interactive](https://docs.copilotkit.ai/generative-ui/your-components/interactive) † · [Tool Rendering](https://docs.copilotkit.ai/generative-ui/tool-rendering)
@@ -426,7 +443,7 @@ built-in-agent/
 
 **Runtime** — [Copilot Runtime](https://docs.copilotkit.ai/backend/copilot-runtime) · [Runtime HTTP endpoints](https://docs.copilotkit.ai/backend/runtime-endpoints) · [Use any model router](https://docs.copilotkit.ai/backend/custom-agent) · [AgentRunner and persistence](https://docs.copilotkit.ai/backend/agent-runner) · [Connect AG-UI agents](https://docs.copilotkit.ai/backend/ag-ui) · [Authentication](https://docs.copilotkit.ai/auth)
 
-**In the doc sidebar but outside this repo's scope** — MCP Servers · MCP Apps · A2UI · Rich Threads · Self-managed agents · Deploy to any runtime · Anonymous Telemetry · Intelligence Platform
+**In the doc sidebar but outside this repo's scope** — MCP Servers · MCP Apps · A2UI · Synchronize Thread History · Threads & Persistence Architecture · Self-managed agents · Deploy to any runtime · Anonymous Telemetry · Intelligence Platform
 
 **External** — [AG-UI protocol](https://ag-ui.com) · [Vercel AI SDK](https://ai-sdk.dev)
 

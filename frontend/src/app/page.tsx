@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { IntelligenceStatus } from "@/components/intelligence-status";
 import { RouteHeader } from "@/components/route-header";
 import { Callout, KeyValue, Panel, TryIt } from "@/components/ui";
 import { DOCS_ROOT } from "@/lib/nav-config";
@@ -79,6 +80,13 @@ export default function Page() {
             ]}
           />
         </div>
+      </Panel>
+
+      <Panel
+        title="Connection"
+        description="Probed on the server during render, from /api/copilotkit/info — not from whether the env vars happen to be set."
+      >
+        <IntelligenceStatus />
       </Panel>
 
       <Panel
