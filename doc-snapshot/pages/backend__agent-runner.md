@@ -39,7 +39,11 @@ headers and a `joinCode`). The runner owns whatever storage backs those threads.
 |---|---|---|
 | `InMemoryAgentRunner` | `@copilotkit/runtime/v2` | The default v2 runner. Stores thread runs in process memory. Use it for local development, single-instance deployments, or as a base class to extend. |
 | `SqliteAgentRunner` | `@copilotkit/sqlite-runner` | First-party, file-backed durable runner. Persists thread runs to a SQLite file so history survives restarts on a single instance. Requires the `better-sqlite3` peer dependency and a real (non-`:memory:`) `dbPath`. |
+<<<<<<< HEAD
 | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs the Enterprise Intelligence Platform with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
+=======
+| `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 | `TelemetryAgentRunner` | `@copilotkit/runtime` | Legacy wrapper behavior. The root runtime composes telemetry around a runner when telemetry is enabled; `@copilotkit/runtime/v2` does not. |
 
 If you don't pass a `runner`, the runtime uses `InMemoryAgentRunner`. Because it
@@ -48,12 +52,20 @@ the process runs (see [bounding in-memory history](#bounding-in-memory-history))
 and **not shared across instances**. For a restart-resilient single-instance
 deployment, move to the first-party file-backed `SqliteAgentRunner` (from
 `@copilotkit/sqlite-runner`). For horizontal scaling across instances, move to
+<<<<<<< HEAD
 the Enterprise Intelligence Platform's `IntelligenceAgentRunner` or supply your
+=======
+CopilotKit Intelligence's `IntelligenceAgentRunner` or supply your
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 own runner backed by a shared datastore.
 
 ## Choosing a runner
 
+<<<<<<< HEAD
+```ts title="app/api/copilotkit/route.ts"
+=======
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 import { CopilotRuntime, BuiltInAgent, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
 
 const runtime = new CopilotRuntime({
@@ -76,7 +88,11 @@ store. That store is **bounded by default**, so a long-lived server evicts old
 history instead of growing until the Node.js heap is exhausted. Pass limits to
 the constructor when the defaults don't match your workload:
 
+<<<<<<< HEAD
+```ts title="app/api/copilotkit/route.ts"
+=======
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 import { CopilotRuntime, BuiltInAgent, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
 
 const runtime = new CopilotRuntime({
@@ -155,7 +171,11 @@ history is unacceptable, move to a durable backend. The first-party
 SQLite file so history survives restarts on a single instance — install its
 `better-sqlite3` peer dependency and give it a real, non-`:memory:` `dbPath`:
 
+<<<<<<< HEAD
+```ts title="app/api/copilotkit/route.ts"
+=======
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
 import { SqliteAgentRunner } from "@copilotkit/sqlite-runner";
 
@@ -165,8 +185,13 @@ const runtime = new CopilotRuntime({
 });
 ```
 
+<<<<<<< HEAD
 For durability across horizontally scaled instances, move to the Enterprise
 Intelligence Platform's `IntelligenceAgentRunner`, or supply your own runner
+=======
+For durability across horizontally scaled instances, move to CopilotKit
+Intelligence's `IntelligenceAgentRunner`, or supply your own runner
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 backed by a shared datastore.
 
 ## Handling a second run on a busy thread
@@ -231,4 +256,8 @@ sends a message. See the [`/connect` 404 troubleshooting entry](/troubleshooting
 - [Copilot Runtime](/backend/copilot-runtime): configuring the runtime and `runner`.
 - [AWS AgentCore](/deploy/agentcore): a custom runner subclass for an external memory layer.
 - [Common issues](/troubleshooting/common-issues#runtime-memory-keeps-growing-or-the-process-runs-out-of-heap): diagnosing runtime memory growth and eviction warnings.
+<<<<<<< HEAD
 - [Self-Hosting Enterprise Intelligence](/premium/self-hosting): the durable, multi-instance `IntelligenceAgentRunner` backend.
+=======
+- [Self-host CopilotKit Intelligence](/premium/self-hosting): the durable, multi-instance `IntelligenceAgentRunner` backend.
+>>>>>>> f5ec48e (Docs Sync: Aug 26)

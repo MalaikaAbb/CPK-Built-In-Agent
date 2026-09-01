@@ -8,9 +8,26 @@ Holds the 3 most recent dated entries. When a change lands on a fourth
 date, the oldest entry is dropped. Entries are counted, not aged, so a gap of
 weeks between changes does not expire anything.
 
-## 2026-08-25
+<<<<<<< HEAD
+=======
+## 2026-08-26
 
-### 06:00 UTC — 8 pages, highest severity high
+### 09:46 UTC — 10 pages, highest severity high
+
+**High — Advanced Configuration**
+
+`/advanced-configuration` · route `/advanced-configuration` · under “Provider-specific options” · in a `typescript` block
+
+6 code lines changed.
+
+````diff
+- // Anthropic with extended thinking
++ // Anthropic with adaptive thinking
+- model: "anthropic:claude-sonnet-4-5",
++ model: "anthropic:claude-sonnet-4-6",
+- anthropic: { thinking: { type: "enabled", budgetTokens: 10000 } },
++ anthropic: { thinking: { type: "adaptive" }, effort: "high" },
+````
 
 **High — Authentication**
 
@@ -31,13 +48,15 @@ weeks between changes does not expire anything.
 
 **High — AgentRunner and persistence**
 
-`/backend/agent-runner` · route `/backend/agent-runner` · under “Choosing a runner” · in a `ts` block
+`/backend/agent-runner` · route `/backend/agent-runner` · under “The built-in runners”
 
-6 code lines changed.
+6 code lines, 10 prose lines changed.
 
 ````diff
-- ```ts title="app/api/copilotkit/route.ts"
-+ ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
+- | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs the Enterprise Intelligence Platform with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
++ | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
+- the Enterprise Intelligence Platform's `IntelligenceAgentRunner` or supply your
++ CopilotKit Intelligence's `IntelligenceAgentRunner` or supply your
 - ```ts title="app/api/copilotkit/route.ts"
 + ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 - ```ts title="app/api/copilotkit/route.ts"
@@ -48,7 +67,7 @@ weeks between changes does not expire anything.
 
 `/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “Setting up the runtime” · in a `ts` block
 
-55 code lines, 1 heading, 30 prose lines changed. The number of fenced code blocks changed.
+55 code lines, 3 headings, 32 prose lines changed. The number of fenced code blocks changed.
 
 ````diff
 - ```ts title="app/api/copilotkit/route.ts"
@@ -65,7 +84,7 @@ weeks between changes does not expire anything.
 
 `/backend/custom-agent` · route `/backend/custom-agent` · under “Quick Start” · in a `typescript` block
 
-19 code lines, 9 prose lines changed.
+33 code lines, 15 prose lines changed.
 
 ````diff
 - createCopilotEndpoint,
@@ -75,7 +94,7 @@ weeks between changes does not expire anything.
 - createCopilotEndpoint,
 + createCopilotRuntimeHandler,
 - model: anthropic("claude-sonnet-4", {
-+ model: anthropic("claude-sonnet-4-6", {
+- thinking: { type: "enabled", budgetTokens: 10000 },
 ````
 
 **High — Runtime HTTP endpoints**
@@ -114,19 +133,30 @@ weeks between changes does not expire anything.
 
 **High — Introduction**
 
-`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Install CopilotKit packages” · in a `npm` block
+`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Quickstart”
 
-28 code lines, 1 heading, 41 prose lines changed.
+39 code lines, 1 heading, 66 prose lines changed. The number of fenced code blocks changed.
 
 ````diff
++ 
+- body="Add persistent threads and the inspector with the Enterprise Intelligence Platform."
++ body="Add persistent threads and the inspector with CopilotKit Intelligence."
+- <SignupLink surface="docs_built_in_agent_quickstart_step1">Sign up for a free developer account</SignupLink> on our Enterprise Intelligence Platform to get a license key. You'll use it later to enable persistent threads and the inspector.
++ <SignupLink surface="docs_built_in_agent_quickstart_step1">Sign up for a free developer account</SignupLink> for CopilotKit Intelligence to get a license key. You'll use it later to enable persistent threads and the inspector.
 - npm install @copilotkit/react-core @copilotkit/react-ui @copilotkit/runtime
 + npm install @copilotkit/react-core @copilotkit/runtime
 + 
-+ The components used below (`CopilotKit`, `CopilotSidebar`) and the
-+ stylesheet all come from `@copilotkit/react-core/v2`, so
-+ `@copilotkit/react-ui` is not needed for this setup.
-- ```ts title="app/api/copilotkit/route.ts"
-+ <Callout type="warn" title="Already have an agent? Do not use BuiltInAgent">
+````
+
+**Low — Connect AG-UI agents**
+
+`/backend/ag-ui` · route `/backend/ag-ui` · under “The proxy pattern”
+
+2 prose lines changed.
+
+````diff
+- routing, and CopilotKit Enterprise Intelligence without changing how the
++ routing, and CopilotKit Intelligence without changing how the
 ````
 
 **Low — Inspector**
@@ -148,6 +178,7 @@ weeks between changes does not expire anything.
 
 ---
 
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 ## 2026-08-17
 
 ### 12:35 UTC — 1 page, highest severity high

@@ -11,6 +11,8 @@ them for you. When you self-host behind a reverse proxy, lock down auth, or debu
 a connection failure with `curl`, use this page to confirm what the runtime
 exposes.
 
+<<<<<<< HEAD
+=======
 ## Provider and handler pairs
 
 The browser provider and the Runtime handler have to agree on the **transport**.
@@ -97,6 +99,7 @@ Older code may use these deprecated aliases:
   [Connect route 404 on a fresh thread](#connect-route-404-on-a-fresh-thread).
 </Callout>
 
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 ## Multi-route mode (default)
 
 By default the runtime runs in **multi-route** mode, exposing a separate route per
@@ -244,15 +247,23 @@ import { CopilotKitProvider } from "@copilotkit/react-core/v2";
 </CopilotKitProvider>
 ```
 
+<<<<<<< HEAD
+If you still use the v1 `<CopilotKit>` wrapper from `@copilotkit/react-core`,
+set `useSingleEndpoint={false}`. Omitting that prop keeps the v1 wrapper's
+single-route default.
+=======
 The `<CopilotKit>` wrapper behaves the same way — omitting the prop lets it
 detect the multi-route Runtime. Passing `useSingleEndpoint={false}` is also
 correct here; it just pins what detection would have found anyway.
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 
 
 
 </Step>
 
 <Step>
+<<<<<<< HEAD
+=======
 ### Construct the Intelligence client
 
 `intelligence` is a `CopilotKitIntelligence` instance. Build it from your
@@ -290,6 +301,7 @@ const intelligence = new CopilotKitIntelligence({
 </Step>
 
 <Step>
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 ### Identify the signed-in application user
 
 An Intelligence-backed web Runtime exposes Threads only when it can scope them
@@ -396,8 +408,13 @@ envelope:
 Its response and failure rules match `GET {basePath}/inspector-metadata`.
 
 
+<<<<<<< HEAD
+On the frontend, opt into the matching transport with the `useSingleEndpoint`
+prop:
+=======
 The frontend detects this mode on its own, so no prop is required. To pin it
 explicitly, pass `useSingleEndpoint`:
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 
 ```tsx
 import { CopilotKit } from '@copilotkit/react-core/v2';
@@ -410,9 +427,14 @@ import { CopilotKit } from '@copilotkit/react-core/v2';
 <Callout type="warn">
 The frontend transport must match the runtime mode. If the runtime is in
 single-route mode but the frontend is making multi-route requests (or vice
+<<<<<<< HEAD
+versa), every call 404s. Set `useSingleEndpoint` on `<CopilotKit>` whenever the
+runtime uses `mode: "single-route"`.
+=======
 versa), every call 404s. Omitting the prop avoids that by construction, since
 the client then probes for the mode the runtime actually serves — so pin
 `useSingleEndpoint` only when you want to skip that probe.
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 </Callout>
 
 

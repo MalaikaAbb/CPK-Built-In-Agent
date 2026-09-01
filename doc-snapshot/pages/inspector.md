@@ -15,6 +15,14 @@
 
 ## What it shows
 
+<<<<<<< HEAD
+The CopilotKit Inspector is a built-in debugging tool that overlays on your app, giving you full visibility into what's happening between your frontend and your agents in real time.
+
+| Feature | Description |
+| --- | --- |
+| **Home** | Project, runtime, services, and CopilotKit news. |
+| **Threads** | Inspect real Threads and their messages, AG-UI events, and state. |
+=======
 The CopilotKit Inspector is a built-in debugging tool that overlays on your app.
 The first open lands on **Home**. Later opens return to the last pane you used.
 
@@ -23,6 +31,7 @@ The first open lands on **Home**. Later opens return to the last pane you used.
 | **Home** | Project, runtime, services, and CopilotKit news. |
 | **Threads** | Inspect real Threads and their messages, AG-UI events, and state. |
 | **Memory** | Inspect long-term memory when Intelligence exposes it. |
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 | **AG-UI Events** | View the raw AG-UI event stream between your frontend and agent in real time. |
 | **Available Agents** | See which agents are connected and available to your app. |
 | **Agent State** | Inspect your agent's current state as it updates. |
@@ -32,6 +41,10 @@ The first open lands on **Home**. Later opens return to the last pane you used.
 
 ## Navigation and Threads
 
+<<<<<<< HEAD
+The primary navigation groups the Inspector into **Threads**, **Agents**, and
+**Learning**. Threads is the default. Open a real Thread to inspect its
+=======
 The sidebar has three groups: **Home**, **Workbench** (Threads, Memory), and
 **Inspect** (Agent, AG-UI Events, Frontend Tools, Context). Capabilities appears
 only when an A2UI catalog is present. **Talk to an Engineer** stays in the
@@ -39,6 +52,7 @@ sidebar footer.
 
 When Intelligence is connected, Home shows a small **Intelligence connected**
 chip on the right of **What's going on**. Open a real Thread to inspect its
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
 **Messages**, **AG-UI Events**, and **State**. Metadata updates do not change the
 selected Thread.
 
@@ -117,6 +131,8 @@ By default, the Inspector appears only on `localhost`, `127.0.0.1`, and
 
 Set `enableInspector` to `true` to show it on another host, including in a
 production build. CopilotKit always uses an explicit `true` or `false` value.
+<<<<<<< HEAD
+=======
 
 `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` is a browser-visible publishable key and is
 a **different credential** from the server-side `INTELLIGENCE_API_KEY` that
@@ -124,3 +140,4 @@ a **different credential** from the server-side `INTELLIGENCE_API_KEY` that
 consumed by the `CopilotKitIntelligence` client described in
 [Runtime endpoints](/backend/runtime-endpoints). Do not substitute one for the
 other, and never expose the server-side key to the browser.
+>>>>>>> f5ec48e (Docs Sync: Aug 26)
