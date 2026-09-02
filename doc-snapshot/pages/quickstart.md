@@ -92,8 +92,9 @@ Before you begin, you'll need the following:
         ```ts title="app/api/copilotkit/route.ts"
         import {
           CopilotRuntime,
-          copilotRuntimeNextJSAppRouterEndpoint,
-        } from "@copilotkit/runtime";
+          createCopilotRuntimeHandler,
+          InMemoryAgentRunner,
+        } from "@copilotkit/runtime/v2";
         import { BuiltInAgent } from "@copilotkit/runtime/v2"; // [!code highlight]
         import { NextRequest } from "next/server";
 =======

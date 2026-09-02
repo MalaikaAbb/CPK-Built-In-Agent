@@ -20,6 +20,7 @@ The CopilotKit Inspector is a built-in debugging tool that overlays on your app,
 
 | Feature | Description |
 | --- | --- |
+| **Home** | Project, runtime, services, and CopilotKit news. |
 | **Threads** | Inspect real Threads and their messages, AG-UI events, and state. |
 =======
 The CopilotKit Inspector is a built-in debugging tool that overlays on your app.
