@@ -141,6 +141,27 @@ export default function Page() {
           non-numeric <code>temperature</code> is ignored rather than rejected, so
           a typo looks like the feature not working.
         </p>
+        <p className="mt-2">
+          <strong>The docs half-caught up on 2026-09-04.</strong>{" "}
+          <a
+            href="/backend/custom-agent"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            Use any model router
+          </a>{" "}
+          rewrote its <code>forwardedProps</code> samples to allowlist a single
+          model id and bound <code>temperature</code> to <code>0..1</code>, under
+          a new rule: never use browser-controlled properties for unrestricted
+          model and provider selection. That is the same capability this option
+          grants, reached through a different door — but{" "}
+          <em>this</em> page was not rewritten. It still publishes{" "}
+          <code>
+            [&quot;model&quot;, &quot;temperature&quot;, &quot;prompt&quot;]
+          </code>{" "}
+          with no caveat and lists thirteen overridable properties, including{" "}
+          <code>providerOptions</code>. This repo keeps the published array so
+          the route still matches the page. README §9.25.
+        </p>
       </Callout>
 
       <Callout tone="info" title="mcpServers is on this page but not in this repo">

@@ -63,6 +63,37 @@ const HEADERS = `const runtime = new CopilotRuntime({
 // Allowlist mode example:
 // forwardHeaders: { allow: ["authorization", "x-tenant-id"] }`;
 
+const LEARNING_NOW = `// Current: on the CopilotKitIntelligence client.
+const intelligence = new CopilotKitIntelligence({
+  apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
+  getLearningContainerId: () => "support-quality",
+});
+
+// Callback form — one Container chosen per run.
+const intelligence = new CopilotKitIntelligence({
+  apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
+  getLearningContainerId: async ({ surface, user, agentId, input }) => {
+    return chooseLearningContainer({
+      surface,
+      user,
+      agentId,
+      threadId: input.threadId,
+    });
+  },
+});`;
+
+const LEARNING_BEFORE = `// Previous shape, still accepted and marked @deprecated.
+const runtime = new CopilotRuntime({
+  agents: { default: myAgent },
+  intelligence,
+  identifyUser,
+  ɵlearning: {
+    containerId: async ({ surface, agentId, userId, threadId }) => {
+      return chooseLearningContainer({ surface, agentId, userId, threadId });
+    },
+  },
+});`;
+
 const DEV_ONLY = `import { HttpAgent } from "@ag-ui/client";
 import { CopilotKit } from "@copilotkit/react-core/v2";
 
@@ -154,6 +185,48 @@ export default function Page() {
             language="ts"
           />
         </div>
+      </Panel>
+
+      <Panel
+        title="Learning Containers moved off the runtime"
+        description="Not flagged by the sync — the old shape was sitting inside a merge-conflict marker in this repo's stored copy of the page, so the comparison never saw it."
+      >
+        <div className="space-y-4">
+          <CodeBlock
+            code={LEARNING_NOW}
+            filename="Current — getLearningContainerId on CopilotKitIntelligence"
+            language="ts"
+          />
+          <CodeBlock
+            code={LEARNING_BEFORE}
+            filename="Previous — ɵlearning on CopilotRuntime"
+            language="ts"
+          />
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Both still compile against 1.70.1 — <code>ɵlearning</code> carries an{" "}
+          <code>@deprecated</code> tag naming its replacement, so this is a
+          migration rather than a break. The <code>ɵ</code> prefix marked it
+          internal; the replacement is public API on the Intelligence client
+          instead of the runtime.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          The callback argument was reshaped, and that part is easy to miss:{" "}
+          <code>userId: string</code> became{" "}
+          <code>user: {"{ id, name }"} | null</code> — nullable, because a
+          Channel run may have no resolved application user — and the flat{" "}
+          <code>threadId</code> / <code>runId</code> now arrive inside{" "}
+          <code>input</code>, the AG-UI <code>RunAgentInput</code>.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Two constraints live only in the type&apos;s doc comment, not on the
+          page: the callback <strong>must return the same id for every run on a
+          thread</strong>, because a thread cannot move between Containers after
+          its first assignment; and returning <code>null</code> or{" "}
+          <code>undefined</code> leaves the thread unassigned rather than
+          erroring. No route here sets either form — this repo has no
+          Intelligence Project to create a Container in.
+        </p>
       </Panel>
 
       <Panel

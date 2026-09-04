@@ -31,12 +31,12 @@ import { MyRunner } from "@/copilotkit/runner";
  * Server-side only, and deliberately not `NEXT_PUBLIC_`. A project key prefixed
  * for the browser would ship in the bundle.
  */
-const INTELLIGENCE_API_KEY = process.env.INTELLIGENCE_API_KEY;
+const CPK_INTELLIGENCE_API_KEY = process.env.CPK_INTELLIGENCE_API_KEY;
 
 /**
  * A SECOND, SEPARATE credential — and the one that unlocks the Threads Drawer.
  *
- * `INTELLIGENCE_API_KEY` authorizes the runtime against the platform: it is what
+ * `CPK_INTELLIGENCE_API_KEY` authorizes the runtime against the platform: it is what
  * makes `/info` report `mode: "intelligence"` and what makes the thread REST
  * endpoints return real rows. It does NOT advertise a license.
  *
@@ -48,7 +48,16 @@ const INTELLIGENCE_API_KEY = process.env.INTELLIGENCE_API_KEY;
  * `expiring`, regardless of whether threads actually work.
  *
  * So a runtime can serve threads perfectly while every drawer in the app shows
- * an Upgrade button. Set both to avoid that.
+ * an Upgrade button.
+ *
+ * It is the FALLBACK input, not the only one. `resolveCompatibilityLicenseStatus`
+ * checks `runtimeEntitlements` first, and an active `managedOrgSubscription`
+ * resolves to `"valid"` on its own. So a managed project — never issued this
+ * token, per Headless Threads — still unlocks the drawer, through its
+ * entitlement. The token covers offline and self-hosted licensing. README §9.17.
+ *
+ * `licenseStatus` is also emitted only by an Intelligence runtime, so the SSE
+ * branch below reports none at all whatever this is set to.
  */
 const LICENSE_TOKEN = process.env.COPILOTKIT_LICENSE_TOKEN;
 
@@ -64,7 +73,7 @@ const LICENSE_TOKEN = process.env.COPILOTKIT_LICENSE_TOKEN;
  * restart.
  */
 function buildRuntime(): CopilotRuntime {
-  if (!INTELLIGENCE_API_KEY) {
+  if (!CPK_INTELLIGENCE_API_KEY) {
     return new CopilotRuntime({
       agents,
       // SSE-mode only. `runner` is absent from the Intelligence options, which
@@ -80,8 +89,21 @@ function buildRuntime(): CopilotRuntime {
     ...(LICENSE_TOKEN ? { licenseToken: LICENSE_TOKEN } : {}),
     intelligence: new CopilotKitIntelligence({
       // apiUrl and wsUrl default to the managed platform — leave them unset.
-      apiKey: INTELLIGENCE_API_KEY,
+      apiKey: CPK_INTELLIGENCE_API_KEY,
     }),
+    // The thread lock. A run takes it on its thread so a second run cannot
+    // start concurrently; these three tune it, and they are set here at their
+    // own defaults so the option names stay typechecked against the installed
+    // runtime rather than living only in a comment.
+    //
+    // They exist on the Intelligence branch ONLY — `CopilotRuntimeLike` types
+    // all three as `undefined` in SSE mode, so there is nothing to tune on the
+    // branch above. Both numbers are clamped with `Math.min` and no warning:
+    // 3600s for the TTL, 3000s for the heartbeat. A value over the cap is
+    // silently reduced, not rejected.
+    lockTtlSeconds: 20,
+    lockHeartbeatIntervalSeconds: 15,
+    lockKeyPrefix: "cpk-harness",
     // Threads are per-user. Without this, every visitor shares one history.
     // `Providers` sends these headers so the harness has a stable identity to
     // key threads on; a real app would read them from a verified session, as

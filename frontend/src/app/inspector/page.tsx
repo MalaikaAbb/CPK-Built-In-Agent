@@ -59,6 +59,26 @@ export default function Page() {
 
       <Panel title="Turning it off">
         <CodeBlock code={DISABLE} filename="layout.tsx" language="tsx" />
+        <p className="mt-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          The <code>publicLicenseKey</code> in that sample is incidental to
+          switching the inspector off, but it is the third of three credentials
+          this repo can be handed, and the page is explicit that they are not
+          interchangeable.{" "}
+          <code>NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY</code> is publishable and
+          browser-visible by design; the server-side{" "}
+          <code>CPK_INTELLIGENCE_API_KEY</code> is what the{" "}
+          <code>CopilotKitIntelligence</code> client consumes, and{" "}
+          <code>COPILOTKIT_LICENSE_TOKEN</code> is a third thing again — see the{" "}
+          <a
+            href="/prebuilt-components/copilot-threads-drawer"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            Threads Drawer
+          </a>{" "}
+          route, where the difference between the last two decides whether the
+          drawer renders. Prefixing either server-side key with{" "}
+          <code>NEXT_PUBLIC_</code> ships it in the bundle.
+        </p>
       </Panel>
 
       <Panel

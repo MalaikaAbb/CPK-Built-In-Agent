@@ -104,11 +104,7 @@ agent.subscribe({ /* … */ });
 
 
 This indirection lets the runtime provide authentication, middleware, agent
-<<<<<<< HEAD
-routing, and CopilotKit Enterprise Intelligence without changing how the
-=======
 routing, and CopilotKit Intelligence without changing how the
->>>>>>> f5ec48e (Docs Sync: Aug 26)
 frontend interacts with agents.
 
 ## How agents slot into the runtime

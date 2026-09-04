@@ -92,7 +92,7 @@ export const NAV: NavGroup[] = [
           "The prebuilt conversation sidebar: list, switch, start, archive, delete — with no thread state of your own.",
         status: "working",
         statusNote:
-          "Needs INTELLIGENCE_API_KEY for real rows and COPILOTKIT_LICENSE_TOKEN to unlock the UI. Without the second it renders its locked Upgrade view even when threads work.",
+          "Needs CPK_INTELLIGENCE_API_KEY for real rows and COPILOTKIT_LICENSE_TOKEN to unlock the UI. Without the second it renders its locked Upgrade view even when threads work.",
       },
       {
         path: "/headless-threads",

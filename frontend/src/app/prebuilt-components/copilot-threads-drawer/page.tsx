@@ -75,7 +75,7 @@ export default function Page() {
         </p>
         <ul className="mt-2 space-y-1.5">
           <li>
-            · <code>INTELLIGENCE_API_KEY</code> authorizes the runtime against
+            · <code>CPK_INTELLIGENCE_API_KEY</code> authorizes the runtime against
             the platform. It is what makes <code>/info</code> report{" "}
             <code>mode: &quot;intelligence&quot;</code> and what makes the thread
             endpoints return real rows.
@@ -93,6 +93,26 @@ export default function Page() {
           still renders every drawer locked when only the project key is set — and
           while unlicensed the wrapper skips the thread fetch entirely, so the
           drawer issues no network requests at all.
+        </p>
+        <p className="mt-2">
+          <strong>A managed project cannot set the second — and does not need
+          to.</strong> Headless Threads now says managed setup never issues a{" "}
+          <code>COPILOTKIT_LICENSE_TOKEN</code>, which reads as a dead end for
+          this drawer. It is not one:{" "}
+          <code>resolveCompatibilityLicenseStatus</code> consults{" "}
+          <code>runtimeEntitlements</code> first, and an active{" "}
+          <code>managedOrgSubscription</code> resolves to{" "}
+          <code>&quot;valid&quot;</code> on its own — the token is only the
+          fallback. So the drawer unlocks through the entitlement. Neither page
+          says this; it is visible in the runtime&apos;s{" "}
+          <code>handleGetRuntimeInfo</code>, and the{" "}
+          <a
+            href="/backend/runtime-endpoints"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            Runtime endpoints
+          </a>{" "}
+          route lays it out. README §9.17.
         </p>
         <p className="mt-2">
           The home page reports both axes on separate rows, so the two are

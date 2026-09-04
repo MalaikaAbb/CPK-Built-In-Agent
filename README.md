@@ -5,11 +5,11 @@ A navigable, working test harness for CopilotKit's **built-in agent** — each d
 | | |
 |---|---|
 | **Doc sync date** | Machine-maintained — `doc-snapshot/manifest.json` → `syncedAt`, rewritten on every sync |
-| **CopilotKit packages** | `@copilotkit/react-core` 1.66.2 · `@copilotkit/runtime` 1.66.2 · `@copilotkit/shared` 1.66.2 |
-| **AG-UI packages** | `@ag-ui/client` 0.0.57 · `@ag-ui/core` 0.0.57 |
-| **Model routers** | `ai` 6.0.242 · `@ai-sdk/openai` 3.0.90 · `@tanstack/ai` 0.43.0 · `@tanstack/ai-openai` 0.18.0 |
+| **CopilotKit packages** | `@copilotkit/react-core` 1.70.1 · `@copilotkit/runtime` 1.70.1 · `@copilotkit/shared` 1.70.1 |
+| **AG-UI packages** | `@ag-ui/client` 0.0.59 · `@ag-ui/core` 0.0.59 |
+| **Model routers** | `ai` 6.0.242 · `@ai-sdk/openai` 3.0.104 · `@tanstack/ai` 0.43.0 · `@tanstack/ai-openai` 0.18.0 |
 | **Frontend** | Next.js 16.3.0 (App Router) · React 19.2 · TypeScript 5 · Tailwind 4 |
-| **Build status** | No CI. Verified locally: `next build` ✅ (55 routes) · lint ✅ 0 errors, 21 warnings (unused imports left by trimmed callouts, plus the doc samples' unused bindings) · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200; with Intelligence keyed, `/info` reports `mode: "intelligence"` + `licenseStatus: "valid"` and all three Rich Threads routes were exercised end to end (drawer unlocked and auto-named a thread, headless rename applied, `explicit` replay verified) ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
+| **Build status** | No CI. Verified locally against 1.70.1: `next build` ✅ (55 routes) · lint ✅ 0 errors, 17 warnings (unused imports left by trimmed callouts, plus the doc samples' unused bindings — see §9.21) · the browser-driven run below predates the 1.70.1 bump and has not been repeated · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200; with Intelligence keyed, `/info` reports `mode: "intelligence"` + `licenseStatus: "valid"` and all three Rich Threads routes were exercised end to end (drawer unlocked and auto-named a thread, headless rename applied, `explicit` replay verified) ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
 
 ---
 
@@ -98,8 +98,10 @@ Then edit `frontend/.env.local`:
 | `OPENAI_MODEL` | Model id for every agent, and for Agent A on `/model-selection`. Defaults to `openai:gpt-4.1`. |
 | `GOOGLE_API_KEY` / `ANTHROPIC_API_KEY` | Optional. Needed only for Agents B and C on `/model-selection`; that route reports which keys are set and skips the columns whose key is missing. |
 | `GOOGLE_MODEL` / `ANTHROPIC_MODEL` | Optional model ids for those two. Default to `google:gemini-2.5-flash` and `anthropic:claude-sonnet-4-5` (hyphens — see §9.13). |
-| `INTELLIGENCE_API_KEY` | Optional. Turns on CopilotKit Intelligence: `/info` reports `mode: "intelligence"` and threads persist. Without it the runtime falls back to SSE + `MyRunner` and every route still works. |
-| `COPILOTKIT_LICENSE_TOKEN` | Optional, and **separate** from the key above. Sets `/info`'s `licenseStatus`, which is what `<CopilotThreadsDrawer>` gates its locked Upgrade view on. |
+| `CPK_INTELLIGENCE_API_KEY` | Optional. The project API key. Turns on CopilotKit Intelligence: `/info` reports `mode: "intelligence"` and threads persist. Without it the runtime falls back to SSE + `MyRunner` and every route still works. Renamed from `INTELLIGENCE_API_KEY` on 2026-09-04 — an older `.env.local` sets a variable nothing reads. |
+| `COPILOTKIT_LICENSE_TOKEN` | Optional, and **separate** from the key above. It is the *fallback* input to `/info`'s `licenseStatus`, which is what `<CopilotThreadsDrawer>` gates its locked Upgrade view on — the runtime resolves managed entitlements first. Managed projects are not issued one and do not need one: an active `managedOrgSubscription` reaches `valid` without it. Offline/self-hosted licensing only. See §9.17. |
+| `CPK_TELEMETRY_ID` | Optional, non-secret. The `CopilotRuntime` constructor falls back to it when no `telemetryId` is passed. Written by the CLI's `init`/`create`. |
+| `SL_ENABLED` | Documented as CLI output, but read by no installed `@copilotkit` package and never explained. Left unset here — see §9.18. |
 | `NEXT_PUBLIC_DEMO_USER_ID` / `NEXT_PUBLIC_DEMO_USER_NAME` | Optional. The identity the provider sends as `x-user-id`/`x-user-name` for `identifyUser`. Threads are per-user, so changing it gives a different thread list. |
 | `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` | Optional; no route here needs it. |
 
@@ -257,16 +259,18 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 ## 9. Known issues / doc-vs-implementation discrepancies
 
-Found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242.
+Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–26 were found against 1.70.1.
 
-**1. The Quickstart's runtime route cannot serve the documented HTTP surface**
-[`/quickstart`](https://docs.copilotkit.ai/quickstart) mounts a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` — the endpoints [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents — 404. The `runner` option that [`/backend/agent-runner`](https://docs.copilotkit.ai/backend/agent-runner) teaches is also v2-only. This repo mounts `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts` instead.
+**1. ✅ RESOLVED 2026-09-04 — The Quickstart's runtime route could not serve the documented HTTP surface**
+[`/quickstart`](https://docs.copilotkit.ai/quickstart) used to mount a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` 404'd while the bare URL kept answering — the app looked connected and never replied.
+
+The Quickstart now publishes `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts`, which is the shape this repo has mounted from the start. `copilotRuntimeNextJSAppRouterEndpoint` still exists, but is now confined to the "Single-route only, no option" row on [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) (§9.24) rather than being what the Quickstart teaches. **This was not in any drift report** — the old shape sat behind a conflict marker (§9.20), so the comparison never saw it move. Still open on that page: it exports only `GET` and `POST`, so thread rename/archive/delete would 405 (see the route's own callout).
 
 **2. Two different runtimes share the name `CopilotRuntime`**
 [`/backend/copilot-runtime`](https://docs.copilotkit.ai/backend/copilot-runtime) shows a Next.js sample importing it from `@copilotkit/runtime` (v1, needs a `serviceAdapter`) and then documents `a2ui`, `mcpApps`, and `forwardHeaders`, which are options on the **v2** runtime in `@copilotkit/runtime/v2`. Nothing on the page distinguishes them.
 
-**3. `<CopilotKit>` defaults to single-endpoint transport, and no page says so**
-This is the one that will bite hardest. `<CopilotKit>` passes `useSingleEndpoint: props.useSingleEndpoint ?? true` down to the provider, so unless you explicitly pass `false` the client POSTs `{ method: "info" }` to the **bare** runtime URL instead of calling `GET /info`. Against a multi-route runtime that 404s — and the client then caches single-endpoint transport for the rest of the session, so every subsequent agent lookup reports `Agent default not found`:
+**3. ⚠️ PARTLY RESOLVED 2026-09-04 — `<CopilotKit>` defaults to single-endpoint transport; the pages now say so**
+The behaviour is unchanged and still bites. What changed is that it is finally documented: the Quickstart's provider now passes `useSingleEndpoint={false}` and carries a callout saying `<CopilotKit>` "is the backward-compatible wrapper, and every released version pins it to the single-route transport"; [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints)'s provider table now reads `single` in released versions — see below for that row. **Neither appeared in a drift report** — the old provider sample was behind a conflict marker (§9.20). The original finding, still accurate as to behaviour: `<CopilotKit>` passes `useSingleEndpoint: props.useSingleEndpoint ?? true` down to the provider, so unless you explicitly pass `false` the client POSTs `{ method: "info" }` to the **bare** runtime URL instead of calling `GET /info`. Against a multi-route runtime that 404s — and the client then caches single-endpoint transport for the rest of the session, so every subsequent agent lookup reports `Agent default not found`:
 
 ```
 POST /api/copilotkit 404
@@ -276,7 +280,7 @@ POST /api/copilotkit 404
 
 The error text names `/api/copilotkit/info`, which is misleading: that URL is never requested, and `curl`ing it returns a healthy 200. Only the browser is affected.
 
-[`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents `useSingleEndpoint` as the client half of single-route mode, but never mentions that it is the default, and the Quickstart's provider omits it. This repo passes `useSingleEndpoint={false}` on both providers to pin the REST transport. If you would rather keep the default, set `mode: "single-route"` on the handler instead — but then `GET /info` and `/agent/:agentId/run` stop existing, along with the live probe on `/backend/runtime-endpoints`.
+This repo passes `useSingleEndpoint={false}` on both providers to pin the REST transport, and has since before either page mentioned it. If you would rather keep the default, set `mode: "single-route"` on the handler instead — but then `GET /info` and `/agent/:agentId/run` stop existing, along with the live probe on `/backend/runtime-endpoints`.
 
 **4. `defineToolCallRenderer` requires an `args` schema**
 [`/programmatic-control`](https://docs.copilotkit.ai/programmatic-control) calls it with only `name` and `render`. The shipped function has two overloads — a wildcard where `name` must be the literal `"*"`, and a named one requiring `args` — so the sample matches neither. This repo passes the tool's own Zod schema.
@@ -317,11 +321,57 @@ The working id is `claude-sonnet-4-5`, confirmed against `GET https://api.anthro
 **14. Four different model ids, one of them unsupported**
 `openai:gpt-5.4-mini` (Quickstart, Server Tools, Advanced Configuration), `openai:gpt-4.1` (Copilot Runtime, Model Selection), `openai/gpt-4o-mini` (Runtime endpoints, AgentRunner), `gpt-4o` (custom-agent). `gpt-5.4-mini` does not appear in the Model Selection page's own list of supported OpenAI models, so the Quickstart pasted verbatim fails with a model-not-found error. All agents here read one `OPENAI_MODEL`.
 
-**15. `@copilotkit/react-ui` in the Quickstart install line**
-It is the v1 UI package and nothing on the page imports from it. Not a dependency here.
+**15. ✅ RESOLVED 2026-09-04 — `@copilotkit/react-ui` in the Quickstart install line**
+It is the v1 UI package and nothing on the page imported from it. The install line is now `npm install @copilotkit/react-core @copilotkit/runtime`, with `@copilotkit/react-ui` dropped. Never a dependency here. **Not in any drift report** — the old install line was behind a conflict marker (§9.20).
 
 **16. AI SDK provider version has to be pinned down, not up**
 `@copilotkit/runtime` 1.66.2 depends on `ai` ^6.0.104, whose `LanguageModel` type is `LanguageModelV3 | LanguageModelV2`. The current `@ai-sdk/openai` 4.x emits spec `v4` and is rejected. This repo pins `@ai-sdk/openai` ^3.0.90.
+
+**17. The two license-token pages contradict each other, and only the source resolves it**
+[`/headless-threads`](https://docs.copilotkit.ai/headless-threads) gained a paragraph on 2026-09-04: "Managed project setup does not issue `COPILOTKIT_LICENSE_TOKEN`. That token is only for offline or self-hosted licensing and does not replace the managed project API key." Since `<CopilotThreadsDrawer>` gates its locked Upgrade view on `licenseStatus`, that reads as a dead end — a managed project could never reach `valid`.
+
+It isn't one, and [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) is what makes that findable: it documents `runtimeEntitlements` on `/info` for the first time in the same sync. The shipped `resolveCompatibilityLicenseStatus` checks entitlements **first** — a `ready` entitlement whose `source` is `managedOrgSubscription` resolves to `"valid"` when active, and only failing that does it fall back to the token's `licenseChecker`. So a managed project unlocks the drawer through its **entitlement**, not through a token it will never be issued. Neither page says so; the two read as a contradiction until you open `handleGetRuntimeInfo`.
+
+Two more behaviours from that same function, on no page at all: `licenseStatus` is emitted **only** by an Intelligence runtime, so SSE mode reports none whatever the token says; and a retryable entitlement failure with no token fallback resolves to `"unknown"` rather than `"none"`.
+
+**18. `SL_ENABLED` is documented as CLI output but is read by nothing installed**
+[`/headless-threads`](https://docs.copilotkit.ai/headless-threads) says CLI `init`/`create` write "the cloud-hosted platform URLs, `SL_ENABLED`, project-scoped `CPK_INTELLIGENCE_API_KEY`, and optional `CPK_TELEMETRY_ID`" to `.env`. Three of those four check out: `CPK_TELEMETRY_ID` is read by the `CopilotRuntime` constructor as the fallback for `telemetryId`, and the project key is read as documented. `SL_ENABLED` appears nowhere in any installed `@copilotkit` package, and the page never says what it does. It is listed in `.env.example` as unverified rather than guessed at.
+
+**19. "OpenAI-compatible" splits in two, and the page's own sample picks the wrong half for half the list**
+[`/model-selection`](https://docs.copilotkit.ai/model-selection) added Novita to its list of OpenAI-compatible endpoints with a warning that it must be called as `provider.chat("model")`, not `provider("model")`. The cause is in `@ai-sdk/openai` 3.0.104, not in CopilotKit: `OpenAIProvider`'s bare call signature is typed `(modelId: OpenAIResponsesModelId) => LanguageModelV3` — calling the provider directly *is* the Responses API, with `.chat()`, `.responses()` and `.completion()` as the named alternatives. Any gateway on that list implementing only `/chat/completions` fails the same way, but the page names only Novita and its adjacent OpenRouter sample uses the bare form. Reproduced on the route with both samples side by side.
+
+**20. The doc snapshot baseline was carrying unresolved merge conflicts**
+Not a doc bug — a repo one, found while diffing item 19. The pre-sync snapshot at `8be8dd5` contained **114 conflict markers across 10 of the 21 tracked pages** (`quickstart`, `model-selection`, `backend__custom-agent`, `backend__copilot-runtime`, `backend__agent-runner`, `backend__runtime-endpoints`, `auth`, `inspector`, `advanced-configuration`, `backend__ag-ui`), left by the "Resolving Conflicts" merge in `e504bd9`. Since `/doc-sync` diffs each fetched page against that stored copy, every page with markers was diffing against a corrupted baseline, and content sitting on the far side of a `=======` was neither reported as drift nor visible as missing. The 2026-09-04 sync rewrote `pages/` and cleared all of them; one stray marker left in `doc-snapshot/CHANGELOG.md` is removed here.
+
+**Audit status.** Seven of the ten are audited: `model-selection`, `backend__copilot-runtime`, `backend__runtime-endpoints`, `backend__custom-agent` and `backend__agent-runner` as part of their own drift reports, then `quickstart` (§9.1/§9.3/§9.15) and `auth` (§9.26) deliberately. **Three remain unaudited — `inspector` (6 markers), `advanced-configuration` (2), `backend__ag-ui` (2).** Every page audited so far turned up something the drift report could not see, so treat those three as unknown rather than clean.
+
+**What that hid on `/model-selection`:** the doc's Anthropic table lists `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` and `claude-sonnet-4-5`, and a **MiniMax** provider section with `MINIMAX_API_KEY` / `MINIMAX_BASE_URL` exists that this repo has no row for at all. The route's provider table still reads `claude-sonnet-4-5 · claude-opus-4-5 · claude-haiku-4-5` — and `claude-opus-4-5` appears nowhere in the doc. Not corrected in this PR; see the note on that route.
+
+**21. Six of `/model-selection`'s doc samples are declared but never rendered**
+Pre-existing. `BASIC`, `CUSTOM_KEY`, `CUSTOM_PROVIDER` and `AZURE` are string constants in `src/app/model-selection/page.tsx` that no JSX references, so the route shows a provider table and nothing else — `npm run lint` reports each as unused. `OPENROUTER` was in the same state until item 19 needed a panel to live in; it and the new Novita sample now render. The other four remain dead.
+
+**22. Learning Containers moved off the runtime, and the sync could not see it**
+[`/backend/copilot-runtime`](https://docs.copilotkit.ai/backend/copilot-runtime) now configures Learning Containers as `getLearningContainerId` on the `CopilotKitIntelligence` client. The previous shape was `ɵlearning: { containerId }` on `CopilotRuntime`. The 2026-09-04 drift report flagged only the env-var rename and a link move on this page, because the old shape was on the far side of a conflict marker in the stored copy (§9.20) — the comparison never saw it.
+
+Both compile against 1.70.1: `ɵlearning` is still accepted and carries `@deprecated Configure getLearningContainerId on CopilotKitIntelligence`, so this is a migration, not a break. The callback argument was reshaped though — `userId: string` became `user: { id, name } | null` (nullable on the `channel` surface), and flat `threadId` / `runId` moved inside `input`, the AG-UI `RunAgentInput`. Two constraints appear only in the type's doc comment and nowhere on the page: the callback must return the same id for every run on a thread, since a thread cannot move Containers after first assignment; and returning `null`/`undefined` leaves the thread unassigned. Documented on the route; not implemented, as this repo has no Intelligence Project to create a Container in.
+
+**23. `/info` grew two Intelligence-only fields, and the page documents one of the two entitlement error codes**
+[`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) now documents `runtimeEntitlements` (`ready` / `degraded` / `misconfigured` / `unavailable`) and `inspectorMetadata: true`, both emitted only when `isIntelligenceRuntime(runtime) && webEnabled`. The page names `runtime_entitlements_misconfigured` (`retryable: false`, what a rejected project key produces). The runtime also emits `runtime_entitlements_unavailable` (`retryable: true`) for every other lookup failure, which appears nowhere on the page. `/info` still answers `200` in both cases by design — it is an availability endpoint. The probe in `src/lib/intelligence.ts` now parses both fields; neither is observable in this harness without a project key.
+
+**24. The page now states §9.1 outright**
+Its handler table gained a "Single-route only, no option" row naming `copilotRuntimeNextJSAppRouterEndpoint` and its four siblings — the v1 wrappers this repo has flagged as unable to serve Rich Threads since it was built (§9.1). The page is explicit that `useSingleEndpoint={false}` does not rescue them: it points the browser at REST sub-routes the wrapper will never serve, so moving off them is a server-side change, not a provider prop. A `createCopilotEndpointSingleRouteExpress` → `createCopilotExpressHandler` alias row was added alongside it. Nothing to change here — this harness has always mounted `createCopilotRuntimeHandler` at a catch-all — but §9.1 is now doc-acknowledged rather than a repo-only finding.
+
+**25. Two pages document the same browser-controls-the-model capability, and only one of them warns about it**
+[`/backend/custom-agent`](https://docs.copilotkit.ai/backend/custom-agent) hardened its `forwardedProps` samples on 2026-09-04. "Let the frontend override model, temperature, or other settings at runtime" became a rule — non-secret preferences only, validate every value against backend-owned limits, and never use these properties for credentials, tenant identity, authorization, or unrestricted model and provider selection. Concretely: `resolveModel(props.model)` became an equality check against one allowed id (and `resolveModel` left the imports), `temperature` gained a `0..1` bound, and the TanStack sample dropped its `openaiText((props.model as string) ?? "gpt-4o")` pass-through.
+
+Nothing to fix in this repo's factories — `aiSdkAgent` and `tanStackAgent` never read `forwardedProps` and pin their models. But `advancedAgent` carries `overridableProperties: ["model", "temperature", "prompt"]`, which is the same capability through a different door: the browser picks model, sampling temperature and system prompt, unbounded. That array is published verbatim by [`/advanced-configuration`](https://docs.copilotkit.ai/advanced-configuration), which carries **no** warning of any kind and lists thirteen overridable properties including `providerOptions`. The two pages now give opposite guidance for equivalent mechanisms. This repo had already flagged the exposure on `/advanced-configuration` before either doc did — "a client can pick which model your key pays for" — so that callout is extended rather than added. Left as published, since correcting the array would stop the route matching its page.
+
+**26. `/auth`'s thread-authorization half was never implemented here**
+Found in the §9.20 audit, though not itself marker-hidden — `onBeforeHandler` appears in both the old and new snapshots. The route covered `onRequest` only, while the page's second half documents thread authorization: `onRequest` runs *before* routing and cannot see which thread is addressed, so ownership checks belong in `onBeforeHandler`, which receives a `route` carrying the `threadId`. Now documented on the route with the published sample; still not implemented, because this harness has no user store to own a `thread_owners` table.
+
+The page's list of six threadId-carrying routes (`agent/stop`, `threads/update`, `threads/archive`, `threads/messages`, `threads/events`, `threads/state`) is exactly correct against the shipped `RouteInfo` union. But it treats `threads/list` as the sole route `onBeforeHandler` cannot authorize; `RouteInfo` shows `threads/subscribe`, `threads/clear` and the four `memories/*` routes are equally without a `threadId`, and `threads/clear` is a mutation. That gap is on no page.
+
+Worth stating plainly: off CopilotKit Intelligence there is no server-side binding between a thread and a user, so **every thread route in this harness accepts any `threadId` it is handed.** That is documented behaviour for a runtime with no platform store, not a defect — but it is why no route here is a deployment pattern.
 
 ### Why `typescript.ignoreBuildErrors` is on
 
@@ -344,6 +394,7 @@ Items 5, 6, and 7 are doc samples reproduced verbatim, which is this repo's whol
 | No Inspector button | Provider is `CopilotKitProvider` | Use `<CopilotKit>`, which defaults `enableInspector` on in dev. Never mount `<CopilotKitInspector />` by hand. |
 | "CopilotKit core not attached" | A hand-mounted inspector | Same fix — let the provider mount it. |
 | `GET /api/copilotkit/info` 404s | Route on a fixed segment | It must be `app/api/copilotkit/[[...slug]]/route.ts`. |
+| Key is set, but `/info` still reports `mode: "sse"` | `.env.local` carried over the pre-2026-09-04 name `INTELLIGENCE_API_KEY` | The runtime reads `CPK_INTELLIGENCE_API_KEY`. Nothing errors on the old name — the runtime just never sees a key and starts in SSE mode. Values now look like `cpk-…`. |
 | Everything 401s | Pointed at `/api/copilotkit-auth` | That endpoint is gated on purpose. The app-wide provider uses `/api/copilotkit`. |
 | `POST /api/copilotkit 404` + `Agent default not found`, but `curl …/info` returns 200 | `<CopilotKit>` defaults `useSingleEndpoint` to **true**, so the browser speaks single-route to a multi-route runtime | Pass `useSingleEndpoint={false}` on the provider. Already set here — if you see this, check you have not removed it. See §9.3. |
 | Runner log empty but chat works | Runtime using the default runner | Check `runner: new MyRunner()` in the route file. |

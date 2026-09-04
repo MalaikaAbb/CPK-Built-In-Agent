@@ -18,7 +18,7 @@ const builtInAgent = new BuiltInAgent({
 const runtime = new CopilotRuntime({
   agents: { default: builtInAgent },
   intelligence: new CopilotKitIntelligence({
-    apiKey: process.env.INTELLIGENCE_API_KEY!,
+    apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
   }),
   identifyUser: (request) => ({
     id: request.headers.get("x-user-id") ?? "anonymous",
@@ -157,6 +157,18 @@ export default function Page() {
           third reason: <code>/backend/runtime-endpoints</code> probes{" "}
           <code>/info</code> live, and that needs the catch-all.
         </p>
+        <p className="mt-2">
+          <strong>The page has since caught up on all three.</strong> As of
+          2026-09-04 it publishes{" "}
+          <code>createCopilotRuntimeHandler</code> at the catch-all, its provider
+          passes <code>useSingleEndpoint={"{false}"}</code> with a callout
+          explaining that every released <code>&lt;CopilotKit&gt;</code> pins the
+          single-route transport, and <code>@copilotkit/react-ui</code> is gone
+          from the install line. Those closed README §9.1, §9.3 and §9.15 — and
+          none of them appeared in a drift report, because the old shapes were
+          sitting behind merge-conflict markers in this repo&apos;s stored copy
+          of the page. §9.20.
+        </p>
       </Callout>
 
       <Panel
@@ -193,10 +205,20 @@ export default function Page() {
       >
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           That key is what turns on Threads and the Inspector&apos;s Threads tab.
-          It reaches the runtime as <code>INTELLIGENCE_API_KEY</code> — a
+          It reaches the runtime as <code>CPK_INTELLIGENCE_API_KEY</code> — a
           server-side secret, never <code>NEXT_PUBLIC_</code> — and the runtime
           reads it off the <code>CopilotKitIntelligence</code> client you
           construct, not off the environment directly.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Both the name and the wording moved on 2026-09-04. It was{" "}
+          <code>INTELLIGENCE_API_KEY</code>, the Quickstart called it a{" "}
+          <em>license key</em>, and its sample value was{" "}
+          <code>your_license_key</code>; it is now the{" "}
+          <em>project API key</em>, shaped <code>cpk-…</code>. The rename is
+          silent at runtime — an <code>.env</code> still on the old variable
+          leaves the runtime in SSE mode with no error, so check the Connection
+          panel rather than the file.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           It is optional here. With no key this repo&apos;s runtime falls back to

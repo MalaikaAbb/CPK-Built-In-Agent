@@ -28,7 +28,7 @@ const RUNNERS: [string, string, string][] = [
   [
     "IntelligenceAgentRunner",
     "@copilotkit/runtime/v2",
-    "Durable threads via the Enterprise Intelligence Platform.",
+    "Durable threads via CopilotKit Intelligence. Selected automatically on an Intelligence runtime.",
   ],
   [
     "TelemetryAgentRunner",
@@ -111,7 +111,7 @@ export default function Page() {
         <code>runner</code> is an option on the <em>SSE</em> runtime only —{" "}
         <code>CopilotRuntimeOptions</code> is a union, and the Intelligence shape
         has no such field. So the moment{" "}
-        <code>INTELLIGENCE_API_KEY</code> is set, this repo&apos;s runtime stops
+        <code>CPK_INTELLIGENCE_API_KEY</code> is set, this repo&apos;s runtime stops
         passing <code>MyRunner</code> and the call log below goes quiet: the
         platform&apos;s <code>IntelligenceAgentRunner</code> is doing the work
         instead. That is the trade the page describes as the fix for the

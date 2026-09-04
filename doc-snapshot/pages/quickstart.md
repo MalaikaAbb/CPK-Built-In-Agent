@@ -3,19 +3,9 @@
 > Get started with CopilotKit's Built-in Agent in minutes.
 
 
-<<<<<<< HEAD
-<OpsPlatformCTA
-  variant="card"
-  title="Ship the Built-in Agent to production"
-  body="Add persistent threads and the inspector with the Enterprise Intelligence Platform."
-=======
 
-<OpsPlatformCTA
-  variant="card"
-  title="Ship the Built-in Agent to production"
-  body="Add persistent threads and the inspector with CopilotKit Intelligence."
->>>>>>> f5ec48e (Docs Sync: Aug 26)
-  ctaLabel="Create a free account"
+<IntelligenceOnboardingPrompt
+  feature="learning"
   surface="docs_built_in_agent_quickstart"
 />
 
@@ -33,11 +23,7 @@ Before you begin, you'll need the following:
     <Step>
         ### Create a free account
 
-<<<<<<< HEAD
-        <SignupLink surface="docs_built_in_agent_quickstart_step1">Sign up for a free developer account</SignupLink> on our Enterprise Intelligence Platform to get a license key. You'll use it later to enable persistent threads and the inspector.
-=======
         <SignupLink surface="docs_built_in_agent_quickstart_step1">Sign up for a free developer account</SignupLink> for CopilotKit Intelligence to get a license key. You'll use it later to enable persistent threads and the inspector.
->>>>>>> f5ec48e (Docs Sync: Aug 26)
     </Step>
 
     <Step>
@@ -58,17 +44,12 @@ Before you begin, you'll need the following:
         ### Install CopilotKit packages
 
         ```npm
-<<<<<<< HEAD
-        npm install @copilotkit/react-core @copilotkit/react-ui @copilotkit/runtime
-        ```
-=======
         npm install @copilotkit/react-core @copilotkit/runtime
         ```
 
         The components used below (`CopilotKit`, `CopilotSidebar`) and the
         stylesheet all come from `@copilotkit/react-core/v2`, so
         `@copilotkit/react-ui` is not needed for this setup.
->>>>>>> f5ec48e (Docs Sync: Aug 26)
     </Step>
     <Step>
         ### Configure your environment
@@ -88,16 +69,6 @@ Before you begin, you'll need the following:
 
         Create an API route with the `BuiltInAgent` and `CopilotRuntime`:
 
-<<<<<<< HEAD
-        ```ts title="app/api/copilotkit/route.ts"
-        import {
-          CopilotRuntime,
-          createCopilotRuntimeHandler,
-          InMemoryAgentRunner,
-        } from "@copilotkit/runtime/v2";
-        import { BuiltInAgent } from "@copilotkit/runtime/v2"; // [!code highlight]
-        import { NextRequest } from "next/server";
-=======
         <Callout type="warn" title="Already have an agent? Do not use BuiltInAgent">
           `BuiltInAgent` is CopilotKit's *own* agent — it calls the model
           directly. Registering it as `default` means chat talks to it, not to
@@ -119,31 +90,16 @@ Before you begin, you'll need the following:
           createCopilotRuntimeHandler,
         } from "@copilotkit/runtime/v2";
         import { BuiltInAgent } from "@copilotkit/runtime/v2"; // [!code highlight]
->>>>>>> f5ec48e (Docs Sync: Aug 26)
 
         const builtInAgent = new BuiltInAgent({ // [!code highlight:3]
           model: "openai:gpt-5.4-mini",
         });
 
         const runtime = new CopilotRuntime({
-<<<<<<< HEAD
-          agents: { default: builtInAgent }, // [!code highlight]
-        });
-
-        export const POST = async (req: NextRequest) => {
-          const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
-            runtime,
-            endpoint: "/api/copilotkit",
-          });
-
-          return handleRequest(req);
-        };
-        ```
-=======
           agents: { default: builtInAgent }, // [!code highlight],
           // [!code highlight:8]
           intelligence: new CopilotKitIntelligence({
-            apiKey: process.env.INTELLIGENCE_API_KEY!,
+            apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
           }),
           // Threads are per-user. Without this, every visitor shares one history.
           identifyUser: (request) => ({
@@ -161,29 +117,26 @@ Before you begin, you'll need the following:
         export const POST = handler;
         ```
 
-        The runtime reads the license key from step 1. Add it to the app that serves
+        The runtime reads the project API key from step 1. Add it to the app that serves
         this route:
 
         ```plaintext title=".env.local"
-        INTELLIGENCE_API_KEY=your_license_key
+        CPK_INTELLIGENCE_API_KEY=cpk-...
         ```
 
         <Callout type="info" title="Running without the Intelligence Platform?">
           Drop the `intelligence` and `identifyUser` options and the runtime falls back
           to SSE mode with an in-memory runner. Chat still works, but Threads and the
           Inspector stay locked and the key is never read. See
-          [Connect your runtime to Intelligence](/premium/connect-your-runtime) for the
+          [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) for the
           full constructor and how to confirm the key is in use.
         </Callout>
->>>>>>> f5ec48e (Docs Sync: Aug 26)
     </Step>
     <Step>
         ### Configure CopilotKit Provider
 
         Wrap your application with the CopilotKit provider:
 
-<<<<<<< HEAD
-=======
         <Callout type="info" title="Which provider goes with which handler?">
           `<CopilotKit>` here is the backward-compatible wrapper, and every released
           version pins it to the single-route transport — which is why it needs the
@@ -194,7 +147,6 @@ Before you begin, you'll need the following:
           [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
         </Callout>
 
->>>>>>> f5ec48e (Docs Sync: Aug 26)
         ```tsx title="app/layout.tsx"
         import { CopilotKit } from "@copilotkit/react-core/v2"; // [!code highlight]
         import "@copilotkit/react-core/v2/styles.css"; // [!code highlight]
@@ -207,11 +159,7 @@ Before you begin, you'll need the following:
             <html lang="en">
               <body>
                 {/* [!code highlight:3] */}
-<<<<<<< HEAD
-                <CopilotKit runtimeUrl="/api/copilotkit">
-=======
                 <CopilotKit runtimeUrl="/api/copilotkit" useSingleEndpoint={false}>
->>>>>>> f5ec48e (Docs Sync: Aug 26)
                   {children}
                 </CopilotKit>
               </body>
@@ -219,8 +167,6 @@ Before you begin, you'll need the following:
           );
         }
         ```
-<<<<<<< HEAD
-=======
 
         <Callout type="info" title="This relative runtimeUrl assumes Next.js serves the runtime">
           `/api/copilotkit` resolves only because Next.js serves your app and the runtime from the
@@ -229,7 +175,6 @@ Before you begin, you'll need the following:
           `http://localhost:8200/api/copilotkit`. The per-frontend guides at `/react-spa`, `/vue`,
           `/angular` and `/react-native` each show that setup.
         </Callout>
->>>>>>> f5ec48e (Docs Sync: Aug 26)
     </Step>
     <Step>
         ### Add the chat interface
@@ -312,8 +257,6 @@ Before you begin, you'll need the following:
         </Accordions>
 
     </Step>
-<<<<<<< HEAD
-=======
 
     <Step>
         ### Open Inspector and confirm setup
@@ -328,7 +271,6 @@ More detail: [Inspector](/inspector).
 
     </Step>
 
->>>>>>> f5ec48e (Docs Sync: Aug 26)
 </Steps>
 
 ## What's next?
