@@ -95,6 +95,16 @@ export default function Page() {
           drawer issues no network requests at all.
         </p>
         <p className="mt-2">
+          <strong>And a managed project cannot set the second.</strong> Headless
+          Threads gained a paragraph on 2026-09-04 saying managed project setup
+          does not issue a <code>COPILOTKIT_LICENSE_TOKEN</code> — the token is
+          for offline and self-hosted licensing, and does not replace the project
+          API key. No page reconciles that with the gate above, so as documented
+          there is no route from a managed project to an unlocked drawer, and
+          this locked view is its steady state rather than a misconfiguration.
+          README §9.17.
+        </p>
+        <p className="mt-2">
           The home page reports both axes on separate rows, so the two are
           distinguishable at a glance. The{" "}
           <a

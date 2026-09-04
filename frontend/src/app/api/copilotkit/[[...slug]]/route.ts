@@ -48,7 +48,13 @@ const CPK_INTELLIGENCE_API_KEY = process.env.CPK_INTELLIGENCE_API_KEY;
  * `expiring`, regardless of whether threads actually work.
  *
  * So a runtime can serve threads perfectly while every drawer in the app shows
- * an Upgrade button. Set both to avoid that.
+ * an Upgrade button.
+ *
+ * Headless Threads gained a paragraph on 2026-09-04 saying a managed project is
+ * never issued this token — it is for offline and self-hosted licensing only,
+ * and does not replace the project key. Taken with the gating above, a managed
+ * project has no documented way to reach a `valid` status, so the drawer's
+ * locked view is the expected steady state there. README §9.17.
  */
 const LICENSE_TOKEN = process.env.COPILOTKIT_LICENSE_TOKEN;
 
@@ -82,6 +88,19 @@ function buildRuntime(): CopilotRuntime {
       // apiUrl and wsUrl default to the managed platform — leave them unset.
       apiKey: CPK_INTELLIGENCE_API_KEY,
     }),
+    // The thread lock. A run takes it on its thread so a second run cannot
+    // start concurrently; these three tune it, and they are set here at their
+    // own defaults so the option names stay typechecked against the installed
+    // runtime rather than living only in a comment.
+    //
+    // They exist on the Intelligence branch ONLY — `CopilotRuntimeLike` types
+    // all three as `undefined` in SSE mode, so there is nothing to tune on the
+    // branch above. Both numbers are clamped with `Math.min` and no warning:
+    // 3600s for the TTL, 3000s for the heartbeat. A value over the cap is
+    // silently reduced, not rejected.
+    lockTtlSeconds: 20,
+    lockHeartbeatIntervalSeconds: 15,
+    lockKeyPrefix: "cpk-harness",
     // Threads are per-user. Without this, every visitor shares one history.
     // `Providers` sends these headers so the harness has a stable identity to
     // key threads on; a real app would read them from a verified session, as

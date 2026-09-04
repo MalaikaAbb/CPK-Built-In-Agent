@@ -175,10 +175,63 @@ export default function Page() {
         </div>
       </Panel>
 
+      <Panel
+        title="Thread locks"
+        description="Documented on this page as of 2026-09-04. The options were already in its code sample; the table explaining them is new."
+      >
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Starting a run takes a lock on its thread, so a second run cannot begin
+          on the same thread while the first is streaming. Three options tune it,
+          and this repo&apos;s runtime now sets all three explicitly — at their
+          own defaults, so the names stay typechecked rather than sitting in a
+          comment.
+        </p>
+        <div className="mt-4">
+          <KeyValue
+            rows={[
+              [
+                "lockTtlSeconds",
+                "How long the lock survives without renewal. Default 20, max 3600 (1 hour).",
+              ],
+              [
+                "lockHeartbeatIntervalSeconds",
+                "How often a live run renews it. Default 15, max 3000 (50 minutes).",
+              ],
+              [
+                "lockKeyPrefix",
+                "Namespaces the Redis key. No default — worth setting when several apps share one Redis.",
+              ],
+            ]}
+          />
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Two things the table leaves out, both read off the installed{" "}
+          <code>@copilotkit/runtime</code> types rather than the page. The maxima
+          are enforced with <code>Math.min</code> and no warning, so{" "}
+          <code>lockTtlSeconds: 86400</code> is silently served as{" "}
+          <code>3600</code> rather than rejected. And all three are
+          Intelligence-only — the SSE branch types them as{" "}
+          <code>undefined</code>, so there is no lock to tune when no project key
+          is set, which is the state this harness runs in by default.
+        </p>
+      </Panel>
+
       <Callout tone="info" title="Not gated by the license token">
-        Unlike the Threads Drawer, this route talks to the runtime directly, so it
-        renders a real list whenever the runtime serves one. That makes it the
-        quickest way to tell a locked drawer apart from a broken threads setup.
+        <p>
+          Unlike the Threads Drawer, this route talks to the runtime directly, so
+          it renders a real list whenever the runtime serves one. That makes it
+          the quickest way to tell a locked drawer apart from a broken threads
+          setup.
+        </p>
+        <p className="mt-2">
+          That distinction got sharper on 2026-09-04: this page now states that a
+          managed project is never issued a{" "}
+          <code>COPILOTKIT_LICENSE_TOKEN</code> at all — it covers offline and
+          self-hosted licensing only, and does not stand in for the project key.
+          Since the drawer gates on exactly that token, a managed project has no
+          documented route to an unlocked drawer, and this headless list is the
+          only one of the two that will show its threads. README §9.17.
+        </p>
       </Callout>
     </>
   );

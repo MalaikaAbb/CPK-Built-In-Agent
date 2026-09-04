@@ -99,7 +99,9 @@ Then edit `frontend/.env.local`:
 | `GOOGLE_API_KEY` / `ANTHROPIC_API_KEY` | Optional. Needed only for Agents B and C on `/model-selection`; that route reports which keys are set and skips the columns whose key is missing. |
 | `GOOGLE_MODEL` / `ANTHROPIC_MODEL` | Optional model ids for those two. Default to `google:gemini-2.5-flash` and `anthropic:claude-sonnet-4-5` (hyphens — see §9.13). |
 | `CPK_INTELLIGENCE_API_KEY` | Optional. The project API key. Turns on CopilotKit Intelligence: `/info` reports `mode: "intelligence"` and threads persist. Without it the runtime falls back to SSE + `MyRunner` and every route still works. Renamed from `INTELLIGENCE_API_KEY` on 2026-09-04 — an older `.env.local` sets a variable nothing reads. |
-| `COPILOTKIT_LICENSE_TOKEN` | Optional, and **separate** from the key above. Sets `/info`'s `licenseStatus`, which is what `<CopilotThreadsDrawer>` gates its locked Upgrade view on. |
+| `COPILOTKIT_LICENSE_TOKEN` | Optional, and **separate** from the key above. Sets `/info`'s `licenseStatus`, which is what `<CopilotThreadsDrawer>` gates its locked Upgrade view on. Managed projects are not issued one — it covers offline/self-hosted licensing only, so on a managed project the drawer stays locked by design. See §9.17. |
+| `CPK_TELEMETRY_ID` | Optional, non-secret. The `CopilotRuntime` constructor falls back to it when no `telemetryId` is passed. Written by the CLI's `init`/`create`. |
+| `SL_ENABLED` | Documented as CLI output, but read by no installed `@copilotkit` package and never explained. Left unset here — see §9.18. |
 | `NEXT_PUBLIC_DEMO_USER_ID` / `NEXT_PUBLIC_DEMO_USER_NAME` | Optional. The identity the provider sends as `x-user-id`/`x-user-name` for `identifyUser`. Threads are per-user, so changing it gives a different thread list. |
 | `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` | Optional; no route here needs it. |
 
@@ -257,7 +259,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 ## 9. Known issues / doc-vs-implementation discrepancies
 
-Found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242.
+Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–18 were found against 1.70.1.
 
 **1. The Quickstart's runtime route cannot serve the documented HTTP surface**
 [`/quickstart`](https://docs.copilotkit.ai/quickstart) mounts a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` — the endpoints [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents — 404. The `runner` option that [`/backend/agent-runner`](https://docs.copilotkit.ai/backend/agent-runner) teaches is also v2-only. This repo mounts `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts` instead.
@@ -322,6 +324,12 @@ It is the v1 UI package and nothing on the page imports from it. Not a dependenc
 
 **16. AI SDK provider version has to be pinned down, not up**
 `@copilotkit/runtime` 1.66.2 depends on `ai` ^6.0.104, whose `LanguageModel` type is `LanguageModelV3 | LanguageModelV2`. The current `@ai-sdk/openai` 4.x emits spec `v4` and is rejected. This repo pins `@ai-sdk/openai` ^3.0.90.
+
+**17. A managed project is told to set a token it is also told it will never be issued**
+[`/headless-threads`](https://docs.copilotkit.ai/headless-threads) gained a paragraph on 2026-09-04: "Managed project setup does not issue `COPILOTKIT_LICENSE_TOKEN`. That token is only for offline or self-hosted licensing and does not replace the managed project API key." But `<CopilotThreadsDrawer>` gates its locked Upgrade view on `licenseStatus`, which the runtime derives from exactly that token — see §9 item 3's sibling behaviour and the callout on `/prebuilt-components/copilot-threads-drawer`. As documented, a managed project therefore has no way to reach a `valid` status, and the drawer's locked state is its steady state rather than a misconfiguration. No page reconciles the two. `/headless-threads` is unaffected — `useThreads` reads the runtime directly — which is what makes it the reliable way to confirm threads work.
+
+**18. `SL_ENABLED` is documented as CLI output but is read by nothing installed**
+[`/headless-threads`](https://docs.copilotkit.ai/headless-threads) says CLI `init`/`create` write "the cloud-hosted platform URLs, `SL_ENABLED`, project-scoped `CPK_INTELLIGENCE_API_KEY`, and optional `CPK_TELEMETRY_ID`" to `.env`. Three of those four check out: `CPK_TELEMETRY_ID` is read by the `CopilotRuntime` constructor as the fallback for `telemetryId`, and the project key is read as documented. `SL_ENABLED` appears nowhere in any installed `@copilotkit` package, and the page never says what it does. It is listed in `.env.example` as unverified rather than guessed at.
 
 ### Why `typescript.ignoreBuildErrors` is on
 
