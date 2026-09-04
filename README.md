@@ -9,7 +9,7 @@ A navigable, working test harness for CopilotKit's **built-in agent** — each d
 | **AG-UI packages** | `@ag-ui/client` 0.0.59 · `@ag-ui/core` 0.0.59 |
 | **Model routers** | `ai` 6.0.242 · `@ai-sdk/openai` 3.0.104 · `@tanstack/ai` 0.43.0 · `@tanstack/ai-openai` 0.18.0 |
 | **Frontend** | Next.js 16.3.0 (App Router) · React 19.2 · TypeScript 5 · Tailwind 4 |
-| **Build status** | No CI. Verified locally against 1.70.1: `next build` ✅ (55 routes) · lint ✅ 0 errors, 18 warnings (unused imports left by trimmed callouts, plus the doc samples' unused bindings — see §9.21) · the browser-driven run below predates the 1.70.1 bump and has not been repeated · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200; with Intelligence keyed, `/info` reports `mode: "intelligence"` + `licenseStatus: "valid"` and all three Rich Threads routes were exercised end to end (drawer unlocked and auto-named a thread, headless rename applied, `explicit` replay verified) ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
+| **Build status** | No CI. Verified locally against 1.70.1: `next build` ✅ (55 routes) · lint ✅ 0 errors, 17 warnings (unused imports left by trimmed callouts, plus the doc samples' unused bindings — see §9.21) · the browser-driven run below predates the 1.70.1 bump and has not been repeated · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200; with Intelligence keyed, `/info` reports `mode: "intelligence"` + `licenseStatus: "valid"` and all three Rich Threads routes were exercised end to end (drawer unlocked and auto-named a thread, headless rename applied, `explicit` replay verified) ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
 
 ---
 
@@ -259,7 +259,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 ## 9. Known issues / doc-vs-implementation discrepancies
 
-Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–24 were found against 1.70.1.
+Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–25 were found against 1.70.1.
 
 **1. The Quickstart's runtime route cannot serve the documented HTTP surface**
 [`/quickstart`](https://docs.copilotkit.ai/quickstart) mounts a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` — the endpoints [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents — 404. The `runner` option that [`/backend/agent-runner`](https://docs.copilotkit.ai/backend/agent-runner) teaches is also v2-only. This repo mounts `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts` instead.
@@ -356,6 +356,11 @@ Both compile against 1.70.1: `ɵlearning` is still accepted and carries `@deprec
 
 **24. The page now states §9.1 outright**
 Its handler table gained a "Single-route only, no option" row naming `copilotRuntimeNextJSAppRouterEndpoint` and its four siblings — the v1 wrappers this repo has flagged as unable to serve Rich Threads since it was built (§9.1). The page is explicit that `useSingleEndpoint={false}` does not rescue them: it points the browser at REST sub-routes the wrapper will never serve, so moving off them is a server-side change, not a provider prop. A `createCopilotEndpointSingleRouteExpress` → `createCopilotExpressHandler` alias row was added alongside it. Nothing to change here — this harness has always mounted `createCopilotRuntimeHandler` at a catch-all — but §9.1 is now doc-acknowledged rather than a repo-only finding.
+
+**25. Two pages document the same browser-controls-the-model capability, and only one of them warns about it**
+[`/backend/custom-agent`](https://docs.copilotkit.ai/backend/custom-agent) hardened its `forwardedProps` samples on 2026-09-04. "Let the frontend override model, temperature, or other settings at runtime" became a rule — non-secret preferences only, validate every value against backend-owned limits, and never use these properties for credentials, tenant identity, authorization, or unrestricted model and provider selection. Concretely: `resolveModel(props.model)` became an equality check against one allowed id (and `resolveModel` left the imports), `temperature` gained a `0..1` bound, and the TanStack sample dropped its `openaiText((props.model as string) ?? "gpt-4o")` pass-through.
+
+Nothing to fix in this repo's factories — `aiSdkAgent` and `tanStackAgent` never read `forwardedProps` and pin their models. But `advancedAgent` carries `overridableProperties: ["model", "temperature", "prompt"]`, which is the same capability through a different door: the browser picks model, sampling temperature and system prompt, unbounded. That array is published verbatim by [`/advanced-configuration`](https://docs.copilotkit.ai/advanced-configuration), which carries **no** warning of any kind and lists thirteen overridable properties including `providerOptions`. The two pages now give opposite guidance for equivalent mechanisms. This repo had already flagged the exposure on `/advanced-configuration` before either doc did — "a client can pick which model your key pays for" — so that callout is extended rather than added. Left as published, since correcting the array would stop the route matching its page.
 
 ### Why `typescript.ignoreBuildErrors` is on
 

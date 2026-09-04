@@ -48,6 +48,49 @@ const copilotEndpoint = createCopilotEndpoint({
 });
 export default copilotEndpoint;`;
 
+const FORWARDED_NOW = `const agent = new BuiltInAgent({
+  type: "aisdk",
+  factory: ({ input, abortSignal }) => {
+    const props = (input.forwardedProps ?? {}) as Record<string, unknown>;
+
+    const model = props.model === "openai/gpt-4o-mini"
+      ? openai("gpt-4o-mini")
+      : openai("gpt-4o");
+
+    const temperature =
+      typeof props.temperature === "number" &&
+      props.temperature >= 0 && props.temperature <= 1
+        ? props.temperature
+        : 0.7;
+
+    return streamText({
+      model,
+      temperature,
+      messages: convertMessagesToVercelAISDKMessages(input.messages),
+      abortSignal,
+    });
+  },
+});`;
+
+const FORWARDED_BEFORE = `// The shape this page published until 2026-09-04.
+import { resolveModel } from "@copilotkit/runtime/v2"; // import now dropped
+
+factory: ({ input, abortSignal }) => {
+  const props = (input.forwardedProps ?? {}) as Record<string, unknown>;
+
+  // Any string the browser sends is resolved to a provider + model.
+  const model =
+    typeof props.model === "string"
+      ? resolveModel(props.model)
+      : openai("gpt-4o");
+
+  // Any number at all, including 12 or -3.
+  const temperature =
+    typeof props.temperature === "number" ? props.temperature : 0.7;
+
+  return streamText({ model, temperature, /* … */ });
+}`;
+
 export default function Page() {
   return (
     <>
@@ -134,6 +177,79 @@ export default function Page() {
         prompts into the single <code>messages</code> array that{" "}
         <code>streamText</code> expects. Same run input, two shapes — which is
         the only real difference between the two factories above.
+      </Callout>
+
+      <Panel
+        title="forwardedProps, hardened"
+        description="Rewritten on 2026-09-04. The mechanism is unchanged; what the sample is willing to accept from the browser is not."
+      >
+        <div className="space-y-4">
+          <CodeBlock
+            code={FORWARDED_NOW}
+            filename="Current — allowlisted model, bounded temperature"
+            language="ts"
+          />
+          <CodeBlock
+            code={FORWARDED_BEFORE}
+            filename="Previous — any model string, any number"
+            language="ts"
+          />
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          The page replaced &ldquo;Let the frontend override model, temperature,
+          or other settings at runtime&rdquo; with a rule: use{" "}
+          <code>forwardedProps</code> only for non-secret browser preferences,
+          validate each value against backend-owned limits before it affects
+          execution, and never use them for credentials, tenant identity,
+          authorization, or unrestricted model and provider selection.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Three concrete edits carry that. <code>resolveModel(props.model)</code>{" "}
+          became an equality check against one permitted id — and{" "}
+          <code>resolveModel</code> was dropped from the imports entirely, since
+          resolving a browser-supplied string to a provider is the thing being
+          removed. <code>temperature</code> gained a <code>0..1</code> bound. The
+          TanStack sample lost its{" "}
+          <code>openaiText((props.model as string) ?? &quot;gpt-4o&quot;)</code>{" "}
+          fallback, which passed the string straight through. The frontend
+          example changed model too, from a Claude id to{" "}
+          <code>openai/gpt-4o-mini</code> — the one the backend now allows.
+        </p>
+      </Panel>
+
+      <Callout
+        tone="warn"
+        title="This repo is not exposed here — but it is exposed one page over"
+      >
+        <p>
+          Neither factory in <code>src/copilotkit/agents.ts</code> reads{" "}
+          <code>forwardedProps</code> at all; both pin their model. So the
+          pattern being warned about never shipped here, and nothing needed
+          fixing on this route.
+        </p>
+        <p className="mt-2">
+          <code>advancedAgent</code> is a different story. It carries{" "}
+          <code>
+            overridableProperties: [&quot;model&quot;, &quot;temperature&quot;,
+            &quot;prompt&quot;]
+          </code>{" "}
+          — the same capability through a different door, letting the browser
+          pick the model, the sampling temperature, and the system prompt with no
+          allowlist and no bounds.{" "}
+          <a
+            href="/advanced-configuration"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            Advanced Configuration
+          </a>{" "}
+          publishes exactly that array and, unlike this page, carries no warning
+          of any kind about it. Its overridable list runs to thirteen properties
+          including <code>providerOptions</code>.
+        </p>
+        <p className="mt-2">
+          Left as published, deliberately — correcting it would make the route
+          stop matching the page it tests. README §9.25.
+        </p>
       </Callout>
 
       {/* <Panel
