@@ -259,7 +259,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 ## 9. Known issues / doc-vs-implementation discrepancies
 
-Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–21 were found against 1.70.1.
+Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–22 were found against 1.70.1.
 
 **1. The Quickstart's runtime route cannot serve the documented HTTP surface**
 [`/quickstart`](https://docs.copilotkit.ai/quickstart) mounts a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` — the endpoints [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents — 404. The `runner` option that [`/backend/agent-runner`](https://docs.copilotkit.ai/backend/agent-runner) teaches is also v2-only. This repo mounts `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts` instead.
@@ -341,6 +341,11 @@ Not a doc bug — a repo one, found while diffing item 19. The pre-sync snapshot
 
 **21. Six of `/model-selection`'s doc samples are declared but never rendered**
 Pre-existing. `BASIC`, `CUSTOM_KEY`, `CUSTOM_PROVIDER` and `AZURE` are string constants in `src/app/model-selection/page.tsx` that no JSX references, so the route shows a provider table and nothing else — `npm run lint` reports each as unused. `OPENROUTER` was in the same state until item 19 needed a panel to live in; it and the new Novita sample now render. The other four remain dead.
+
+**22. Learning Containers moved off the runtime, and the sync could not see it**
+[`/backend/copilot-runtime`](https://docs.copilotkit.ai/backend/copilot-runtime) now configures Learning Containers as `getLearningContainerId` on the `CopilotKitIntelligence` client. The previous shape was `ɵlearning: { containerId }` on `CopilotRuntime`. The 2026-09-04 drift report flagged only the env-var rename and a link move on this page, because the old shape was on the far side of a conflict marker in the stored copy (§9.20) — the comparison never saw it.
+
+Both compile against 1.70.1: `ɵlearning` is still accepted and carries `@deprecated Configure getLearningContainerId on CopilotKitIntelligence`, so this is a migration, not a break. The callback argument was reshaped though — `userId: string` became `user: { id, name } | null` (nullable on the `channel` surface), and flat `threadId` / `runId` moved inside `input`, the AG-UI `RunAgentInput`. Two constraints appear only in the type's doc comment and nowhere on the page: the callback must return the same id for every run on a thread, since a thread cannot move Containers after first assignment; and returning `null`/`undefined` leaves the thread unassigned. Documented on the route; not implemented, as this repo has no Intelligence Project to create a Container in.
 
 ### Why `typescript.ignoreBuildErrors` is on
 
