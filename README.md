@@ -261,14 +261,16 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–25 were found against 1.70.1.
 
-**1. The Quickstart's runtime route cannot serve the documented HTTP surface**
-[`/quickstart`](https://docs.copilotkit.ai/quickstart) mounts a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` — the endpoints [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents — 404. The `runner` option that [`/backend/agent-runner`](https://docs.copilotkit.ai/backend/agent-runner) teaches is also v2-only. This repo mounts `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts` instead.
+**1. ✅ RESOLVED 2026-09-04 — The Quickstart's runtime route could not serve the documented HTTP surface**
+[`/quickstart`](https://docs.copilotkit.ai/quickstart) used to mount a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` 404'd while the bare URL kept answering — the app looked connected and never replied.
+
+The Quickstart now publishes `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts`, which is the shape this repo has mounted from the start. `copilotRuntimeNextJSAppRouterEndpoint` still exists, but is now confined to the "Single-route only, no option" row on [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) (§9.24) rather than being what the Quickstart teaches. **This was not in any drift report** — the old shape sat behind a conflict marker (§9.20), so the comparison never saw it move. Still open on that page: it exports only `GET` and `POST`, so thread rename/archive/delete would 405 (see the route's own callout).
 
 **2. Two different runtimes share the name `CopilotRuntime`**
 [`/backend/copilot-runtime`](https://docs.copilotkit.ai/backend/copilot-runtime) shows a Next.js sample importing it from `@copilotkit/runtime` (v1, needs a `serviceAdapter`) and then documents `a2ui`, `mcpApps`, and `forwardHeaders`, which are options on the **v2** runtime in `@copilotkit/runtime/v2`. Nothing on the page distinguishes them.
 
-**3. `<CopilotKit>` defaults to single-endpoint transport, and no page says so**
-This is the one that will bite hardest. `<CopilotKit>` passes `useSingleEndpoint: props.useSingleEndpoint ?? true` down to the provider, so unless you explicitly pass `false` the client POSTs `{ method: "info" }` to the **bare** runtime URL instead of calling `GET /info`. Against a multi-route runtime that 404s — and the client then caches single-endpoint transport for the rest of the session, so every subsequent agent lookup reports `Agent default not found`:
+**3. ⚠️ PARTLY RESOLVED 2026-09-04 — `<CopilotKit>` defaults to single-endpoint transport; the pages now say so**
+The behaviour is unchanged and still bites. What changed is that it is finally documented: the Quickstart's provider now passes `useSingleEndpoint={false}` and carries a callout saying `<CopilotKit>` "is the backward-compatible wrapper, and every released version pins it to the single-route transport"; [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints)'s provider table now reads `single` in released versions — see below for that row. **Neither appeared in a drift report** — the old provider sample was behind a conflict marker (§9.20). The original finding, still accurate as to behaviour: `<CopilotKit>` passes `useSingleEndpoint: props.useSingleEndpoint ?? true` down to the provider, so unless you explicitly pass `false` the client POSTs `{ method: "info" }` to the **bare** runtime URL instead of calling `GET /info`. Against a multi-route runtime that 404s — and the client then caches single-endpoint transport for the rest of the session, so every subsequent agent lookup reports `Agent default not found`:
 
 ```
 POST /api/copilotkit 404
@@ -278,7 +280,7 @@ POST /api/copilotkit 404
 
 The error text names `/api/copilotkit/info`, which is misleading: that URL is never requested, and `curl`ing it returns a healthy 200. Only the browser is affected.
 
-[`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents `useSingleEndpoint` as the client half of single-route mode, but never mentions that it is the default, and the Quickstart's provider omits it. This repo passes `useSingleEndpoint={false}` on both providers to pin the REST transport. If you would rather keep the default, set `mode: "single-route"` on the handler instead — but then `GET /info` and `/agent/:agentId/run` stop existing, along with the live probe on `/backend/runtime-endpoints`.
+This repo passes `useSingleEndpoint={false}` on both providers to pin the REST transport, and has since before either page mentioned it. If you would rather keep the default, set `mode: "single-route"` on the handler instead — but then `GET /info` and `/agent/:agentId/run` stop existing, along with the live probe on `/backend/runtime-endpoints`.
 
 **4. `defineToolCallRenderer` requires an `args` schema**
 [`/programmatic-control`](https://docs.copilotkit.ai/programmatic-control) calls it with only `name` and `render`. The shipped function has two overloads — a wildcard where `name` must be the literal `"*"`, and a named one requiring `args` — so the sample matches neither. This repo passes the tool's own Zod schema.
@@ -319,8 +321,8 @@ The working id is `claude-sonnet-4-5`, confirmed against `GET https://api.anthro
 **14. Four different model ids, one of them unsupported**
 `openai:gpt-5.4-mini` (Quickstart, Server Tools, Advanced Configuration), `openai:gpt-4.1` (Copilot Runtime, Model Selection), `openai/gpt-4o-mini` (Runtime endpoints, AgentRunner), `gpt-4o` (custom-agent). `gpt-5.4-mini` does not appear in the Model Selection page's own list of supported OpenAI models, so the Quickstart pasted verbatim fails with a model-not-found error. All agents here read one `OPENAI_MODEL`.
 
-**15. `@copilotkit/react-ui` in the Quickstart install line**
-It is the v1 UI package and nothing on the page imports from it. Not a dependency here.
+**15. ✅ RESOLVED 2026-09-04 — `@copilotkit/react-ui` in the Quickstart install line**
+It is the v1 UI package and nothing on the page imported from it. The install line is now `npm install @copilotkit/react-core @copilotkit/runtime`, with `@copilotkit/react-ui` dropped. Never a dependency here. **Not in any drift report** — the old install line was behind a conflict marker (§9.20).
 
 **16. AI SDK provider version has to be pinned down, not up**
 `@copilotkit/runtime` 1.66.2 depends on `ai` ^6.0.104, whose `LanguageModel` type is `LanguageModelV3 | LanguageModelV2`. The current `@ai-sdk/openai` 4.x emits spec `v4` and is rejected. This repo pins `@ai-sdk/openai` ^3.0.90.

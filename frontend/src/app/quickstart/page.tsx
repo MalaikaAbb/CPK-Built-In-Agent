@@ -157,6 +157,18 @@ export default function Page() {
           third reason: <code>/backend/runtime-endpoints</code> probes{" "}
           <code>/info</code> live, and that needs the catch-all.
         </p>
+        <p className="mt-2">
+          <strong>The page has since caught up on all three.</strong> As of
+          2026-09-04 it publishes{" "}
+          <code>createCopilotRuntimeHandler</code> at the catch-all, its provider
+          passes <code>useSingleEndpoint={"{false}"}</code> with a callout
+          explaining that every released <code>&lt;CopilotKit&gt;</code> pins the
+          single-route transport, and <code>@copilotkit/react-ui</code> is gone
+          from the install line. Those closed README §9.1, §9.3 and §9.15 — and
+          none of them appeared in a drift report, because the old shapes were
+          sitting behind merge-conflict markers in this repo&apos;s stored copy
+          of the page. §9.20.
+        </p>
       </Callout>
 
       <Panel
