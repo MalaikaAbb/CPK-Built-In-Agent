@@ -71,6 +71,37 @@ export default function Page() {
         </div>
       </Panel>
 
+      <Callout
+        tone="info"
+        title="&ldquo;No backend configuration&rdquo; is a Built-in Agent guarantee, not a CopilotKit one"
+      >
+        <p>
+          A callout added to this page on 2026-09-04 scopes the claim: the
+          context reaching the model with nothing configured server-side is
+          specific to the Built-in Agent. Every framework receives the same
+          entries — each framework then decides what, if anything, it forwards
+          to the model, and its own Agent App Context page is the authority.
+        </p>
+        <p className="mt-2">
+          This repo is the Built-in Agent, so the guarantee holds on this route
+          as written. What travels is visible in{" "}
+          <code>@ag-ui/core</code>: <code>RunAgentInput</code> carries a{" "}
+          <code>context</code> array, and the protocol types each entry as{" "}
+          <code>{"{ description: string; value: string }"}</code> — note{" "}
+          <code>value</code> is a <strong>string</strong>, while{" "}
+          <code>useAgentContext</code> above is handed an object. It is
+          serialized on the way out, which is worth knowing before reading the
+          array on the{" "}
+          <a
+            href="/backend/ag-ui"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            AG-UI
+          </a>{" "}
+          route&apos;s event panel and wondering where the object went.
+        </p>
+      </Callout>
+
       <Callout tone="info" title="The description is not a comment">
         It is the label the agent sees above the value. &ldquo;The
         user&apos;s active projects&rdquo; and &ldquo;projects&rdquo; are not
