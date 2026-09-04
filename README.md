@@ -259,7 +259,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 ## 9. Known issues / doc-vs-implementation discrepancies
 
-Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–25 were found against 1.70.1.
+Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–26 were found against 1.70.1.
 
 **1. ✅ RESOLVED 2026-09-04 — The Quickstart's runtime route could not serve the documented HTTP surface**
 [`/quickstart`](https://docs.copilotkit.ai/quickstart) used to mount a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` 404'd while the bare URL kept answering — the app looked connected and never replied.
@@ -363,6 +363,13 @@ Its handler table gained a "Single-route only, no option" row naming `copilotRun
 [`/backend/custom-agent`](https://docs.copilotkit.ai/backend/custom-agent) hardened its `forwardedProps` samples on 2026-09-04. "Let the frontend override model, temperature, or other settings at runtime" became a rule — non-secret preferences only, validate every value against backend-owned limits, and never use these properties for credentials, tenant identity, authorization, or unrestricted model and provider selection. Concretely: `resolveModel(props.model)` became an equality check against one allowed id (and `resolveModel` left the imports), `temperature` gained a `0..1` bound, and the TanStack sample dropped its `openaiText((props.model as string) ?? "gpt-4o")` pass-through.
 
 Nothing to fix in this repo's factories — `aiSdkAgent` and `tanStackAgent` never read `forwardedProps` and pin their models. But `advancedAgent` carries `overridableProperties: ["model", "temperature", "prompt"]`, which is the same capability through a different door: the browser picks model, sampling temperature and system prompt, unbounded. That array is published verbatim by [`/advanced-configuration`](https://docs.copilotkit.ai/advanced-configuration), which carries **no** warning of any kind and lists thirteen overridable properties including `providerOptions`. The two pages now give opposite guidance for equivalent mechanisms. This repo had already flagged the exposure on `/advanced-configuration` before either doc did — "a client can pick which model your key pays for" — so that callout is extended rather than added. Left as published, since correcting the array would stop the route matching its page.
+
+**26. `/auth`'s thread-authorization half was never implemented here**
+Found in the §9.20 audit, though not itself marker-hidden — `onBeforeHandler` appears in both the old and new snapshots. The route covered `onRequest` only, while the page's second half documents thread authorization: `onRequest` runs *before* routing and cannot see which thread is addressed, so ownership checks belong in `onBeforeHandler`, which receives a `route` carrying the `threadId`. Now documented on the route with the published sample; still not implemented, because this harness has no user store to own a `thread_owners` table.
+
+The page's list of six threadId-carrying routes (`agent/stop`, `threads/update`, `threads/archive`, `threads/messages`, `threads/events`, `threads/state`) is exactly correct against the shipped `RouteInfo` union. But it treats `threads/list` as the sole route `onBeforeHandler` cannot authorize; `RouteInfo` shows `threads/subscribe`, `threads/clear` and the four `memories/*` routes are equally without a `threadId`, and `threads/clear` is a mutation. That gap is on no page.
+
+Worth stating plainly: off CopilotKit Intelligence there is no server-side binding between a thread and a user, so **every thread route in this harness accepts any `threadId` it is handed.** That is documented behaviour for a runtime with no platform store, not a defect — but it is why no route here is a deployment pattern.
 
 ### Why `typescript.ignoreBuildErrors` is on
 

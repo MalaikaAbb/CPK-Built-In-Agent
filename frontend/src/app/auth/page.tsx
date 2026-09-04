@@ -13,6 +13,39 @@ const FRONTEND = `import { CopilotKit } from "@copilotkit/react-core/v2";
   <YourApp />
 </CopilotKit>`;
 
+const OWNERSHIP = `const handler = createCopilotRuntimeHandler({
+  runtime,
+  basePath: "/api/copilotkit",
+  hooks: {
+    onRequest: async ({ request }) => {
+      // Authenticate first: reject anonymous callers outright.
+      const user = await verifyRequest(request);
+      if (!user) throw new Response("Unauthorized", { status: 401 });
+    },
+
+    onBeforeHandler: async ({ request, route }) => {
+      const user = await verifyRequest(request);
+
+      // Routes that name a thread directly.
+      if ("threadId" in route) {
+        if (!(await userOwnsThread(user.id, route.threadId))) {
+          throw new Response("Forbidden", { status: 403 });
+        }
+        return;
+      }
+
+      // agent/run and agent/connect carry the thread in the body instead.
+      if (route.method === "agent/run" || route.method === "agent/connect") {
+        // Clone: the handler still needs to read the original body.
+        const { threadId } = await request.clone().json();
+        if (threadId && !(await userOwnsThread(user.id, threadId))) {
+          throw new Response("Forbidden", { status: 403 });
+        }
+      }
+    },
+  },
+});`;
+
 const BACKEND = `import type { NextRequest } from "next/server";
 import {
   CopilotRuntime,
@@ -134,6 +167,67 @@ export default function Page() {
         <code>x-*</code> headers through to the agent call, so a token forwarded
         this way is available to the agent as well as to the hook. The Copilot
         Runtime route covers configuring that policy.
+      </Callout>
+
+      <Panel
+        title="Thread authorization — documented, and not implemented here"
+        description="The page's second half. This route covers onRequest only, so this is a coverage gap in the harness rather than doc drift."
+      >
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          <code>onRequest</code>, which the panels above demonstrate, runs{" "}
+          <em>before</em> routing — so it can tell an anonymous caller from a
+          signed-in one, but cannot see which thread is being addressed.{" "}
+          <code>onBeforeHandler</code> runs after, and receives a{" "}
+          <code>route</code> naming the operation and, where the operation is
+          thread-scoped, its <code>threadId</code>. Authorizing a thread needs
+          the second hook; authenticating a caller needs the first.
+        </p>
+        <div className="mt-4">
+          <CodeBlock
+            code={OWNERSHIP}
+            filename="Thread ownership — as published"
+            language="ts"
+          />
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          The page names six routes carrying a <code>threadId</code> on{" "}
+          <code>route</code> — <code>agent/stop</code>,{" "}
+          <code>threads/update</code>, <code>threads/archive</code>,{" "}
+          <code>threads/messages</code>, <code>threads/events</code>,{" "}
+          <code>threads/state</code>. That list is exactly right: the shipped{" "}
+          <code>RouteInfo</code> union carries <code>threadId</code> on those six
+          and no others. <code>agent/run</code> and <code>agent/connect</code>{" "}
+          carry it in the body instead, which is why the sample clones the
+          request rather than consuming it.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          The page then treats <code>threads/list</code> as the one route{" "}
+          <code>onBeforeHandler</code> cannot authorize, since it has no thread
+          to check, and says to build the list from your own ownership table.{" "}
+          <code>RouteInfo</code> shows it is not alone:{" "}
+          <code>threads/subscribe</code>, <code>threads/clear</code> and the four{" "}
+          <code>memories/*</code> routes are in the same position. Nothing on the
+          page mentions them, and <code>threads/clear</code> is the one worth
+          noticing — it is a mutation.
+        </p>
+      </Panel>
+
+      <Callout tone="warn" title="A thread id is not a secret">
+        <p>
+          The page is explicit that a <code>threadId</code> is a public
+          identifier — it travels through the browser, lands in logs, and is
+          enumerable if minted sequentially. Authorization has to be an explicit
+          ownership check; &ldquo;they knew the id, so they must own it&rdquo; is
+          not one, and UUIDs make guessing impractical without being a control.
+        </p>
+        <p className="mt-2">
+          Off CopilotKit Intelligence there is no server-side binding between a
+          thread and a user at all. This harness runs in exactly that state by
+          default — SSE mode, in-memory runner — so every thread route here
+          accepts any <code>threadId</code> it is handed. That is the documented
+          behaviour, not a defect in the runtime, and it is why none of the
+          demo routes should be read as a deployment pattern.
+        </p>
       </Callout>
 
       <Callout tone="warn" title="What this route does not do">
