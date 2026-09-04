@@ -259,7 +259,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 ## 9. Known issues / doc-vs-implementation discrepancies
 
-Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–18 were found against 1.70.1.
+Items 1–16 were found against `@copilotkit/react-core` 1.66.2, `@copilotkit/runtime` 1.66.2, and `ai` 6.0.242, and have not been re-verified since the bump to 1.70.1. Items 17–21 were found against 1.70.1.
 
 **1. The Quickstart's runtime route cannot serve the documented HTTP surface**
 [`/quickstart`](https://docs.copilotkit.ai/quickstart) mounts a v1 `CopilotRuntime` plus `copilotRuntimeNextJSAppRouterEndpoint` at `app/api/copilotkit/route.ts`. A fixed Next.js segment matches that path and nothing beneath it, so `GET /info` and `POST /agent/:agentId/run` — the endpoints [`/backend/runtime-endpoints`](https://docs.copilotkit.ai/backend/runtime-endpoints) documents — 404. The `runner` option that [`/backend/agent-runner`](https://docs.copilotkit.ai/backend/agent-runner) teaches is also v2-only. This repo mounts `createCopilotRuntimeHandler` at `app/api/copilotkit/[[...slug]]/route.ts` instead.
@@ -330,6 +330,17 @@ It is the v1 UI package and nothing on the page imports from it. Not a dependenc
 
 **18. `SL_ENABLED` is documented as CLI output but is read by nothing installed**
 [`/headless-threads`](https://docs.copilotkit.ai/headless-threads) says CLI `init`/`create` write "the cloud-hosted platform URLs, `SL_ENABLED`, project-scoped `CPK_INTELLIGENCE_API_KEY`, and optional `CPK_TELEMETRY_ID`" to `.env`. Three of those four check out: `CPK_TELEMETRY_ID` is read by the `CopilotRuntime` constructor as the fallback for `telemetryId`, and the project key is read as documented. `SL_ENABLED` appears nowhere in any installed `@copilotkit` package, and the page never says what it does. It is listed in `.env.example` as unverified rather than guessed at.
+
+**19. "OpenAI-compatible" splits in two, and the page's own sample picks the wrong half for half the list**
+[`/model-selection`](https://docs.copilotkit.ai/model-selection) added Novita to its list of OpenAI-compatible endpoints with a warning that it must be called as `provider.chat("model")`, not `provider("model")`. The cause is in `@ai-sdk/openai` 3.0.104, not in CopilotKit: `OpenAIProvider`'s bare call signature is typed `(modelId: OpenAIResponsesModelId) => LanguageModelV3` — calling the provider directly *is* the Responses API, with `.chat()`, `.responses()` and `.completion()` as the named alternatives. Any gateway on that list implementing only `/chat/completions` fails the same way, but the page names only Novita and its adjacent OpenRouter sample uses the bare form. Reproduced on the route with both samples side by side.
+
+**20. The doc snapshot baseline was carrying unresolved merge conflicts**
+Not a doc bug — a repo one, found while diffing item 19. The pre-sync snapshot at `8be8dd5` contained **114 conflict markers across 10 of the 21 tracked pages** (`quickstart`, `model-selection`, `backend__custom-agent`, `backend__copilot-runtime`, `backend__agent-runner`, `backend__runtime-endpoints`, `auth`, `inspector`, `advanced-configuration`, `backend__ag-ui`), left by the "Resolving Conflicts" merge in `e504bd9`. Since `/doc-sync` diffs each fetched page against that stored copy, every page with markers was diffing against a corrupted baseline, and content sitting on the far side of a `=======` was neither reported as drift nor visible as missing. The 2026-09-04 sync rewrote `pages/` and cleared all of them; one stray marker left in `doc-snapshot/CHANGELOG.md` is removed here.
+
+**What that hid on `/model-selection`:** the doc's Anthropic table lists `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` and `claude-sonnet-4-5`, and a **MiniMax** provider section with `MINIMAX_API_KEY` / `MINIMAX_BASE_URL` exists that this repo has no row for at all. The route's provider table still reads `claude-sonnet-4-5 · claude-opus-4-5 · claude-haiku-4-5` — and `claude-opus-4-5` appears nowhere in the doc. Not corrected in this PR; see the note on that route.
+
+**21. Six of `/model-selection`'s doc samples are declared but never rendered**
+Pre-existing. `BASIC`, `CUSTOM_KEY`, `CUSTOM_PROVIDER` and `AZURE` are string constants in `src/app/model-selection/page.tsx` that no JSX references, so the route shows a provider table and nothing else — `npm run lint` reports each as unused. `OPENROUTER` was in the same state until item 19 needed a panel to live in; it and the new Novita sample now render. The other four remain dead.
 
 ### Why `typescript.ignoreBuildErrors` is on
 

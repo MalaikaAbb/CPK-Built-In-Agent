@@ -46,6 +46,19 @@ const agent = new BuiltInAgent({
   model: openrouter("anthropic/claude-sonnet-4-5"),
 });`;
 
+const NOVITA = `import { BuiltInAgent } from "@copilotkit/runtime/v2";
+import { createOpenAI } from "@ai-sdk/openai";
+
+const novita = createOpenAI({
+  apiKey: process.env.NOVITA_API_KEY,
+  baseURL: "https://api.novita.ai/v3/openai",
+});
+
+const agent = new BuiltInAgent({
+  // .chat(), not the bare call — see the note below.
+  model: novita.chat("deepseek/deepseek-v3"),
+});`;
+
 const PROVIDERS: [string, string, string, string][] = [
   [
     "OpenAI",
@@ -193,6 +206,79 @@ export default function Page() {
           </table>
         </div>
       </Panel>
+
+      <Callout
+        tone="warn"
+        title="The table above is behind the doc, and this repo could not see that until now"
+      >
+        <p>
+          The Anthropic row reads{" "}
+          <code>claude-sonnet-4-5 · claude-opus-4-5 · claude-haiku-4-5</code>.
+          The page&apos;s current table lists <code>claude-opus-4-8</code>,{" "}
+          <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code> and{" "}
+          <code>claude-sonnet-4-5</code> — and <code>claude-opus-4-5</code>, which
+          this route names, is on the page nowhere. A whole{" "}
+          <strong>MiniMax</strong> provider section with its own{" "}
+          <code>MINIMAX_API_KEY</code> and <code>MINIMAX_BASE_URL</code> has no
+          row here either.
+        </p>
+        <p className="mt-2">
+          None of that was reported as drift, because the stored copy this
+          repo diffs against was carrying unresolved merge-conflict markers —
+          114 of them across 10 pages — so anything on the far side of a{" "}
+          <code>=======</code> was invisible to the comparison. The 2026-09-04
+          sync cleared them. The rows are left uncorrected here deliberately, so
+          the gap stays visible rather than being quietly closed. README §9.20.
+        </p>
+      </Callout>
+
+      <Panel
+        title="OpenAI-compatible endpoints"
+        description="Anything speaking the OpenAI wire format goes through createOpenAI({ baseURL }) — no CopilotKit-specific provider to install."
+      >
+        <div className="space-y-4">
+          <CodeBlock
+            code={OPENROUTER}
+            filename="OpenRouter — as published"
+            language="ts"
+          />
+          <CodeBlock
+            code={NOVITA}
+            filename="Novita — note the .chat() call"
+            language="ts"
+          />
+        </div>
+      </Panel>
+
+      <Callout
+        tone="warn"
+        title="“OpenAI-compatible” splits in two, and the bare call form picks the wrong half"
+      >
+        <p>
+          Novita joined this page&apos;s provider list on 2026-09-04 with a
+          warning attached: it implements Chat Completions but not Responses, so
+          it must be called as <code>provider.chat(&quot;model&quot;)</code>{" "}
+          rather than <code>provider(&quot;model&quot;)</code>.
+        </p>
+        <p className="mt-2">
+          The mechanism is in <code>@ai-sdk/openai</code> 3.0.104 rather than in
+          anything CopilotKit does. <code>OpenAIProvider</code>&apos;s call
+          signature is typed{" "}
+          <code>(modelId: OpenAIResponsesModelId) =&gt; LanguageModelV3</code> —
+          the bare call <em>is</em> the Responses API. Three named forms sit
+          beside it: <code>.chat()</code> for Chat Completions,{" "}
+          <code>.responses()</code>, and <code>.completion()</code>.
+        </p>
+        <p className="mt-2">
+          So the failure is not Novita-specific, even though Novita is the only
+          provider the page names. Every gateway on that list that implements{" "}
+          <code>/chat/completions</code> and nothing else will reject the bare
+          call the same way, and the sample directly above it — OpenRouter, which
+          does implement Responses — uses exactly the form that breaks them. If
+          an OpenAI-compatible endpoint returns an error on the first token,{" "}
+          <code>.chat()</code> is the first thing to try.
+        </p>
+      </Callout>
     </>
   );
 }
