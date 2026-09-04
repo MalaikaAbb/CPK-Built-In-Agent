@@ -28,7 +28,7 @@ const RUNNERS: [string, string, string][] = [
   [
     "IntelligenceAgentRunner",
     "@copilotkit/runtime/v2",
-    "Durable threads via the Enterprise Intelligence Platform.",
+    "Durable threads via CopilotKit Intelligence. Selected automatically on an Intelligence runtime.",
   ],
   [
     "TelemetryAgentRunner",
