@@ -5,11 +5,11 @@ A navigable, working test harness for CopilotKit's **built-in agent** — each d
 | | |
 |---|---|
 | **Doc sync date** | Machine-maintained — `doc-snapshot/manifest.json` → `syncedAt`, rewritten on every sync |
-| **CopilotKit packages** | `@copilotkit/react-core` 1.66.2 · `@copilotkit/runtime` 1.66.2 · `@copilotkit/shared` 1.66.2 |
-| **AG-UI packages** | `@ag-ui/client` 0.0.57 · `@ag-ui/core` 0.0.57 |
-| **Model routers** | `ai` 6.0.242 · `@ai-sdk/openai` 3.0.90 · `@tanstack/ai` 0.43.0 · `@tanstack/ai-openai` 0.18.0 |
+| **CopilotKit packages** | `@copilotkit/react-core` 1.70.1 · `@copilotkit/runtime` 1.70.1 · `@copilotkit/shared` 1.70.1 |
+| **AG-UI packages** | `@ag-ui/client` 0.0.59 · `@ag-ui/core` 0.0.59 |
+| **Model routers** | `ai` 6.0.242 · `@ai-sdk/openai` 3.0.104 · `@tanstack/ai` 0.43.0 · `@tanstack/ai-openai` 0.18.0 |
 | **Frontend** | Next.js 16.3.0 (App Router) · React 19.2 · TypeScript 5 · Tailwind 4 |
-| **Build status** | No CI. Verified locally: `next build` ✅ (55 routes) · lint ✅ 0 errors, 21 warnings (unused imports left by trimmed callouts, plus the doc samples' unused bindings) · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200; with Intelligence keyed, `/info` reports `mode: "intelligence"` + `licenseStatus: "valid"` and all three Rich Threads routes were exercised end to end (drawer unlocked and auto-named a thread, headless rename applied, `explicit` replay verified) ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
+| **Build status** | No CI. Verified locally against 1.70.1: `next build` ✅ (55 routes) · lint ✅ 0 errors, 18 warnings (unused imports left by trimmed callouts, plus the doc samples' unused bindings — see §9.21) · the browser-driven run below predates the 1.70.1 bump and has not been repeated · dev server boots with all 10 agents on `GET /info` ✅ · driven in headless Chrome: every provider tab and both factory tabs reached a real `POST /agent/<id>/run` 200; with Intelligence keyed, `/info` reports `mode: "intelligence"` + `licenseStatus: "valid"` and all three Rich Threads routes were exercised end to end (drawer unlocked and auto-named a thread, headless rename applied, `explicit` replay verified) ✅ · `tsc --noEmit` ❌ 9 errors, **all in verbatim doc samples** — see §9 |
 
 ---
 
