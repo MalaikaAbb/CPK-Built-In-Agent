@@ -17,9 +17,15 @@ import "server-only";
  *     actually on", because a key can be set and still rejected, and SSE mode
  *     already reports `threadEndpoints.list: true` off its in-memory runner, so
  *     the thread flags alone read as a false positive.
- *   - `licenseStatus` — from the runtime's `licenseToken`, NOT its Intelligence
- *     key. This is what `<CopilotThreadsDrawer>` gates its locked view on.
+ *   - `licenseStatus` — what `<CopilotThreadsDrawer>` gates its locked view on.
+ *     No longer just the `licenseToken`: as of 1.70.1 the runtime resolves
+ *     managed entitlements FIRST and only falls back to the token's
+ *     `licenseChecker`. A ready `managedOrgSubscription` yields `"valid"` with
+ *     no token set at all. It is also emitted only by an Intelligence runtime —
+ *     SSE mode reports no `licenseStatus` whatever the token says.
  *   - `threadEndpoints` — what the runtime says it can do with threads.
+ *   - `runtimeEntitlements` / `inspectorMetadata` — Intelligence only, added to
+ *     the page on 2026-09-04. See the types below.
  */
 
 export interface ThreadEndpoints {
@@ -32,6 +38,26 @@ export interface ThreadEndpoints {
 /** What the runtime reports it is running as. */
 export type RuntimeMode = "sse" | "intelligence";
 
+/**
+ * `runtimeEntitlements`, documented on Runtime HTTP endpoints as of 2026-09-04
+ * and emitted only by an Intelligence runtime.
+ *
+ * `/info` answers 200 even when the entitlement lookup fails — it is an
+ * availability endpoint, so a failed lookup degrades features rather than the
+ * response. The page names one error code; the runtime emits two, split on
+ * whether retrying could help:
+ *
+ *   - `runtime_entitlements_misconfigured` — retryable `false`. What a rejected
+ *     project key (a non-retryable platform error, e.g. 401) produces.
+ *   - `runtime_entitlements_unavailable` — retryable `true`. Any other lookup
+ *     failure.
+ */
+export interface RuntimeEntitlements {
+  status: "ready" | "degraded" | "misconfigured" | "unavailable";
+  entitlement?: { source?: string; active?: boolean };
+  error?: { code: string; message: string; retryable: boolean };
+}
+
 export interface IntelligenceReport {
   runtime: { ok: boolean; detail: string };
   /** Whether a project key is configured on the server. Never the value. */
@@ -42,6 +68,10 @@ export interface IntelligenceReport {
   mode?: RuntimeMode;
   licenseStatus?: string;
   threadEndpoints?: ThreadEndpoints;
+  /** Intelligence runtimes only — absent in SSE mode, as is `licenseStatus`. */
+  runtimeEntitlements?: RuntimeEntitlements;
+  /** Advertises `GET {basePath}/inspector-metadata`. Intelligence only. */
+  inspectorMetadata?: boolean;
   agentIds: string[];
 }
 
@@ -79,6 +109,8 @@ export async function getIntelligenceReport(): Promise<IntelligenceReport> {
       mode?: RuntimeMode;
       licenseStatus?: string;
       threadEndpoints?: ThreadEndpoints;
+      runtimeEntitlements?: RuntimeEntitlements;
+      inspectorMetadata?: boolean;
     };
     const agentIds = Object.keys(body.agents ?? {});
 
@@ -91,6 +123,8 @@ export async function getIntelligenceReport(): Promise<IntelligenceReport> {
       mode: body.mode,
       licenseStatus: body.licenseStatus,
       threadEndpoints: body.threadEndpoints,
+      runtimeEntitlements: body.runtimeEntitlements,
+      inspectorMetadata: body.inspectorMetadata,
       agentIds,
     };
   } catch (error) {

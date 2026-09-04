@@ -95,14 +95,24 @@ export default function Page() {
           drawer issues no network requests at all.
         </p>
         <p className="mt-2">
-          <strong>And a managed project cannot set the second.</strong> Headless
-          Threads gained a paragraph on 2026-09-04 saying managed project setup
-          does not issue a <code>COPILOTKIT_LICENSE_TOKEN</code> — the token is
-          for offline and self-hosted licensing, and does not replace the project
-          API key. No page reconciles that with the gate above, so as documented
-          there is no route from a managed project to an unlocked drawer, and
-          this locked view is its steady state rather than a misconfiguration.
-          README §9.17.
+          <strong>A managed project cannot set the second — and does not need
+          to.</strong> Headless Threads now says managed setup never issues a{" "}
+          <code>COPILOTKIT_LICENSE_TOKEN</code>, which reads as a dead end for
+          this drawer. It is not one:{" "}
+          <code>resolveCompatibilityLicenseStatus</code> consults{" "}
+          <code>runtimeEntitlements</code> first, and an active{" "}
+          <code>managedOrgSubscription</code> resolves to{" "}
+          <code>&quot;valid&quot;</code> on its own — the token is only the
+          fallback. So the drawer unlocks through the entitlement. Neither page
+          says this; it is visible in the runtime&apos;s{" "}
+          <code>handleGetRuntimeInfo</code>, and the{" "}
+          <a
+            href="/backend/runtime-endpoints"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            Runtime endpoints
+          </a>{" "}
+          route lays it out. README §9.17.
         </p>
         <p className="mt-2">
           The home page reports both axes on separate rows, so the two are

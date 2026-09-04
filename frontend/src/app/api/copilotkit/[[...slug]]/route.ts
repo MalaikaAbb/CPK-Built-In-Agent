@@ -50,11 +50,14 @@ const CPK_INTELLIGENCE_API_KEY = process.env.CPK_INTELLIGENCE_API_KEY;
  * So a runtime can serve threads perfectly while every drawer in the app shows
  * an Upgrade button.
  *
- * Headless Threads gained a paragraph on 2026-09-04 saying a managed project is
- * never issued this token — it is for offline and self-hosted licensing only,
- * and does not replace the project key. Taken with the gating above, a managed
- * project has no documented way to reach a `valid` status, so the drawer's
- * locked view is the expected steady state there. README §9.17.
+ * It is the FALLBACK input, not the only one. `resolveCompatibilityLicenseStatus`
+ * checks `runtimeEntitlements` first, and an active `managedOrgSubscription`
+ * resolves to `"valid"` on its own. So a managed project — never issued this
+ * token, per Headless Threads — still unlocks the drawer, through its
+ * entitlement. The token covers offline and self-hosted licensing. README §9.17.
+ *
+ * `licenseStatus` is also emitted only by an Intelligence runtime, so the SSE
+ * branch below reports none at all whatever this is set to.
  */
 const LICENSE_TOKEN = process.env.COPILOTKIT_LICENSE_TOKEN;
 

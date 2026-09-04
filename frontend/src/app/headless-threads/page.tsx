@@ -224,13 +224,14 @@ export default function Page() {
           setup.
         </p>
         <p className="mt-2">
-          That distinction got sharper on 2026-09-04: this page now states that a
-          managed project is never issued a{" "}
-          <code>COPILOTKIT_LICENSE_TOKEN</code> at all — it covers offline and
-          self-hosted licensing only, and does not stand in for the project key.
-          Since the drawer gates on exactly that token, a managed project has no
-          documented route to an unlocked drawer, and this headless list is the
-          only one of the two that will show its threads. README §9.17.
+          This page now states that a managed project is never issued a{" "}
+          <code>COPILOTKIT_LICENSE_TOKEN</code> at all — offline and self-hosted
+          licensing only, and no substitute for the project key. Read alone that
+          looks like it strands the drawer forever, since the drawer gates on
+          that token. The Runtime endpoints page&apos;s new{" "}
+          <code>runtimeEntitlements</code> section is what resolves it: the token
+          is only the fallback, and an active managed subscription reaches{" "}
+          <code>&quot;valid&quot;</code> without it. README §9.17.
         </p>
       </Callout>
     </>
