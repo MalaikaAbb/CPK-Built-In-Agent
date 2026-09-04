@@ -75,7 +75,7 @@ const runtime = new CopilotRuntime({
     default: agent,
   },
   intelligence: new CopilotKitIntelligence({
-    apiKey: process.env.INTELLIGENCE_API_KEY!,
+    apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
   }),
   identifyUser: async (request) => {
     const session = await verifyAppSession(request);
@@ -167,7 +167,7 @@ export default function Page() {
                 <code>verifyAppSession</code>, which the docs never define — a
                 local harness has no session to verify. And the runtime is built
                 in two shapes, because without an{" "}
-                <code>INTELLIGENCE_API_KEY</code> the options union does not
+                <code>CPK_INTELLIGENCE_API_KEY</code> the options union does not
                 accept <code>intelligence</code> at all.
               </>
             }

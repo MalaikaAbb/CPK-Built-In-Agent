@@ -31,12 +31,12 @@ import { MyRunner } from "@/copilotkit/runner";
  * Server-side only, and deliberately not `NEXT_PUBLIC_`. A project key prefixed
  * for the browser would ship in the bundle.
  */
-const INTELLIGENCE_API_KEY = process.env.INTELLIGENCE_API_KEY;
+const CPK_INTELLIGENCE_API_KEY = process.env.CPK_INTELLIGENCE_API_KEY;
 
 /**
  * A SECOND, SEPARATE credential — and the one that unlocks the Threads Drawer.
  *
- * `INTELLIGENCE_API_KEY` authorizes the runtime against the platform: it is what
+ * `CPK_INTELLIGENCE_API_KEY` authorizes the runtime against the platform: it is what
  * makes `/info` report `mode: "intelligence"` and what makes the thread REST
  * endpoints return real rows. It does NOT advertise a license.
  *
@@ -64,7 +64,7 @@ const LICENSE_TOKEN = process.env.COPILOTKIT_LICENSE_TOKEN;
  * restart.
  */
 function buildRuntime(): CopilotRuntime {
-  if (!INTELLIGENCE_API_KEY) {
+  if (!CPK_INTELLIGENCE_API_KEY) {
     return new CopilotRuntime({
       agents,
       // SSE-mode only. `runner` is absent from the Intelligence options, which
@@ -80,7 +80,7 @@ function buildRuntime(): CopilotRuntime {
     ...(LICENSE_TOKEN ? { licenseToken: LICENSE_TOKEN } : {}),
     intelligence: new CopilotKitIntelligence({
       // apiUrl and wsUrl default to the managed platform — leave them unset.
-      apiKey: INTELLIGENCE_API_KEY,
+      apiKey: CPK_INTELLIGENCE_API_KEY,
     }),
     // Threads are per-user. Without this, every visitor shares one history.
     // `Providers` sends these headers so the harness has a stable identity to

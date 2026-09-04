@@ -54,7 +54,7 @@ export async function IntelligenceStatus() {
           : ""
       }. This says the key was read, not that the platform accepted it — a bad key still reports this. Confirm by sending a message and looking for the thread in your project dashboard.`
     : report.intelligenceKeySet
-      ? 'INTELLIGENCE_API_KEY is set, but /info still reports mode "sse" — the key was rejected or never reached the platform.'
+      ? 'CPK_INTELLIGENCE_API_KEY is set, but /info still reports mode "sse" — the key was rejected or never reached the platform.'
       : 'Not configured. /info reports mode "sse": MyRunner backs the threads in memory, so chat works on every route and thread list/inspect answer locally, but mutations and realtime metadata stay off and nothing survives a restart.';
 
   const licenseOk =

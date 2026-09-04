@@ -98,7 +98,7 @@ Then edit `frontend/.env.local`:
 | `OPENAI_MODEL` | Model id for every agent, and for Agent A on `/model-selection`. Defaults to `openai:gpt-4.1`. |
 | `GOOGLE_API_KEY` / `ANTHROPIC_API_KEY` | Optional. Needed only for Agents B and C on `/model-selection`; that route reports which keys are set and skips the columns whose key is missing. |
 | `GOOGLE_MODEL` / `ANTHROPIC_MODEL` | Optional model ids for those two. Default to `google:gemini-2.5-flash` and `anthropic:claude-sonnet-4-5` (hyphens — see §9.13). |
-| `INTELLIGENCE_API_KEY` | Optional. Turns on CopilotKit Intelligence: `/info` reports `mode: "intelligence"` and threads persist. Without it the runtime falls back to SSE + `MyRunner` and every route still works. |
+| `CPK_INTELLIGENCE_API_KEY` | Optional. The project API key. Turns on CopilotKit Intelligence: `/info` reports `mode: "intelligence"` and threads persist. Without it the runtime falls back to SSE + `MyRunner` and every route still works. Renamed from `INTELLIGENCE_API_KEY` on 2026-09-04 — an older `.env.local` sets a variable nothing reads. |
 | `COPILOTKIT_LICENSE_TOKEN` | Optional, and **separate** from the key above. Sets `/info`'s `licenseStatus`, which is what `<CopilotThreadsDrawer>` gates its locked Upgrade view on. |
 | `NEXT_PUBLIC_DEMO_USER_ID` / `NEXT_PUBLIC_DEMO_USER_NAME` | Optional. The identity the provider sends as `x-user-id`/`x-user-name` for `identifyUser`. Threads are per-user, so changing it gives a different thread list. |
 | `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` | Optional; no route here needs it. |
@@ -344,6 +344,7 @@ Items 5, 6, and 7 are doc samples reproduced verbatim, which is this repo's whol
 | No Inspector button | Provider is `CopilotKitProvider` | Use `<CopilotKit>`, which defaults `enableInspector` on in dev. Never mount `<CopilotKitInspector />` by hand. |
 | "CopilotKit core not attached" | A hand-mounted inspector | Same fix — let the provider mount it. |
 | `GET /api/copilotkit/info` 404s | Route on a fixed segment | It must be `app/api/copilotkit/[[...slug]]/route.ts`. |
+| Key is set, but `/info` still reports `mode: "sse"` | `.env.local` carried over the pre-2026-09-04 name `INTELLIGENCE_API_KEY` | The runtime reads `CPK_INTELLIGENCE_API_KEY`. Nothing errors on the old name — the runtime just never sees a key and starts in SSE mode. Values now look like `cpk-…`. |
 | Everything 401s | Pointed at `/api/copilotkit-auth` | That endpoint is gated on purpose. The app-wide provider uses `/api/copilotkit`. |
 | `POST /api/copilotkit 404` + `Agent default not found`, but `curl …/info` returns 200 | `<CopilotKit>` defaults `useSingleEndpoint` to **true**, so the browser speaks single-route to a multi-route runtime | Pass `useSingleEndpoint={false}` on the provider. Already set here — if you see this, check you have not removed it. See §9.3. |
 | Runner log empty but chat works | Runtime using the default runner | Check `runner: new MyRunner()` in the route file. |

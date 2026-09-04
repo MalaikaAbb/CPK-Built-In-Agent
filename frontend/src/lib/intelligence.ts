@@ -3,7 +3,7 @@ import "server-only";
 /**
  * What the runtime reports about itself, for the connection panel.
  *
- * Server-side by necessity: `INTELLIGENCE_API_KEY` and `COPILOTKIT_LICENSE_TOKEN`
+ * Server-side by necessity: `CPK_INTELLIGENCE_API_KEY` and `COPILOTKIT_LICENSE_TOKEN`
  * are server secrets that must never reach the bundle, and only their presence —
  * never their value — crosses to the client.
  *
@@ -54,7 +54,7 @@ function selfOrigin(): string {
 export async function getIntelligenceReport(): Promise<IntelligenceReport> {
   const infoUrl = `${selfOrigin()}/api/copilotkit/info`;
   const keys = {
-    intelligenceKeySet: Boolean(process.env.INTELLIGENCE_API_KEY),
+    intelligenceKeySet: Boolean(process.env.CPK_INTELLIGENCE_API_KEY),
     licenseTokenSet: Boolean(process.env.COPILOTKIT_LICENSE_TOKEN),
   };
 

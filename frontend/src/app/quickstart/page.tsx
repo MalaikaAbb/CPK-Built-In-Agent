@@ -18,7 +18,7 @@ const builtInAgent = new BuiltInAgent({
 const runtime = new CopilotRuntime({
   agents: { default: builtInAgent },
   intelligence: new CopilotKitIntelligence({
-    apiKey: process.env.INTELLIGENCE_API_KEY!,
+    apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
   }),
   identifyUser: (request) => ({
     id: request.headers.get("x-user-id") ?? "anonymous",
@@ -193,10 +193,20 @@ export default function Page() {
       >
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           That key is what turns on Threads and the Inspector&apos;s Threads tab.
-          It reaches the runtime as <code>INTELLIGENCE_API_KEY</code> — a
+          It reaches the runtime as <code>CPK_INTELLIGENCE_API_KEY</code> — a
           server-side secret, never <code>NEXT_PUBLIC_</code> — and the runtime
           reads it off the <code>CopilotKitIntelligence</code> client you
           construct, not off the environment directly.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Both the name and the wording moved on 2026-09-04. It was{" "}
+          <code>INTELLIGENCE_API_KEY</code>, the Quickstart called it a{" "}
+          <em>license key</em>, and its sample value was{" "}
+          <code>your_license_key</code>; it is now the{" "}
+          <em>project API key</em>, shaped <code>cpk-…</code>. The rename is
+          silent at runtime — an <code>.env</code> still on the old variable
+          leaves the runtime in SSE mode with no error, so check the Connection
+          panel rather than the file.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           It is optional here. With no key this repo&apos;s runtime falls back to
