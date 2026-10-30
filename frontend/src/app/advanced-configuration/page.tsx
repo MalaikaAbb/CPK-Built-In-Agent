@@ -10,19 +10,30 @@ const TOOL_CHOICE = `const agent = new BuiltInAgent({
   // toolChoice: { type: "tool", toolName: "searchDocs" }, // Force a specific tool
 });`;
 
-const PROVIDER_OPTIONS = `const agent = new BuiltInAgent({
+const PROVIDER_OPTIONS = `// OpenAI reasoning models (o3, o4-mini) with reasoning effort
+const agent = new BuiltInAgent({
   model: "openai:o3",
   providerOptions: {
     openai: { reasoningEffort: "high" },
   },
 });
 
+// Anthropic with adaptive thinking
 const agent = new BuiltInAgent({
-  model: "anthropic:claude-sonnet-4-5",
+  model: "anthropic:claude-sonnet-4-6",
   providerOptions: {
-    anthropic: { thinking: { type: "enabled", budgetTokens: 10000 } },
+    anthropic: { thinking: { type: "adaptive" }, effort: "high" },
   },
 });`;
+
+const URL_DOWNLOAD_FACTORY = `import { createSafeUrlDownload } from "@copilotkit/runtime/v2";
+
+factory: (ctx) =>
+  streamText({
+    // ...
+    abortSignal: ctx.abortSignal,
+    experimental_download: createSafeUrlDownload({ signal: ctx.abortSignal }),
+  }),`;
 
 const OPTIONS: [string, string, string][] = [
   ["model", "string | LanguageModel", "—"],
@@ -44,6 +55,11 @@ const OPTIONS: [string, string, string][] = [
   ["providerOptions", "Record<string, any>", "—"],
   ["forwardSystemMessages", "boolean", "false"],
   ["forwardDeveloperMessages", "boolean", "false"],
+  [
+    "urlDownload",
+    "\"disabled\" | SafeUrlDownloadOptions | Experimental_DownloadFunction",
+    "public addresses only",
+  ],
 ];
 
 export default function Page() {
@@ -117,8 +133,13 @@ export default function Page() {
         </div>
       </Panel>
 
-      <Panel title="Two samples not exercised above">
+      <Panel title="Samples not exercised above">
         <div className="space-y-4">
+          <CodeBlock
+            code={URL_DOWNLOAD_FACTORY}
+            filename="URL attachments in AI SDK factory mode — as published (urlDownload does not apply there and throws if set)"
+            language="ts"
+          />
           <CodeBlock code={TOOL_CHOICE} filename="Tool choice" language="ts" />
           <CodeBlock
             code={PROVIDER_OPTIONS}
@@ -164,10 +185,31 @@ export default function Page() {
         </p>
       </Callout>
 
-      <Callout tone="info" title="mcpServers is on this page but not in this repo">
+      <Callout tone="info" title="urlDownload, added to the page since the last sync">
+        <p>
+          When a message carries an image or file by URL that the model cannot
+          take directly, the server downloads it. The agent above carries the
+          page&apos;s sample verbatim: downloads only from{" "}
+          <code>cdn.example.com</code> and subdomains of{" "}
+          <code>example-uploads.com</code>, capped at 10 MiB. Any other URL
+          attachment is refused with a short client error and a{" "}
+          <code>[BuiltInAgent]</code> line in the server log; invalid options
+          throw when the agent is constructed, i.e. at dev-server start.
+        </p>
+        <p className="mt-2">
+          This route sends text only, so the restriction is inert here; it is
+          on the agent so the option is type-checked against the installed
+          runtime.
+        </p>
+      </Callout>
+
+      <Callout tone="info" title="mcpServers and mcpClients live on the MCP Servers route">
         The option list includes <code>mcpServers</code> and{" "}
-        <code>mcpClients</code>. Those belong to the MCP Servers page, which is
-        outside this repo&apos;s scope, so no agent here sets them.
+        <code>mcpClients</code>. They are exercised on{" "}
+        <a href="/mcp-servers" className="text-[var(--accent)] underline underline-offset-4">
+          MCP Servers
+        </a>
+        , not on this agent.
       </Callout>
     </>
   );

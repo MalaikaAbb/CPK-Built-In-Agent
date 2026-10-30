@@ -8,6 +8,419 @@ Holds the 3 most recent dated entries. When a change lands on a fourth
 date, the oldest entry is dropped. Entries are counted, not aged, so a gap of
 weeks between changes does not expire anything.
 
+## 2026-10-30
+
+### 09:20 UTC — 8 pages, highest severity high
+
+**High — Advanced Configuration**
+
+`/advanced-configuration` · route `/advanced-configuration` · under “URL attachments”
+
+19 code lines, 1 heading, 19 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ ## URL attachments
++ 
++ When a message has an image or file given by URL, and the model cannot take that URL directly, the server downloads the file and sends its content to the model. Use `urlDownload` to control these downloads:
++ 
++ ```typescript
++ const agent = new BuiltInAgent({
++ model: "openai:gpt-5.4-mini",
++ urlDownload: { // [!code highlight:4]
+````
+
+**High — Model Selection**
+
+`/model-selection` · route `/model-selection` · under “Google”
+
+34 code lines, 2 headings, 65 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- | Gemini 2.5 Pro        | `google:gemini-2.5-pro`        |
+- | Gemini 2.5 Flash      | `google:gemini-2.5-flash`      |
+- | Gemini 2.5 Flash Lite | `google:gemini-2.5-flash-lite` |
++ | Gemini 3.8 Flash      | `google:gemini-3.8-flash`      |
++ | Gemini 3.5 Flash      | `google:gemini-3.5-flash`      |
++ | Gemini 3.5 Flash Lite | `google:gemini-3.5-flash-lite` |
+- model: "google:gemini-2.5-pro",
++ model: "google:gemini-3.8-flash",
+````
+
+**High — Threads Drawer**
+
+`/prebuilt-components/copilot-threads-drawer` · route `/prebuilt-components/copilot-threads-drawer` · under “Add your own "New conversation" button”
+
+41 code lines, 1 heading, 19 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ ## Add your own "New conversation" button
++ 
++ The Drawer has its own "New Conversation" row. Your app can also keep its own
++ button, for example in a toolbar or a page header. To start a new conversation
++ from that button, call `startNewThread()` from
++ [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration).
++ This is the same function the Drawer calls for its own row.
++ 
+````
+
+**Medium — Slots**
+
+`/custom-look-and-feel/slots` · route `/custom-look-and-feel/slots` · under “`messageView` sub-slots”
+
+1 heading, 10 prose lines changed.
+
+````diff
++ | `workSummary`      | The "Working… / Worked for 9s" line when `toolCallDisplay` is `"turn"`.     |
+- | `toolCallsView`    | Tool call visualization.           |
++ | `toolCallsView`    | Tool call visualization. Has its own sub-slot (see below). |
++ 
++ ### `toolCallsView` sub-slots
++ 
++ Available via `messageView={{ assistantMessage: { toolCallsView: { ... } } }}`:
++ 
+````
+
+**Low — Copilot Runtime**
+
+`/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “CopilotKit Intelligence”
+
+2 prose lines changed.
+
+````diff
+- [Threads](/threads), the [inspector](/inspector), and other CopilotKit Intelligence capabilities are provided through the runtime. These give you conversation persistence and debugging without extra setup.
++ [Threads](/AG-UI-Streams), the [inspector](/inspector), and other CopilotKit Intelligence capabilities are provided through the runtime. These give you conversation persistence and debugging without extra setup.
+````
+
+**Low — Use any model router**
+
+`/backend/custom-agent` · route `/backend/custom-agent` · under “How It Works”
+
+7 prose lines changed.
+
+````diff
++ <Callout type="info" title="Using CopilotKit Intelligence? Replace runner with intelligence">
++ Intelligence stores the threads and runs for you, so remove `runner` and pass
++ `intelligence` (and `identifyUser`) to `CopilotRuntime` instead. The custom
++ agent and its `factory` do not change. See
++ [An existing runtime that already has a runner](/intelligence/quickstart#an-existing-runtime-that-already-has-a-runner).
++ </Callout>
++ 
+````
+
+**Low — Inspector**
+
+`/inspector` · route `/inspector` · under “Follow and reproduce a run”
+
+2 prose lines changed.
+
+````diff
+- [Thread](/threads) and choose **Try from here**. Inspector copies its
++ [Thread](/AG-UI-Streams) and choose **Try from here**. Inspector copies its
+````
+
+**Info — Runtime HTTP endpoints**
+
+`/backend/runtime-endpoints` · route `/backend/runtime-endpoints`
+
+Content changed.
+
+---
+
+## 2026-10-21
+
+### 14:32 UTC — 18 pages, highest severity high
+
+**High — Authentication**
+
+`/auth` · route `/auth` · under “When to use this”
+
+3 code lines, 44 prose lines changed.
+
+````diff
+- If you don't need any of those, skip auth entirely. The agent runs anonymously and the frontend never has to care about tokens.
++ If you run the TypeScript runtime without Intelligence and do not need any of those, your agent can run anonymously. Intelligence runtimes require a trusted application-user identity for protected web requests.
++ <Callout type="info" title="Runtime authentication APIs">
++ The runtime hooks on this page use the TypeScript API. Python, Go, Ruby, and C#/.NET use their host's request and authentication APIs; follow their [Intelligence setup examples](/intelligence/quickstart#connect-your-runtime). In every language, resolve the user from a verified session or token and keep the Intelligence API key on the server.
++ </Callout>
++ 
+- The Intelligence runtime requires an `identifyUser` callback — construction throws without one (or without at least one Channel). It runs on the server, once per request, and the id it returns is the scope the runtime hands to the platform. (`intelligence` below is a `CopilotKitIntelligence` instance; [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) covers building it.)
++ The Intelligence runtime requires an `identifyUser` callback — construction throws without one (or without at least one Channel). It runs on the server, once per request, and the id it returns is the scope the runtime hands to the platform. (`intelligence` below is a `CopilotKitIntelligence` instance; [Connect your runtime to Intelligence](/intelligence/quickstart) covers building it.)
+````
+
+**High — AgentRunner and persistence**
+
+`/backend/agent-runner` · route `/backend/agent-runner` · under “AgentRunner and persistence”
+
+4 code lines, 39 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- Every CopilotKit runtime delegates agent execution and persistence to an
++ The TypeScript CopilotKit runtime delegates agent execution and persistence to an
++ <Callout type="info" title="TypeScript runner APIs">
++ The runner classes and customization examples on this page belong to the TypeScript runtime. Python, Go, Ruby, and C#/.NET runtimes use Intelligence for persistence and do not expose these runner classes. See the [Intelligence quickstart](/intelligence/quickstart#connect-your-runtime) for their setup.
++ </Callout>
++ 
+- | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
++ | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
+````
+
+**High — Copilot Runtime**
+
+`/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “Copilot Runtime”
+
+15 code lines, 3 headings, 71 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ 
++ ## Runtime languages
++ 
++ **TypeScript is the default and most fully featured runtime. It is the only runtime that can run without CopilotKit Intelligence.** Use it for an open-source setup, or connect it to Intelligence when you need its services.
++ 
++ Python, Go, Ruby, and C#/.NET runtimes require an Intelligence project and server-side API key. They work with both [cloud-hosted](/intelligence/managed-intelligence-platform) and [self-hosted](/intelligence/self-hosting) Intelligence; they do not provide an in-memory or SQLite runner.
++ 
++ | Language | Host | Without Intelligence |
+````
+
+**High — Use any model router**
+
+`/backend/custom-agent` · route `/backend/custom-agent` · under “When to use Simple Mode vs Factory Mode”
+
+3 code lines, 13 prose lines changed.
+
+````diff
++ To write the whole agent yourself instead of a factory, extend AG-UI's
++ `AbstractAgent`. See [Write your own AG-UI agent](/backend/custom-ag-ui-agent).
++ 
+- The factory receives an `AgentFactoryContext` (from `@copilotkit/runtime/v2`):
++ The factory receives an `BuiltInAgentFactoryContext` (from `@copilotkit/runtime/v2`):
+- interface AgentFactoryContext {
++ interface BuiltInAgentFactoryContext {
++ learnedSkills: BuiltInAgentLearnedSkills; // catalog and read-only AI SDK tools, empty when disabled
+````
+
+**High — Runtime HTTP endpoints**
+
+`/backend/runtime-endpoints` · route `/backend/runtime-endpoints` · under “Runtime HTTP endpoints”
+
+77 code lines, 9 headings, 218 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ <Callout type="info" title="Other runtime languages">
++ Python, Go, Ruby, and C#/.NET runtimes require Intelligence and serve multi-route endpoints. Use `useSingleEndpoint={false}` with the React provider; do not send a single-route envelope to those servers. The JavaScript handler factories, legacy endpoints, and optional TypeScript features below are specific to the TypeScript runtime. See the [Intelligence quickstart](/intelligence/quickstart#connect-your-runtime) for native server setup.
++ </Callout>
++ 
+- | Provider                                 | `useSingleEndpoint` | Transport                                 | Needs handler | Route file                      |
+- | ---------------------------------------- | ------------------- | ----------------------------------------- | ------------- | ------------------------------- |
+- | `<CopilotKitProvider>`                   | omitted             | `auto` — detected from `/info`            | either        | matches the handler             |
+- | `<CopilotKit>`                           | omitted             | `single` in released versions — see below | single-route  | `route.ts`, `POST`              |
+````
+
+**High — Slots**
+
+`/custom-look-and-feel/slots` · route `/custom-look-and-feel/slots` · under “Reshaping the Message List”
+
+41 code lines, 2 headings, 16 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ ## Reshaping the Message List
++ 
++ Slots change how each message renders. To change _which_ messages render — hide some, replace them, reorder them — pass `transformMessages` to the message view. It receives the whole list and returns the list to render.
++ 
++ ```tsx title="page.tsx"
++ import { useCallback } from "react";
++ import { CopilotChat, type Message } from "@copilotkit/react-core/v2";
++ 
+````
+
+**High — Headless Threads**
+
+`/headless-threads` · route `/headless-threads` · under “Headless Threads”
+
+7 code lines, 1 heading, 47 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ Intelligence’s AG-UI streams power the history and delivery behind this custom UI. Use `useThreads` to list and manage conversations, and pass their `threadId` to your chat.
++ 
+- CopilotKit Rich Threads enable persistent, resumable multi-turn conversations. The `useThreads` hook lists, creates, renames, archives, and deletes CopilotKit Intelligence threads with realtime synchronization via WebSocket. Threads work with any agent framework — CopilotKit Intelligence stores conversation history server-side, so users can close their browser and pick up where they left off. It does not list or mutate native LangGraph, ADK, or other framework stores unless your backend explicitly bridges those systems. Thread metadata updates (renames, archives, new threads) appear on connected clients without polling.
++ The `useThreads` hook lists, creates, renames, archives, and deletes CopilotKit Intelligence threads with realtime synchronization via WebSocket. Threads work with any agent framework — CopilotKit Intelligence stores conversation history server-side, so users can close their browser and pick up where they left off. It does not list or mutate native LangGraph, ADK, or other framework stores unless your backend explicitly bridges those systems. Thread metadata updates (renames, archives, new threads) appear on connected clients without polling.
+- [scope Rich Threads to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)
++ [scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)
+- <Callout type="info" title="Migrating existing history?">
+- Threads capture new CopilotKit conversations once your app is connected to
+````
+
+**High — Inspector**
+
+`/inspector` · route `/inspector` · under “Inspector”
+
+4 code lines, 5 headings, 89 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- > Inspector for debugging actions, readables, agent status, messages, and context.
++ > Verify your setup, debug agent runs, reproduce issues, and review Threads and Learning.
+- ## What it shows
++ The CopilotKit Inspector overlays your development application so you can
++ verify the connection, investigate a run, and work with Threads and Learning
++ without leaving the page.
+- The CopilotKit Inspector is a built-in debugging tool that overlays on your app.
+- The first open lands on **Home**. Later opens return to the last pane you used.
+````
+
+**High — Model Selection**
+
+`/model-selection` · route `/model-selection` · under “Supported Models”
+
+9 code lines, 24 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ The tables list the models these docs use. The quickstart uses `openai:gpt-5.4-mini`.
++ The Built-in Agent sends the model id to the provider unchanged, so other model ids
++ from the same provider also work.
++ 
++ | GPT-5.5      | `openai:gpt-5.5`      |
++ | GPT-5.4      | `openai:gpt-5.4`      |
++ | GPT-5.4 Mini | `openai:gpt-5.4-mini` |
+- model: "openai:gpt-4.1",
+````
+
+**High — Threads Drawer**
+
+`/prebuilt-components/copilot-threads-drawer` · route `/prebuilt-components/copilot-threads-drawer` · under “When should I use this?”
+
+27 code lines, 3 headings, 54 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- server-side). <SignupLink surface="docs_drawer">Get a free developer account</SignupLink> to set that up.
++ server-side). <SignupLink surface="docs_drawer">Start cloud-hosted setup</SignupLink> to create or select a project.
+- [scope Rich Threads to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
++ [scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
+- body="Get persistent threads and realtime sync on the free Developer tier."
++ body="Connect a cloud-hosted project to get persistent threads and realtime sync."
++ <Callout type="warn">
++ **The Drawer ships only in `@copilotkit/react-core/v2`.** There is no v1
+````
+
+**High — Introduction**
+
+`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Quickstart”
+
+35 code lines, 5 headings, 68 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- > Get started with CopilotKit's Built-in Agent in minutes.
++ > Build a working AI chat with CopilotKit in minutes.
+- <IntelligenceOnboardingPrompt
+- feature="learning"
+- surface="docs_built_in_agent_quickstart"
+- />
++ ## Start with your coding agent
++ Use this prompt to build a working chat with CopilotKit's built-in agent. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+````
+
+**Medium — Headless UI**
+
+`/custom-look-and-feel/headless-ui` · route `/custom-look-and-feel/headless-ui` · under “Fully Headless UI”
+
+2 headings changed.
+
+````diff
+- # Fully Headless UI
++ # Headless UI
+````
+
+**Medium — Thread & History Lifecycle**
+
+`/threads-lifecycle` · route `/threads-lifecycle` · under “The lifecycle at a glance”
+
+3 headings, 17 prose lines changed.
+
+````diff
+- 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [Threads & Persistence Architecture](/intelligence/threads-explained) for the full server-side model.
++ 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [AG-UI Streams & Framework Threads](/intelligence/threads-explained) for the full server-side model.
+- ## Scope Rich Threads to the signed-in user
++ <span id="scope-rich-threads-to-the-signed-in-user" />
++ ## Scope AG-UI Streams to the signed-in user
++ 
+- [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) covers the
++ [Connect your runtime to Intelligence](/intelligence/quickstart) covers the
+````
+
+**Low — Agent Context**
+
+`/agent-app-context` · route `/agent-app-context` · under “Implementation”
+
+17 prose lines changed.
+
+````diff
++ 
++ <Callout type="warn" title="Context values arrive as JSON strings">
++ The AG-UI protocol defines a context value as a string. Therefore
++ `useAgentContext` calls `JSON.stringify` on any `value` that is not already a
++ string, and your agent receives the JSON text instead of the object or the
++ array.
++ 
++ Parse the value before you read a field from it. Use `json.loads(item["value"])`
+````
+
+**Low — Connect AG-UI agents**
+
+`/backend/ag-ui` · route `/backend/ag-ui` · under “How agents slot into the runtime”
+
+3 prose lines changed.
+
+````diff
++ To write the custom implementation yourself, and keep its own fields through
++ the clone in step 2, see [Write your own AG-UI agent](/backend/custom-ag-ui-agent).
++ 
+````
+
+**Low — Programmatic Control**
+
+`/programmatic-control` · route `/programmatic-control` · under “Overview”
+
+4 prose lines changed.
+
+````diff
+- title="Fully Headless UI"
++ title="Headless UI"
+- - **`agent.runAgent()`** — Low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or handle follow-ups. Use this only when you need direct control over the agent execution (e.g., resuming from an interrupt with `forwardedProps`).
++ - **`agent.runAgent()`** — Low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or handle follow-ups. Use this only when you need direct control over the agent execution. To resume from an interrupt, use `copilotkit.runAgent({ agent, resume })` for standard AG-UI interrupts, or `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` for legacy `on_interrupt` custom events, so that the subscriber lifecycle still wraps the resumed run.
+````
+
+**Low — Server Tools**
+
+`/server-tools` · route `/server-tools` · under “When should I use this?”
+
+47 prose lines changed.
+
+````diff
++ <Callout type="warn" title="The tool runs on the server; the UI still runs in the browser">
++ `execute` runs on your server, so it can reach secrets, a database, or an internal service —
++ and it cannot touch the DOM, component state, or anything else in the page. When the *action*
++ itself belongs in the browser, register it as a [frontend tool](/frontend-tools) instead.
++ 
++ Rendering is separate from executing. A server tool's call still streams to the browser, so
++ you can give it UI with a render-only registration under the same tool name while `execute`
++ keeps running on the server.
+````
+
+**Low — Shared State**
+
+`/shared-state` · route `/shared-state` · under “When should I use this?”
+
+4 prose lines changed.
+
+````diff
++ <Callout type="info">
++ For a complete example of selecting a prepared control with structured AI judgments and returning user actions to the agent, follow the [CopilotKit + Jev cookbook](/cookbook/jev-generative-ui).
++ </Callout>
++ 
+````
+
+---
+
+---
+
 ## 2026-09-04
 
 ### 14:26 UTC — 11 pages, highest severity high
@@ -180,366 +593,5 @@ weeks between changes does not expire anything.
 ````
 
 ---
-
-## 2026-09-03
-
-### 12:51 UTC — 13 pages, highest severity high
-
-**High — Advanced Configuration** · _local snapshot edit, not an upstream change_
-
-`/advanced-configuration` · route `/advanced-configuration` · under “Provider-specific options” · in a `typescript` block
-
-8 code lines changed.
-
-````diff
-- <<<<<<< HEAD
-- // Anthropic with extended thinking
-- const agent = new BuiltInAgent({
-- model: "anthropic:claude-sonnet-4-5",
-- providerOptions: { // [!code highlight:3]
-- anthropic: { thinking: { type: "enabled", budgetTokens: 10000 } },
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-````
-
-**High — Authentication** · _local snapshot edit, not an upstream change_
-
-`/auth` · route `/auth` · under “When to use this”
-
-82 code lines, 4 headings, 24 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- <<<<<<< HEAD
-- <WhenFrameworkHas flag="auth_pattern" equals="runtime-onrequest">
-- ## Frontend
-- Pass your token via the `headers` prop on `<CopilotKit>`. CopilotKit forwards every request with that header attached.
-- ```tsx title="frontend/src/app/page.tsx"
-- import { CopilotKit } from "@copilotkit/react-core/v2";
-- <CopilotKit
-- runtimeUrl="/api/copilotkit"
-````
-
-**High — AgentRunner and persistence** · _local snapshot edit, not an upstream change_
-
-`/backend/agent-runner` · route `/backend/agent-runner` · under “The built-in runners”
-
-9 code lines, 20 prose lines changed.
-
-````diff
-- <<<<<<< HEAD
-- | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs the Enterprise Intelligence Platform with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-- <<<<<<< HEAD
-- the Enterprise Intelligence Platform's `IntelligenceAgentRunner` or supply your
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-````
-
-**High — Copilot Runtime** · _local snapshot edit, not an upstream change_
-
-`/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “Setting up the runtime”
-
-66 code lines, 1 heading, 23 prose lines changed.
-
-````diff
-- <<<<<<< HEAD
-- ```ts title="app/api/copilotkit/route.ts"
-- import {
-- CopilotRuntime,
-- ExperimentalEmptyAdapter,
-- copilotRuntimeNextJSAppRouterEndpoint,
-- } from "@copilotkit/runtime";
-- import { NextRequest } from "next/server";
-````
-
-**High — Use any model router** · _local snapshot edit, not an upstream change_
-
-`/backend/custom-agent` · route `/backend/custom-agent` · under “Quick Start” · in a `typescript` block
-
-34 code lines, 6 prose lines changed.
-
-````diff
-- <<<<<<< HEAD
-- createCopilotEndpoint,
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-- <<<<<<< HEAD
-- createCopilotEndpoint,
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-````
-
-**High — Model Selection** · _local snapshot edit, not an upstream change_
-
-`/model-selection` · route `/model-selection` · under “Model Selection”
-
-24 code lines, 49 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- <<<<<<< HEAD
-- models from OpenAI, Anthropic, and Google, or pass any custom AI SDK model.
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-- <<<<<<< HEAD
-- | Model | Specifier |
-- |-------|-----------|
-- | GPT-5 | `openai:gpt-5` |
-````
-
-**High — Introduction** · _local snapshot edit, not an upstream change_
-
-`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Quickstart”
-
-31 code lines, 31 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- <<<<<<< HEAD
-- <OpsPlatformCTA
-- variant="card"
-- title="Ship the Built-in Agent to production"
-- body="Add persistent threads and the inspector with the Enterprise Intelligence Platform."
-- =======
-- <OpsPlatformCTA
-- variant="card"
-````
-
-**Low — Connect AG-UI agents** · _local snapshot edit, not an upstream change_
-
-`/backend/ag-ui` · route `/backend/ag-ui` · under “The proxy pattern”
-
-4 prose lines changed.
-
-````diff
-- <<<<<<< HEAD
-- routing, and CopilotKit Enterprise Intelligence without changing how the
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-````
-
-**Low — Runtime HTTP endpoints** · _local snapshot edit, not an upstream change_
-
-`/backend/runtime-endpoints` · route `/backend/runtime-endpoints` · under “Runtime HTTP endpoints”
-
-22 prose lines changed.
-
-````diff
-- <<<<<<< HEAD
-- =======
-- >>>>>>> f5ec48e (Docs Sync: Aug 26)
-- <<<<<<< HEAD
-- If you still use the v1 `<CopilotKit>` wrapper from `@copilotkit/react-core`,
-- set `useSingleEndpoint={false}`. Omitting that prop keeps the v1 wrapper's
-- single-route default.
-- =======
-````
-
-**Low — Inspector** · _local snapshot edit, not an upstream change_
-
-`/inspector` · route `/inspector` · under “What it shows”
-
-17 prose lines changed.
-
-````diff
-- <<<<<<< HEAD
-- The CopilotKit Inspector is a built-in debugging tool that overlays on your app, giving you full visibility into what's happening between your frontend and your agents in real time.
-- 
-- | Feature | Description |
-- | --- | --- |
-- | **Home** | Project, runtime, services, and CopilotKit news. |
-- | **Threads** | Inspect real Threads and their messages, AG-UI events, and state. |
-- =======
-````
-
-**Info — Headless Threads**
-
-`/headless-threads` · route `/headless-threads`
-
-Now tracked for the first time.
-
-**Info — Threads Drawer**
-
-`/prebuilt-components/copilot-threads-drawer` · route `/prebuilt-components/copilot-threads-drawer`
-
-Now tracked for the first time.
-
-**Info — Thread & History Lifecycle**
-
-`/threads-lifecycle` · route `/threads-lifecycle`
-
-Now tracked for the first time.
-
----
-
----
-
-## 2026-08-26
-
-### 09:46 UTC — 10 pages, highest severity high
-
-**High — Advanced Configuration**
-
-`/advanced-configuration` · route `/advanced-configuration` · under “Provider-specific options” · in a `typescript` block
-
-6 code lines changed.
-
-````diff
-- // Anthropic with extended thinking
-+ // Anthropic with adaptive thinking
-- model: "anthropic:claude-sonnet-4-5",
-+ model: "anthropic:claude-sonnet-4-6",
-- anthropic: { thinking: { type: "enabled", budgetTokens: 10000 } },
-+ anthropic: { thinking: { type: "adaptive" }, effort: "high" },
-````
-
-**High — Authentication**
-
-`/auth` · route `/auth` · under “When to use this”
-
-75 code lines, 6 headings, 18 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- <WhenFrameworkHas flag="auth_pattern" equals="runtime-onrequest">
-- ## Frontend
-- Pass your token via the `headers` prop on `<CopilotKit>`. CopilotKit forwards every request with that header attached.
-- ```tsx title="frontend/src/app/page.tsx"
-- import { CopilotKit } from "@copilotkit/react-core/v2";
-- <CopilotKit
-- runtimeUrl="/api/copilotkit"
-- headers={{
-````
-
-**High — AgentRunner and persistence**
-
-`/backend/agent-runner` · route `/backend/agent-runner` · under “The built-in runners”
-
-6 code lines, 10 prose lines changed.
-
-````diff
-- | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs the Enterprise Intelligence Platform with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
-+ | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
-- the Enterprise Intelligence Platform's `IntelligenceAgentRunner` or supply your
-+ CopilotKit Intelligence's `IntelligenceAgentRunner` or supply your
-- ```ts title="app/api/copilotkit/route.ts"
-+ ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
-- ```ts title="app/api/copilotkit/route.ts"
-+ ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
-````
-
-**High — Copilot Runtime**
-
-`/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “Setting up the runtime” · in a `ts` block
-
-55 code lines, 3 headings, 32 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- ```ts title="app/api/copilotkit/route.ts"
-+ ```ts title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
-- ExperimentalEmptyAdapter,
-- copilotRuntimeNextJSAppRouterEndpoint,
-- } from "@copilotkit/runtime";
-- import { NextRequest } from "next/server";
-- 
-- const serviceAdapter = new ExperimentalEmptyAdapter();
-````
-
-**High — Use any model router**
-
-`/backend/custom-agent` · route `/backend/custom-agent` · under “Quick Start” · in a `typescript` block
-
-33 code lines, 15 prose lines changed.
-
-````diff
-- createCopilotEndpoint,
-+ createCopilotRuntimeHandler,
-- createCopilotEndpoint,
-+ createCopilotRuntimeHandler,
-- createCopilotEndpoint,
-+ createCopilotRuntimeHandler,
-- model: anthropic("claude-sonnet-4", {
-- thinking: { type: "enabled", budgetTokens: 10000 },
-````
-
-**High — Runtime HTTP endpoints**
-
-`/backend/runtime-endpoints` · route `/backend/runtime-endpoints` · under “Provider and handler pairs”
-
-14 code lines, 3 headings, 92 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ ## Provider and handler pairs
-+ 
-+ The browser provider and the Runtime handler have to agree on the **transport**.
-+ CopilotKit ships more than one name for each half, and they are not
-+ interchangeable: each provider setting requires a matching handler mode.
-+ Different pages and older apps show different pairs, so this table is the
-+ mapping:
-+ 
-````
-
-**High — Model Selection**
-
-`/model-selection` · route `/model-selection` · under “Model Selection”
-
-29 code lines, 1 heading, 66 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- models from OpenAI, Anthropic, and Google, or pass any custom AI SDK model.
-+ built-in model strings or pass any custom AI SDK model.
-- | Model | Specifier |
-- |-------|-----------|
-- | GPT-5 | `openai:gpt-5` |
-- | GPT-5 Mini | `openai:gpt-5-mini` |
-- | GPT-4.1 | `openai:gpt-4.1` |
-+ | Model        | Specifier             |
-````
-
-**High — Introduction**
-
-`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Quickstart”
-
-39 code lines, 1 heading, 66 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ 
-- body="Add persistent threads and the inspector with the Enterprise Intelligence Platform."
-+ body="Add persistent threads and the inspector with CopilotKit Intelligence."
-- <SignupLink surface="docs_built_in_agent_quickstart_step1">Sign up for a free developer account</SignupLink> on our Enterprise Intelligence Platform to get a license key. You'll use it later to enable persistent threads and the inspector.
-+ <SignupLink surface="docs_built_in_agent_quickstart_step1">Sign up for a free developer account</SignupLink> for CopilotKit Intelligence to get a license key. You'll use it later to enable persistent threads and the inspector.
-- npm install @copilotkit/react-core @copilotkit/react-ui @copilotkit/runtime
-+ npm install @copilotkit/react-core @copilotkit/runtime
-+ 
-````
-
-**Low — Connect AG-UI agents**
-
-`/backend/ag-ui` · route `/backend/ag-ui` · under “The proxy pattern”
-
-2 prose lines changed.
-
-````diff
-- routing, and CopilotKit Enterprise Intelligence without changing how the
-+ routing, and CopilotKit Intelligence without changing how the
-````
-
-**Low — Inspector**
-
-`/inspector` · route `/inspector` · under “What it shows”
-
-21 prose lines changed.
-
-````diff
-- The CopilotKit Inspector is a built-in debugging tool that overlays on your app, giving you full visibility into what's happening between your frontend and your agents in real time.
-+ The CopilotKit Inspector is a built-in debugging tool that overlays on your app.
-+ The first open lands on **Home**. Later opens return to the last pane you used.
-+ | **Home** | Project, runtime, services, and CopilotKit news. |
-+ | **Memory** | Inspect long-term memory when Intelligence exposes it. |
-- The primary navigation groups the Inspector into **Threads**, **Agents**, and
-- **Learning**. Threads is the default. Open a real Thread to inspect its
-+ The sidebar has three groups: **Home**, **Workbench** (Threads, Memory), and
-````
-
----
-
 
 ---

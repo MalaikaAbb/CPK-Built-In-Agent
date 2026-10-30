@@ -50,10 +50,20 @@ export function NavSidebar() {
             {group.title}
           </p>
           <ul className="mt-1.5 space-y-0.5">
-            {group.routes.map((route) => {
+            {group.routes.map((route, i) => {
               const active = pathname === route.path;
+              // A sub-heading wherever the doc sidebar's folder changes.
+              const folder =
+                route.folder && route.folder !== group.routes[i - 1]?.folder
+                  ? route.folder
+                  : undefined;
               return (
                 <li key={route.path}>
+                  {folder && (
+                    <p className="mt-2 px-2 pb-0.5 text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                      {folder}
+                    </p>
+                  )}
                   <Link
                     href={route.path}
                     onClick={() => setOpen(false)}

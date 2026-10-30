@@ -20,9 +20,7 @@ const AGENT_IDS = [
   "renderingAgent",
   "advancedAgent",
   "sharedStateAgent",
-  "openAiAgent",
-  "googleAgent",
-  "anthropicAgent",
+  "modelSelectionAgent",
   "aiSdkAgent",
   "tanStackAgent",
 ];

@@ -110,12 +110,11 @@ export default function Page() {
       <Callout tone="warn" title="Intelligence mode takes the runner away">
         <code>runner</code> is an option on the <em>SSE</em> runtime only —{" "}
         <code>CopilotRuntimeOptions</code> is a union, and the Intelligence shape
-        has no such field. So the moment{" "}
-        <code>CPK_INTELLIGENCE_API_KEY</code> is set, this repo&apos;s runtime stops
-        passing <code>MyRunner</code> and the call log below goes quiet: the
-        platform&apos;s <code>IntelligenceAgentRunner</code> is doing the work
-        instead. That is the trade the page describes as the fix for the
-        in-memory default, seen from the other side.
+        has no such field; there the platform&apos;s{" "}
+        <code>IntelligenceAgentRunner</code> does the work. This repo keeps
+        Intelligence off the shared runtime (it lives on{" "}
+        <code>/api/copilotkit-threads</code> for the two Threads routes), so{" "}
+        <code>MyRunner</code> stays installed whatever keys are set.
       </Callout>
 
       <Callout tone="warn" title="The in-memory default is a deployment decision">

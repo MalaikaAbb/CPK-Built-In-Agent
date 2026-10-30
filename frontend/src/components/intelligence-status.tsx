@@ -77,7 +77,7 @@ export async function IntelligenceStatus() {
       />
       <Row
         tone={intelligenceLive ? "ok" : report.intelligenceKeySet ? "warn" : "off"}
-        label="CopilotKit Intelligence"
+        label="CopilotKit Intelligence (Threads runtime)"
         detail={intelligenceDetail}
       />
       <Row

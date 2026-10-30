@@ -27,12 +27,10 @@ const AGENTS: [string, string, string][] = [
     "Advanced Configuration",
   ],
   ["sharedStateAgent", "maxSteps 5 · AG-UI state tools", "Shared State"],
-  ["openAiAgent", "openai:… · OPENAI_API_KEY", "Model Selection — Agent A"],
-  ["googleAgent", "google:… · GOOGLE_API_KEY", "Model Selection — Agent B"],
   [
-    "anthropicAgent",
-    "anthropic:… · ANTHROPIC_API_KEY",
-    "Model Selection — Agent C",
+    "modelSelectionAgent",
+    "overridableProperties: [\"model\"] · model chosen per run",
+    "Model Selection",
   ],
   [
     "aiSdkAgent",

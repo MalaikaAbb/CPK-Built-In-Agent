@@ -4,6 +4,9 @@ import { CopilotChat, useThreads } from "@copilotkit/react-core/v2";
 import { useState } from "react";
 
 import { DemoFrame } from "@/components/demo-frame";
+import { ThreadsProvider } from "@/components/threads-provider";
+
+import { ThreadAgentStrip } from "./thread-agent";
 
 /** The runtime id this demo binds to. Also shown in the demo header. */
 const AGENT_ID = "default";
@@ -180,23 +183,31 @@ export default function Page() {
       parentPath="/headless-threads"
       subtitle={`agent: ${AGENT_ID} · useThreads + threadId handoff`}
     >
-      <div className="grid h-full grid-cols-1 lg:grid-cols-[18rem_1fr]">
-        <div className="min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r dark:border-slate-800">
-          <ThreadSidebar
-            onSelectThread={setActiveThreadId}
-            onNewThread={startFreshConversation}
-            activeThreadId={activeThreadId}
-          />
-        </div>
+      {/* The Threads runtime: the only one with Intelligence (harness glue). */}
+      <ThreadsProvider>
+        <div className="grid h-full grid-cols-1 lg:grid-cols-[18rem_1fr]">
+          <div className="min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r dark:border-slate-800">
+            <ThreadSidebar
+              onSelectThread={setActiveThreadId}
+              onNewThread={startFreshConversation}
+              activeThreadId={activeThreadId}
+            />
+          </div>
 
-        <div className="min-h-0">
-          <CopilotChat
-            key={chatEpoch}
-            agentId={AGENT_ID}
-            threadId={activeThreadId}
-          />
+          <div className="flex min-h-0 flex-col">
+            {activeThreadId && (
+              <ThreadAgentStrip key={activeThreadId} threadId={activeThreadId} />
+            )}
+            <div className="min-h-0 flex-1">
+              <CopilotChat
+                key={chatEpoch}
+                agentId={AGENT_ID}
+                threadId={activeThreadId}
+              />
+            </div>
+          </div>
         </div>
-      </div>
+      </ThreadsProvider>
     </DemoFrame>
   );
 }

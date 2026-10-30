@@ -2,6 +2,7 @@
 
 > Share app-specific context with your Built-in Agent.
 
+
 Share your application's state and context with the Built-in Agent using the `useAgentContext` hook. The Built-in Agent receives this context automatically, with no backend configuration.
 
 <Callout>
@@ -23,6 +24,23 @@ The `useAgentContext` hook lets you register app-specific data that gets include
 - You want to provide domain-specific data without hardcoding it into the system prompt
 
 ## Implementation
+
+<Callout type="warn" title="Context values arrive as JSON strings">
+  The AG-UI protocol defines a context value as a string. Therefore
+  `useAgentContext` calls `JSON.stringify` on any `value` that is not already a
+  string, and your agent receives the JSON text instead of the object or the
+  array.
+
+  Parse the value before you read a field from it. Use `json.loads(item["value"])`
+  in Python, or `JSON.parse(item.value)` in TypeScript. If you skip the parse
+  step, an index such as `colleagues[0]` returns a single character, and a shape
+  check such as `isinstance(value, list)` can never pass.
+
+  Do not stringify the value again, because that produces double encoding. A
+  `value` that is already a string is sent unchanged, so no parse step is needed
+  for it.
+</Callout>
+
 
 <Steps>
 <Step>

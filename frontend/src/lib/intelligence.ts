@@ -7,7 +7,8 @@ import "server-only";
  * are server secrets that must never reach the bundle, and only their presence —
  * never their value — crosses to the client.
  *
- * The probe is `GET /api/copilotkit/info`, the runtime's own discovery route. A
+ * The probe is `GET /api/copilotkit-threads/info` — the Threads runtime, the
+ * only one with Intelligence. It is that runtime's own discovery route. A
  * 200 there is also what proves the multi-route handler is mounted at the
  * catch-all path rather than a single segment.
  *
@@ -82,7 +83,7 @@ function selfOrigin(): string {
 }
 
 export async function getIntelligenceReport(): Promise<IntelligenceReport> {
-  const infoUrl = `${selfOrigin()}/api/copilotkit/info`;
+  const infoUrl = `${selfOrigin()}/api/copilotkit-threads/info`;
   const keys = {
     intelligenceKeySet: Boolean(process.env.CPK_INTELLIGENCE_API_KEY),
     licenseTokenSet: Boolean(process.env.COPILOTKIT_LICENSE_TOKEN),
@@ -118,7 +119,7 @@ export async function getIntelligenceReport(): Promise<IntelligenceReport> {
       ...keys,
       runtime: {
         ok: true,
-        detail: `200 from /api/copilotkit/info — mode "${body.mode}", ${agentIds.length} agent(s) registered.`,
+        detail: `200 from /api/copilotkit-threads/info — mode "${body.mode}", ${agentIds.length} agent(s) registered.`,
       },
       mode: body.mode,
       licenseStatus: body.licenseStatus,
