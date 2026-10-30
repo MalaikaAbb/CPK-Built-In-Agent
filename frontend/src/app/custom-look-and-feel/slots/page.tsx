@@ -1,5 +1,5 @@
 import { RouteHeader } from "@/components/route-header";
-import { SourceCode } from "@/components/source-code";
+import { SourceCode, SourceCodeGroup } from "@/components/source-code";
 import { Callout, CodeBlock, Panel, TryIt } from "@/components/ui";
 
 const NESTED = `// Two levels deep
@@ -47,7 +47,10 @@ const NESTED = `// Two levels deep
 />`;
 
 const SLOTS: [string, string][] = [
-  ["messageView", "assistantMessage · userMessage · reasoningMessage · cursor"],
+  [
+    "messageView",
+    "assistantMessage · userMessage · reasoningMessage · cursor · workSummary  (+ transformMessages · groupMessages)",
+  ],
   ["scrollView", "feather · scrollToBottomButton"],
   [
     "input",
@@ -121,9 +124,45 @@ export default function Page() {
           <code>copyButton</code>, <code>thumbsUpButton</code>,{" "}
           <code>thumbsDownButton</code>, <code>readAloudButton</code>,{" "}
           <code>regenerateButton</code>, <code>toolCallsView</code> — as do{" "}
-          <code>userMessage</code> and <code>reasoningMessage</code>.
+          <code>userMessage</code> and <code>reasoningMessage</code>.{" "}
+          <code>toolCallsView</code> itself now has a <code>group</code>{" "}
+          sub-slot, for a run of tool calls collapsed into one summary.
         </p>
       </Panel>
+
+      <Panel
+        title="Reshaping the message list"
+        description="Levels 5 and 6 of the demo — the page's two list-level samples, each imported unchanged from its own file."
+      >
+        <SourceCodeGroup
+          files={[
+            { file: "frontend/src/app/custom-look-and-feel/slots/demo-chat/transform-messages.tsx" },
+            { file: "frontend/src/app/custom-look-and-feel/slots/demo-chat/group-messages.tsx" },
+          ]}
+          note={
+            <>
+              Neither sample names an agent, and both only show their effect
+              once tool calls are in the thread, so the demo mounts them inside{" "}
+              <code>CopilotChatConfigurationProvider agentId=&quot;renderingAgent&quot;</code>{" "}
+              (the agent with <code>get_weather</code>). Try &ldquo;What&apos;s
+              the weather in Tokyo and in Paris?&rdquo;: in level 5 the weather
+              cards still show their results with tool-result messages filtered
+              out; in level 6 the tool steps fold into a &ldquo;N tool
+              steps&rdquo; row that stays open when you scroll away and back.
+            </>
+          }
+        />
+      </Panel>
+
+      <Callout tone="info" title="Added to the page since the last sync">
+        <code>transformMessages</code> and <code>groupMessages</code> on the
+        message view (with <code>messageRow</code>, <code>messageGroup</code>,{" "}
+        <code>MessageGroupWrapperProps</code> and <code>MessageRow</code>{" "}
+        exported from <code>@copilotkit/react-core/v2</code>), the{" "}
+        <code>workSummary</code> sub-slot, and <code>toolCallsView.group</code>.
+        A <code>children</code> render function on the message view now turns
+        virtualization off; the page prefers the two list-level props.
+      </Callout>
     </>
   );
 }

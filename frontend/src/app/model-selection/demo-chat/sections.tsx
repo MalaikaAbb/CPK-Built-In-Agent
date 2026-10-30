@@ -1,108 +1,104 @@
 "use client";
 
-import { CopilotChat } from "@copilotkit/react-core/v2";
-import { useState } from "react";
+import { CopilotChat, CopilotKitProvider } from "@copilotkit/react-core/v2";
+import { useMemo, useState } from "react";
 
 import { DemoFrame } from "@/components/demo-frame";
+import { MODEL_TABLE } from "@/copilotkit/model";
 
 /**
- * One tab per provider, one chat per tab.
+ * A dropdown of every specifier in the page's tables, one agent, one chat.
  *
- * Split out from the page because the page has to be a server component — it
- * reads `process.env` to report which keys are present — while `CopilotChat`
- * and the tab state need the client. Only booleans cross the boundary; no key
- * value is ever serialised into the payload.
+ * The chosen specifier goes out as `properties={{ model }}` on a provider of
+ * this demo's own. CopilotKit merges provider properties into every run's
+ * `forwardedProps`, and `modelSelectionAgent` lists `model` in
+ * `overridableProperties`, so the next message runs on the new model. The
+ * transcript is one conversation; switching mid-thread hands the earlier
+ * replies to the newly chosen model as history.
  *
- * Switching tabs swaps `agentId` on the same `CopilotChat` instance rather than
- * remounting it, and each transcript survives: messages live on the agent in the
- * CopilotKit core, keyed by `agentId`, not in the component.
- *
- * No `key` prop, deliberately. Adding one forces a remount on every switch and
- * the transcript is thrown away — verified, not assumed.
+ * Its own provider rather than the root one, so the `model` property never
+ * reaches another route's runs (Advanced Configuration's agent also accepts a
+ * `model` override). Listed in `lib/inspector.ts`.
  */
 
-export interface ProviderSection {
-  /** "A", "B", "C" — the label the route uses to talk about them. */
-  letter: string;
-  title: string;
-  /** The agent id registered on the runtime. */
-  agentId: string;
-  /** The `provider:model` string that agent was constructed with. */
-  model: string;
-  envVar: string;
-  /** Whether that env var is set on the server. Never the value. */
-  configured: boolean;
-}
+const AGENT_ID = "modelSelectionAgent";
+const DEFAULT_SPECIFIER = "openai:gpt-5.4-mini";
 
-export function ProviderSections({
-  sections,
+export function ModelPicker({
+  configured,
 }: {
-  sections: ProviderSection[];
+  /** env var name → whether it is set on the server. Never the value. */
+  configured: Record<string, boolean>;
 }) {
-  const [activeId, setActiveId] = useState(sections[0]?.agentId);
-  const active = sections.find((s) => s.agentId === activeId) ?? sections[0];
+  const [specifier, setSpecifier] = useState(DEFAULT_SPECIFIER);
+  const group =
+    MODEL_TABLE.find(({ models }) => models.some(([, s]) => s === specifier)) ??
+    MODEL_TABLE[0];
+  const label = group.models.find(([, s]) => s === specifier)?.[0] ?? specifier;
+  const keySet = configured[group.envVar];
+  const properties = useMemo(() => ({ model: specifier }), [specifier]);
 
   return (
-    <DemoFrame
-      parentPath="/model-selection"
-      subtitle={`${active.title} · ${active.model}`}
-    >
+    <DemoFrame parentPath="/model-selection" subtitle={`${label} · ${specifier}`}>
       <div className="flex h-full flex-col">
-        <div className="flex shrink-0 flex-wrap gap-2 border-b border-slate-200 p-3 dark:border-slate-800">
-          {sections.map((s) => (
-            <button
-              key={s.agentId}
-              type="button"
-              onClick={() => setActiveId(s.agentId)}
-              className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
-                s.agentId === active.agentId
-                  ? "border-[var(--accent)] text-[var(--accent)]"
-                  : "border-slate-300 text-slate-600 hover:border-slate-400 dark:border-slate-600 dark:text-slate-300"
-              }`}
+        <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-200 p-3 dark:border-slate-800">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+            Model
+            <select
+              value={specifier}
+              onChange={(e) => setSpecifier(e.target.value)}
+              className="rounded-md border border-slate-300 bg-white px-2 py-1.5 font-mono text-xs dark:border-slate-600 dark:bg-slate-900"
             >
-              <span
-                className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                  s.configured ? "bg-emerald-500" : "bg-amber-500"
-                }`}
-                aria-hidden
-              />
-              Agent {s.letter} · {s.title}
-            </button>
-          ))}
-        </div>
+              {MODEL_TABLE.map(({ provider, envVar, models }) => (
+                <optgroup
+                  key={provider}
+                  label={`${provider}${configured[envVar] ? "" : ` — ${envVar} not set`}`}
+                >
+                  {models.map(([name, s]) => (
+                    <option key={s} value={s}>
+                      {name} · {s}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </label>
 
-        <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-b border-slate-200 px-4 py-2 font-mono text-xs text-slate-500 dark:border-slate-800">
-          <span>model={active.model}</span>
-          <span>agentId={active.agentId}</span>
-          <span>{active.envVar}</span>
-          <span
-            className={
-              active.configured
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-amber-600 dark:text-amber-400"
-            }
-          >
-            {active.configured ? "key set" : "no key"}
-          </span>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-slate-500">
+            <span>agentId={AGENT_ID}</span>
+            <span>forwardedProps.model={specifier}</span>
+            <span
+              className={
+                keySet
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-amber-600 dark:text-amber-400"
+              }
+            >
+              {group.envVar} {keySet ? "set" : "not set"}
+            </span>
+          </div>
         </div>
 
         <div className="min-h-0 flex-1">
-          {active.configured ? (
-            <CopilotChat
-              agentId={active.agentId}
-              labels={{
-                welcomeMessageText: `Agent ${active.letter} runs on ${active.model}. Ask it something, then switch tabs and ask the same thing.`,
-              }}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center p-6 text-center">
-              <p className="max-w-sm text-sm text-slate-500">
-                <code>{active.envVar}</code> is not set, so this agent would fail
-                on its first run. Add it to <code>frontend/.env.local</code> and
-                restart the dev server — Next reads env at startup.
-              </p>
-            </div>
-          )}
+          <CopilotKitProvider runtimeUrl="/api/copilotkit" properties={properties}>
+            {keySet ? (
+              <CopilotChat
+                agentId={AGENT_ID}
+                labels={{
+                  welcomeMessageText:
+                    "One agent; the dropdown picks the model for each message. Ask something, switch models, ask again.",
+                }}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center p-6 text-center">
+                <p className="max-w-sm text-sm text-slate-500">
+                  <code>{group.envVar}</code> is not set, so a run on{" "}
+                  <code>{specifier}</code> would fail. Add it to{" "}
+                  <code>frontend/.env.local</code> and restart the dev server.
+                </p>
+              </div>
+            )}
+          </CopilotKitProvider>
         </div>
       </div>
     </DemoFrame>

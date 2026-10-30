@@ -10,12 +10,9 @@ import { chat } from "@tanstack/ai";
 import { openaiText } from "@tanstack/ai-openai";
 import { streamText } from "ai";
 
-import {
-  ANTHROPIC_MODEL_ID,
-  GOOGLE_MODEL_ID,
-  MODEL,
-  OPENAI_MODEL_ID,
-} from "./model";
+import { MODEL } from "./model";
+import { subagentsAgent } from "./subagents";
+import { genUiToolBasedAgent, genUiToolBasedFactoryAgent } from "./tool-based";
 import { getWeather, get_weather } from "./tools";
 
 /**
@@ -80,14 +77,20 @@ export const advancedAgent = new BuiltInAgent({
   toolChoice: "auto",
   temperature: 0.7,
   topP: 0.9,
+  topK: 40,
   maxOutputTokens: 4096,
   presencePenalty: 0.1,
   frequencyPenalty: 0.1,
+  stopSequences: ["END"],
   seed: 42,
   maxRetries: 3,
   overridableProperties: ["model", "temperature", "prompt"],
   forwardSystemMessages: true,
   forwardDeveloperMessages: true,
+  urlDownload: {
+    allowedHosts: ["cdn.example.com", "*.example-uploads.com"],
+    maxBytes: 10 * 1024 * 1024,
+  },
 });
 //#endregion
 
@@ -110,39 +113,25 @@ export const sharedStateAgent = new BuiltInAgent({
 });
 //#endregion
 
-//#region model-selection-agents
+//#region model-selection-agent
 /**
- * Model Selection — one agent per provider, so the page's central claim is
- * testable rather than described: the same `BuiltInAgent`, the same chat UI,
- * three different model providers, distinguished only by the `provider:model`
- * prefix and which key they read.
+ * Model Selection — one agent, model chosen per run.
  *
- * `apiKey` is passed explicitly on each. It is optional — `resolveModel` falls
- * back to `OPENAI_API_KEY`, `GOOGLE_API_KEY`, and `ANTHROPIC_API_KEY`
- * respectively — but the page's "custom API key" sample passes it, and being
- * explicit is what makes the per-provider wiring visible here.
+ * `overridableProperties: ["model"]` is the Advanced Configuration page's
+ * mechanism: a run whose `forwardedProps.model` is a `provider:model` string
+ * gets that model, resolved exactly as the constructor's `model` would be (the
+ * runtime reads OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY or
+ * MINIMAX_API_KEY from the prefix). The demo sends the dropdown's specifier as
+ * the provider's `properties`, which CopilotKit forwards on every run.
  *
- * No extra packages: `@ai-sdk/anthropic` and `@ai-sdk/google` ship as
- * dependencies of `@copilotkit/runtime`, and the runtime constructs the
- * provider from the prefix.
+ * Two things the pages say about this, recorded on the route: Model Selection
+ * presents the model as fixed on the agent (switch by constructing the agent
+ * you want), and Use any model router warns against browser-controlled model
+ * selection. Fine for a local harness; not a production pattern.
  */
-
-/** Agent A — OpenAI. Reads OPENAI_API_KEY. */
-export const openAiAgent = new BuiltInAgent({
-  model: OPENAI_MODEL_ID,
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-/** Agent B — Google. Reads GOOGLE_API_KEY. */
-export const googleAgent = new BuiltInAgent({
-  model: GOOGLE_MODEL_ID,
-  apiKey: process.env.GOOGLE_API_KEY,
-});
-
-/** Agent C — Anthropic. Reads ANTHROPIC_API_KEY. */
-export const anthropicAgent = new BuiltInAgent({
-  model: ANTHROPIC_MODEL_ID,
-  apiKey: process.env.ANTHROPIC_API_KEY,
+export const modelSelectionAgent = new BuiltInAgent({
+  model: "openai:gpt-5.4-mini",
+  overridableProperties: ["model"],
 });
 //#endregion
 
@@ -201,9 +190,17 @@ export const agents = {
   renderingAgent,
   advancedAgent,
   sharedStateAgent,
-  openAiAgent,
-  googleAgent,
-  anthropicAgent,
+  modelSelectionAgent,
+  // Components as Tools — the page's config-mode agent and its factory variant.
+  "gen-ui-tool-based": genUiToolBasedAgent,
+  "gen-ui-tool-based-factory": genUiToolBasedFactoryAgent,
+  // The HITL and read-only-context demos post with these ids as published.
+  // The pages publish no backend for them beyond a plain BuiltInAgent, so they
+  // reuse the Quickstart agent.
+  "hitl-in-chat": builtInAgent,
+  "readonly-state-agent-context": builtInAgent,
+  // Sub-agents — the Code tab's TanStack factory with the published tools.
+  subagents: subagentsAgent,
   aiSdkAgent,
   tanStackAgent,
 };

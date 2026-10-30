@@ -1,5 +1,5 @@
 import { RouteHeader } from "@/components/route-header";
-import { SourceCode } from "@/components/source-code";
+import { SourceCode, SourceCodeGroup } from "@/components/source-code";
 import { Callout, CodeBlock, Panel, TryIt } from "@/components/ui";
 
 const DOC_SAMPLE = `import {
@@ -12,7 +12,7 @@ import "@copilotkit/react-core/v2/styles.css";
 
 export default function Page() {
   return (
-    <CopilotKitProvider runtimeUrl="/api/copilotkit" publicLicenseKey="ck_pub_...">
+    <CopilotKitProvider runtimeUrl="/api/copilotkit">
       <CopilotChatConfigurationProvider>
         <div style={{ display: "flex", height: "100dvh" }}>
           <CopilotThreadsDrawer />
@@ -27,8 +27,13 @@ const SLOT_SNIPPET = `<CopilotThreadsDrawer>
   <span slot="header">My conversations</span>
 </CopilotThreadsDrawer>`;
 
+const AGENT_ID_SAMPLE = `<CopilotThreadsDrawer agentId="research_agent" />`;
+
 const PROPS: [string, string][] = [
-  ["agentId", "Agent whose threads to list. Inherits from the chat configuration if omitted."],
+  [
+    "agentId",
+    "Agent whose threads to list. Defaults to the chat configuration's agent, then agentId on <CopilotKitProvider>, then \"default\".",
+  ],
   ["label", 'Accessible name for the drawer region. Defaults to "Threads".'],
   ["recentLabel", 'Section heading above the list. Defaults to "Recent Conversations".'],
   ["onThreadSelect", "Escape hatch to take over thread selection yourself."],
@@ -67,65 +72,34 @@ export default function Page() {
         </div>
       </Panel>
 
-      <Callout tone="warn" title="Two credentials, and the drawer gates on the one you'd least expect">
+      <Callout tone="warn" title="Intelligence access: which credential unlocks the list">
         <p>
-          The drawer showing &ldquo;Threads are a CopilotKit Intelligence
-          feature&rdquo; with an <strong>Upgrade</strong> button does{" "}
-          <em>not</em> mean threads are broken. These are two independent axes:
-        </p>
-        <ul className="mt-2 space-y-1.5">
-          <li>
-            · <code>CPK_INTELLIGENCE_API_KEY</code> authorizes the runtime against
-            the platform. It is what makes <code>/info</code> report{" "}
-            <code>mode: &quot;intelligence&quot;</code> and what makes the thread
-            endpoints return real rows.
-          </li>
-          <li>
-            · <code>COPILOTKIT_LICENSE_TOKEN</code> (or <code>licenseToken</code>{" "}
-            on <code>CopilotRuntime</code>) builds the runtime&apos;s{" "}
-            <code>licenseChecker</code>. <code>/info</code> reports{" "}
-            <code>licenseStatus</code> off that checker, and returns{" "}
-            <code>&quot;none&quot;</code> when there is no checker at all.
-          </li>
-        </ul>
-        <p className="mt-2">
-          The drawer reads the second. So a runtime that serves threads perfectly
-          still renders every drawer locked when only the project key is set — and
-          while unlicensed the wrapper skips the thread fetch entirely, so the
-          drawer issues no network requests at all.
+          The page now splits this by deployment. <strong>Cloud-hosted</strong>:
+          the project-scoped <code>CPK_INTELLIGENCE_API_KEY</code> is the
+          credential, and the runtime resolves the drawer&apos;s entitlement
+          from the organization&apos;s subscription — no token is issued.{" "}
+          <strong>Self-hosted / open source</strong>: give the runtime a
+          license token, as <code>licenseToken</code> or{" "}
+          <code>COPILOTKIT_LICENSE_TOKEN</code> (the option wins if both are
+          set).
         </p>
         <p className="mt-2">
-          <strong>A managed project cannot set the second — and does not need
-          to.</strong> Headless Threads now says managed setup never issues a{" "}
-          <code>COPILOTKIT_LICENSE_TOKEN</code>, which reads as a dead end for
-          this drawer. It is not one:{" "}
-          <code>resolveCompatibilityLicenseStatus</code> consults{" "}
-          <code>runtimeEntitlements</code> first, and an active{" "}
-          <code>managedOrgSubscription</code> resolves to{" "}
-          <code>&quot;valid&quot;</code> on its own — the token is only the
-          fallback. So the drawer unlocks through the entitlement. Neither page
-          says this; it is visible in the runtime&apos;s{" "}
-          <code>handleGetRuntimeInfo</code>, and the{" "}
-          <a
-            href="/backend/runtime-endpoints"
-            className="text-[var(--accent)] underline underline-offset-4"
-          >
-            Runtime endpoints
-          </a>{" "}
-          route lays it out. README §9.17.
-        </p>
-        <p className="mt-2">
-          The home page reports both axes on separate rows, so the two are
-          distinguishable at a glance. The{" "}
+          Without an active entitlement the drawer shows a locked view with an
+          Upgrade link and issues no thread requests. That is not a threads
+          failure:{" "}
           <a
             href="/headless-threads"
             className="text-[var(--accent)] underline underline-offset-4"
           >
             Headless Threads
           </a>{" "}
-          route is not gated this way — <code>useThreads</code> talks to the
-          runtime directly, which is a useful way to confirm threads work while
-          the drawer is locked.
+          is not gated this way and is the quickest check that threads work.
+          The home page reports the runtime mode and <code>licenseStatus</code>{" "}
+          on separate rows.
+        </p>
+        <p className="mt-2">
+          The provider-side <code>publicLicenseKey</code> is gone from the
+          page&apos;s sample — entitlement is server-side configuration now.
         </p>
       </Callout>
 
@@ -135,9 +109,52 @@ export default function Page() {
 
       <Panel
         title="The page's sample, verbatim"
-        description="For comparison against the file above."
+        description="Variant 1 of the demo, for comparison against the file above."
       >
         <CodeBlock code={DOC_SAMPLE} filename="app/page.tsx" language="tsx" />
+      </Panel>
+
+      <Panel
+        title="Variants 2–4: the page's newer samples"
+        description="Copied whole. 2 and 3 mount their own CopilotKitProvider as published; 4 is printed without a provider or imports, so it runs under the root one."
+      >
+        <SourceCodeGroup
+          files={[
+            { file: "frontend/src/app/prebuilt-components/copilot-threads-drawer/demo-chat/sidebar-host.tsx" },
+            { file: "frontend/src/app/prebuilt-components/copilot-threads-drawer/demo-chat/new-conversation.tsx" },
+            { file: "frontend/src/app/prebuilt-components/copilot-threads-drawer/demo-chat/controlled-chat.tsx" },
+            { file: "frontend/src/app/prebuilt-components/copilot-threads-drawer/demo-chat/hide-new-thread.ts" },
+          ]}
+          note={
+            <>
+              What to check: <strong>2</strong> — the sidebar chat and the
+              Drawer share the active thread (on desktop the Drawer has no
+              launcher in the chat header; the page says that is by design).{" "}
+              <strong>3</strong> — the header button resets the chat to the
+              welcome screen and deselects the row; a new row appears only
+              after the first run. <strong>4</strong> — the app owns{" "}
+              <code>threadId</code>; row clicks and both New-conversation
+              controls go through its state. The checkbox injects the CSS-parts
+              sample, which hides the Drawer&apos;s own row and (+) launcher.
+              Variants 2 and 3 use 100dvh as published, so they can overflow
+              the demo frame. <code>YourMainContent</code> in 2 and the imports
+              in 4 are repo-authored, labelled in the files.
+            </>
+          }
+        />
+      </Panel>
+
+      <Panel
+        title="Which agent's threads the drawer shows"
+        description="One agent per drawer, resolved from its own prop, then the nearest chat configuration, then the provider, then default."
+      >
+        <CodeBlock code={AGENT_ID_SAMPLE} filename="Listing another agent's threads — as published" language="tsx" />
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+          Every variant here resolves <code>default</code>: variant 1 sets it
+          on its configuration provider, the others fall through to the
+          fallback. <code>research_agent</code> is the page&apos;s example id
+          and is not registered on this runtime.
+        </p>
       </Panel>
 
       <Panel

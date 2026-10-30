@@ -153,22 +153,43 @@ export default function Page() {
       </Panel>
 
       <Panel
+        title="Driving one agent per thread"
+        description="New on the page: useAgent with agentId, runtimeAgentId and threadId together. Select a thread in the demo and a strip above the chat reads it through this hook."
+      >
+        <SourceCode file="frontend/src/app/headless-threads/demo-chat/thread-agent.tsx" />
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          The three ids are a matched set: the page says a partial combination
+          such as <code>useAgent({"{ agentId, threadId }"})</code> does not
+          compile, because pinning a thread onto the singleton runtime agent
+          would let two hooks overwrite each other&apos;s thread. Expect the
+          strip&apos;s <code>threadId</code> to equal the selected row and its
+          message count to match that thread&apos;s history once it has loaded.
+        </p>
+      </Panel>
+
+      <Panel
         title="The server half"
         description="The page's runtime sample, and this repo's equivalent underneath it."
       >
         <CodeBlock code={SERVER} filename="server.ts — as published" language="ts" />
         <div className="mt-4">
           <SourceCodeGroup
-            files={[{ file: "frontend/src/app/api/copilotkit/[[...slug]]/route.ts" }]}
+            files={[
+              { file: "frontend/src/app/api/copilotkit-threads/[[...slug]]/route.ts" },
+              { file: "frontend/src/components/threads-provider.tsx" },
+            ]}
             note={
               <>
-                Two departures. <code>identifyUser</code> here reads headers the
-                provider sends rather than calling{" "}
-                <code>verifyAppSession</code>, which the docs never define — a
-                local harness has no session to verify. And the runtime is built
-                in two shapes, because without an{" "}
-                <code>CPK_INTELLIGENCE_API_KEY</code> the options union does not
-                accept <code>intelligence</code> at all.
+                Intelligence is on its own runtime,{" "}
+                <code>/api/copilotkit-threads</code>, used only by this route and
+                the Threads Drawer; the demo reaches it through{" "}
+                <code>ThreadsProvider</code>. <code>identifyUser</code> reads{" "}
+                <code>x-user-id</code> if sent and otherwise a fixed demo
+                identity, rather than calling <code>verifyAppSession</code>,
+                which the docs never define. Without{" "}
+                <code>CPK_INTELLIGENCE_API_KEY</code> the runtime is built in its
+                SSE shape, because the options union does not accept{" "}
+                <code>intelligence</code> without a key.
               </>
             }
           />

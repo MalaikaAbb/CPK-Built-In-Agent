@@ -1,9 +1,15 @@
 "use client";
 
-import { CopilotChat } from "@copilotkit/react-core/v2";
+import {
+  CopilotChat,
+  CopilotChatConfigurationProvider,
+} from "@copilotkit/react-core/v2";
 import { useState } from "react";
 
 import { DemoFrame } from "@/components/demo-frame";
+
+import { Chat as GroupMessagesChat } from "./group-messages";
+import { Chat as TransformMessagesChat } from "./transform-messages";
 
 /**
  * The four levels of slot customisation from the Slots page, switchable.
@@ -12,9 +18,22 @@ import { DemoFrame } from "@/components/demo-frame";
  * not typecheck: its props are implicitly `any`, and a plain function is not
  * assignable to `SlotValue<typeof CopilotChatMessageView>` because the real slot
  * type also carries a `Cursor` static. It renders correctly. See the notes page.
+ *
+ * Levels 5 and 6 are the page's list-level samples, imported unchanged from
+ * their own files. Neither names an agent, and their effect only shows when
+ * tool calls are in the thread, so the harness wraps them in a chat
+ * configuration provider pointing at `renderingAgent` (which has
+ * `get_weather`). `<CopilotChat>` resolves its agent from the nearest
+ * configuration provider, so the published components stay untouched.
  */
 
-type Level = "classes" | "props" | "component" | "children";
+type Level =
+  | "classes"
+  | "props"
+  | "component"
+  | "children"
+  | "transform"
+  | "group";
 
 const LEVELS: { id: Level; label: string; blurb: string }[] = [
   {
@@ -36,6 +55,16 @@ const LEVELS: { id: Level; label: string; blurb: string }[] = [
     id: "children",
     label: "4 · Children render fn",
     blurb: "You lay out the slots yourself; anything you leave out is not rendered.",
+  },
+  {
+    id: "transform",
+    label: "5 · transformMessages",
+    blurb: "The message list is filtered before render: tool-result messages are dropped, tool cards keep their results.",
+  },
+  {
+    id: "group",
+    label: "6 · groupMessages",
+    blurb: "Runs of tool steps collapse into one expandable row whose open state survives scrolling.",
   },
 ];
 
@@ -127,6 +156,18 @@ export default function Page() {
                 </div>
               )}
             </CopilotChat>
+          )}
+
+          {level === "transform" && (
+            <CopilotChatConfigurationProvider key="transform" agentId="renderingAgent">
+              <TransformMessagesChat />
+            </CopilotChatConfigurationProvider>
+          )}
+
+          {level === "group" && (
+            <CopilotChatConfigurationProvider key="group" agentId="renderingAgent">
+              <GroupMessagesChat />
+            </CopilotChatConfigurationProvider>
           )}
         </div>
       </div>
