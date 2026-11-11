@@ -408,6 +408,16 @@ export const NAV: NavGroup[] = [
           "Pattern 1 (useHumanInTheLoop) runs from the Code tab unchanged. Pattern 2 (useInterrupt) has no built-in-agent demo on the page and BuiltInAgent never interrupts, so it is not built.",
       },
       {
+        path: "/human-in-the-loop/useInterrupt",
+        folder: "Human-in-the-loop",
+        title: "Pausing the Agent for Input",
+        docPath: "/human-in-the-loop/useInterrupt",
+        summary: "useInterrupt: render a component when the backend itself pauses the run, then resume with the user's answer.",
+        status: "broken",
+        statusNote:
+          "Reference only. The page marks interrupts unsupported on the built-in agent and publishes no interrupting backend; BuiltInAgent never interrupts. Its frontend samples are shown, not mounted.",
+      },
+      {
         path: "/human-in-the-loop/governed-actions",
         hasDemo: true,
         folder: "Human-in-the-loop",
