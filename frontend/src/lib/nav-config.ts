@@ -386,6 +386,16 @@ export const NAV: NavGroup[] = [
           "Canvas and app/page.tsx are verbatim; the toggleItem fragment is wired to buttons in a second view.",
       },
       {
+        path: "/shared-state/streaming",
+        folder: "Shared state",
+        title: "State Streaming",
+        docPath: "/shared-state/streaming",
+        summary: "A tool argument streamed into a shared-state key token by token while the model writes it.",
+        status: "broken",
+        statusNote:
+          "Reference only. Rendered for the built-in agent, the page swaps every code sample for a 'not supported on Built-in Agent' notice; BuiltInAgent has no tool-argument-to-state mapping.",
+      },
+      {
         path: "/shared-state/agent-readonly",
         hasDemo: true,
         folder: "Shared state",

@@ -223,6 +223,8 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 **`/shared-state/rendering-in-app`** — **Try:** `Rename the project to 'Spring release'`. **Pass:** the canvas updates in place; the write-back buttons toggle items. **Fail:** the canvas stays on "Untitled".
 
+**`/shared-state/streaming`** — Reference only, no demo. The page marks state streaming unsupported on the built-in agent and shows no code. **Pass:** the gap callout renders and links to `/shared-state` (§9.55).
+
 **`/shared-state/agent-readonly`** — **Try:** `What's my name and timezone?` **Pass:** Atai / America/Los_Angeles, following form edits; `Change my name` is refused. **Fail:** the agent does not know your name.
 
 **`/human-in-the-loop`** — `useHumanInTheLoop` `book_call`. **Try:** `Please book an intro call with the sales team`. **Pass:** a time-picker card; pick a slot and the agent confirms the booking. **Fail:** a prose answer with no card.
@@ -305,6 +307,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 | `/generative-ui/your-components/interactive` | same | ✅ Working | **Not in the doc sidebar.** |
 | `/shared-state` | `/shared-state` | ✅ Working | Prose-only change (§9.9). |
 | `/shared-state/rendering-in-app` | same | ✅ Working | `toggleItem` fragment wired to buttons (§9.43). |
+| `/shared-state/streaming` | same | ❌ Broken | Reference only: the page marks state streaming unsupported on Built-in Agent and publishes no code for it (§9.55). |
 | `/shared-state/agent-readonly` | same | ✅ Working | `demo-layout` stand-in. |
 | `/human-in-the-loop/index` | `/human-in-the-loop` | ✅ Working | Pattern 1 only; Pattern 2 (`useInterrupt`) has no built-in-agent demo. |
 | `/human-in-the-loop/governed-actions` | same | ✅ Working | HITL-tool path only; `useInterrupt` path skipped (§9.38). |
@@ -526,6 +529,9 @@ This repo's agent lacked the page's `topK: 40` and `stopSequences: ["END"]`, and
 **49. Intelligence is scoped to its own runtime here, which no page does**
 The Threads pages put `intelligence` on the app's one runtime at `/api/copilotkit`. With it there, every route depends on the platform: an inactive project or failed entitlement lookup makes every run fail with `Timed out joining channel` (`CHANNEL_JOIN_TIMEOUT`) while the client waits on the realtime channel. This repo therefore keeps the shared runtime SSE-only, as the Quickstart now publishes it, and serves the Threads Drawer and Headless Threads demos from `/api/copilotkit-threads`. The drawer's verbatim variants 2–3 have their published `runtimeUrl="/api/copilotkit"` changed to that path, labelled in each file.
 
+**55. State Streaming has no built-in-agent code (2026-11-11)**
+[`/shared-state/streaming`](https://docs.copilotkit.ai/shared-state/streaming), rendered for the built-in agent, replaces all three code samples (the demo, the backend tool-argument-to-state mapping and the frontend `useAgent` subscription) with a "Not supported on CopilotKit's Built-in Agent" notice. There's no demo Code tab. `BuiltInAgent` has no constructor option that maps a streaming tool argument into a state key, so nothing can be wired without inventing it. The route is reference-only and marked ❌ Broken. The same gap affects `/generative-ui/state-rendering` (§9.52).
+
 ### Why `typescript.ignoreBuildErrors` is on
 
 Doc samples are reproduced verbatim, which is this repo's whole purpose — correcting them would defeat it. `npm run typecheck` prints every resulting error; each is listed above (items 5–7, 29, 30, 35, 38–40, 43) and called out on its route page. `next.config.ts` sets `ignoreBuildErrors: true` so those type errors do not stop `next build`; it does not cover module-resolution errors (§9.47).
@@ -651,7 +657,7 @@ Grouped as the doc sidebar groups them.
 
 **Generative UI** — [Components as Tools](https://docs.copilotkit.ai/generative-ui/tool-based) · [Tool Call Rendering](https://docs.copilotkit.ai/generative-ui/tool-rendering) · [Components and surfaces](https://docs.copilotkit.ai/generative-ui/components) ([Surfaces](https://docs.copilotkit.ai/generative-ui/components/surfaces) · [Catalogs](https://docs.copilotkit.ai/generative-ui/components/catalogs) · [Standard catalog](https://docs.copilotkit.ai/generative-ui/components/standard-catalog) · [State and actions](https://docs.copilotkit.ai/generative-ui/components/state-and-actions) · [Theming](https://docs.copilotkit.ai/generative-ui/components/theming) · [Transports](https://docs.copilotkit.ai/generative-ui/components/transports) · [Markdown mode](https://docs.copilotkit.ai/generative-ui/components/markdown-mode) · [Adopt from A2UI](https://docs.copilotkit.ai/generative-ui/components/from-a2ui)) · [Dynamic Schema A2UI](https://docs.copilotkit.ai/generative-ui/a2ui/dynamic-schema) · [Fixed Schema A2UI](https://docs.copilotkit.ai/generative-ui/a2ui/fixed-schema) · [JSON Render](https://docs.copilotkit.ai/generative-ui/json-render) · [Hashbrown](https://docs.copilotkit.ai/generative-ui/hashbrown) · [MCP Apps](https://docs.copilotkit.ai/generative-ui/mcp-apps) · [Open Generative UI](https://docs.copilotkit.ai/generative-ui/open-generative-ui) · [Display-only](https://docs.copilotkit.ai/generative-ui/your-components/display-only) † · [Interactive](https://docs.copilotkit.ai/generative-ui/your-components/interactive) †
 
-**Interactivity** — [Shared State](https://docs.copilotkit.ai/shared-state) · [Render agent state in your app](https://docs.copilotkit.ai/shared-state/rendering-in-app) · [Agent Read-Only Context](https://docs.copilotkit.ai/shared-state/agent-readonly) · [HITL Overview](https://docs.copilotkit.ai/human-in-the-loop/index) · [Governed Action Approval UI](https://docs.copilotkit.ai/human-in-the-loop/governed-actions) · [WebMCP](https://docs.copilotkit.ai/webmcp) · [Agent Context](https://docs.copilotkit.ai/agent-app-context) †
+**Interactivity** — [Shared State](https://docs.copilotkit.ai/shared-state) · [Render agent state in your app](https://docs.copilotkit.ai/shared-state/rendering-in-app) · [State Streaming](https://docs.copilotkit.ai/shared-state/streaming) · [Agent Read-Only Context](https://docs.copilotkit.ai/shared-state/agent-readonly) · [HITL Overview](https://docs.copilotkit.ai/human-in-the-loop/index) · [Governed Action Approval UI](https://docs.copilotkit.ai/human-in-the-loop/governed-actions) · [WebMCP](https://docs.copilotkit.ai/webmcp) · [Agent Context](https://docs.copilotkit.ai/agent-app-context) †
 
 **Agent capabilities** — [Server Tools](https://docs.copilotkit.ai/server-tools) · [MCP Servers](https://docs.copilotkit.ai/mcp-servers) · [Model Selection](https://docs.copilotkit.ai/model-selection) · [Advanced Configuration](https://docs.copilotkit.ai/advanced-configuration) · [Sub-agents](https://docs.copilotkit.ai/multi-agent/subagents)
 
