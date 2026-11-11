@@ -418,6 +418,16 @@ export const NAV: NavGroup[] = [
           "Reference only. The page marks interrupts unsupported on the built-in agent and publishes no interrupting backend; BuiltInAgent never interrupts. Its frontend samples are shown, not mounted.",
       },
       {
+        path: "/human-in-the-loop/headless",
+        folder: "Human-in-the-loop",
+        title: "Headless Interrupts",
+        docPath: "/human-in-the-loop/headless",
+        summary: "Resolving interrupts from UI outside the chat, built from useInterrupt's lower-level pieces.",
+        status: "broken",
+        statusNote:
+          "Reference only. Rendered for the built-in agent, the page shows a 'not supported' notice and no code.",
+      },
+      {
         path: "/human-in-the-loop/governed-actions",
         hasDemo: true,
         folder: "Human-in-the-loop",
