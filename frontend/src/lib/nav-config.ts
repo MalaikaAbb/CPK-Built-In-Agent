@@ -272,6 +272,17 @@ export const NAV: NavGroup[] = [
           "The 'After' catalog runs (Airport and Arrow are scaffolding); the 'Before' snippets are reference only.",
       },
       {
+        path: "/generative-ui/a2ui",
+        folder: "Declarative › A2UI",
+        title: "A2UI",
+        docPath: "/generative-ui/a2ui",
+        summary:
+          "The A2UI overview: a2ui on CopilotRuntime adds the A2UI middleware to the agents, and an optional theme prop on <CopilotKit>.",
+        status: "reference",
+        statusNote:
+          "Overview page, no demo. Both samples are shown as published; they use myAgent and children, which the page never defines, and give no way for the agent to produce A2UI. The two switches run on the Dynamic and Fixed Schema routes; the theme prop is not exercised.",
+      },
+      {
         path: "/generative-ui/a2ui/dynamic-schema",
         hasDemo: true,
         folder: "Declarative › A2UI",
