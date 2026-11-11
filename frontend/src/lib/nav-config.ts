@@ -172,6 +172,16 @@ export const NAV: NavGroup[] = [
         status: "working",
       },
       {
+        path: "/generative-ui/state-rendering",
+        folder: "Controlled",
+        title: "State Rendering",
+        docPath: "/generative-ui/state-rendering",
+        summary: "UI that redraws from the agent's state as it streams in, token by token.",
+        status: "broken",
+        statusNote:
+          "Reference only. Rendered for the built-in agent, the page swaps both code samples for a 'not supported on Built-in Agent' notice, so there is no code to build. The .md's LangGraph agent is not ported.",
+      },
+      {
         path: "/generative-ui/components",
         hasDemo: true,
         folder: "Declarative › Components and surfaces",
