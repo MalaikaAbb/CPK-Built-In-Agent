@@ -8,6 +8,264 @@ Holds the 3 most recent dated entries. When a change lands on a fourth
 date, the oldest entry is dropped. Entries are counted, not aged, so a gap of
 weeks between changes does not expire anything.
 
+## 2026-11-11
+
+### 14:07 UTC — 31 pages, highest severity high
+
+**High — Advanced Configuration**
+
+`/advanced-configuration` · route `/advanced-configuration` · under “Multi-step tool calling” · in a `typescript` block
+
+18 code lines changed.
+
+````diff
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+````
+
+**High — AgentRunner and persistence**
+
+`/backend/agent-runner` · route `/backend/agent-runner` · under “Choosing a runner” · in a `ts` block
+
+6 code lines changed.
+
+````diff
+- agents: { default: new BuiltInAgent({ model: "openai/gpt-4o-mini" }) },
++ agents: { default: new BuiltInAgent({ model: "openai/gpt-6-luna" }) },
+- agents: { default: new BuiltInAgent({ model: "openai/gpt-4o-mini" }) },
++ agents: { default: new BuiltInAgent({ model: "openai/gpt-6-luna" }) },
+- agents: { default: new BuiltInAgent({ model: "openai/gpt-4o-mini" }) },
++ agents: { default: new BuiltInAgent({ model: "openai/gpt-6-luna" }) },
+````
+
+**High — Copilot Runtime**
+
+`/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “The default agent” · in a `ts` block
+
+2 code lines changed.
+
+````diff
+- default: new BuiltInAgent({ model: "openai:gpt-4.1" }),
++ default: new BuiltInAgent({ model: "openai:gpt-6-luna" }),
+````
+
+**High — Use any model router**
+
+`/backend/custom-agent` · route `/backend/custom-agent` · under “When to use Simple Mode vs Factory Mode”
+
+24 code lines, 4 prose lines changed.
+
+````diff
+- | **Model resolution** | Built-in (`"openai/gpt-4o"`) | You set up the model yourself |
++ | **Model resolution** | Built-in (`"openai/gpt-6-luna"`) | You set up the model yourself |
+- model: openai("gpt-4o"),
++ model: openai("gpt-6-luna"),
+- adapter: openaiText("gpt-4o"),
++ adapter: openaiText("gpt-6-luna"),
+- return streamText({ model: openai("gpt-4o", { apiKey }), ... });
++ return streamText({ model: openai("gpt-6-luna", { apiKey }), ... });
+````
+
+**High — Runtime HTTP endpoints**
+
+`/backend/runtime-endpoints` · route `/backend/runtime-endpoints` · under “Single-route mode” · in a `ts` block
+
+2 code lines changed.
+
+````diff
+- agents: { default: new BuiltInAgent({ model: "openai/gpt-4o-mini" }) },
++ agents: { default: new BuiltInAgent({ model: "openai/gpt-6-luna" }) },
+````
+
+**High — Model Selection**
+
+`/model-selection` · route `/model-selection` · under “Supported Models”
+
+6 code lines, 18 prose lines changed.
+
+````diff
+- The tables list the models these docs use. The quickstart uses `openai:gpt-5.4-mini`.
++ The tables list the models these docs use. The quickstart uses `openai:gpt-6-luna`.
+- | GPT-5.5      | `openai:gpt-5.5`      |
+- | GPT-5.4      | `openai:gpt-5.4`      |
+- | GPT-5.4 Mini | `openai:gpt-5.4-mini` |
+- | GPT-5        | `openai:gpt-5`        |
+- | GPT-5 Mini   | `openai:gpt-5-mini`   |
+- | GPT-4.1      | `openai:gpt-4.1`      |
+````
+
+**High — Introduction**
+
+`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Setup Copilot Runtime” · in a `ts` block
+
+2 code lines changed.
+
+````diff
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+````
+
+**High — Server Tools**
+
+`/server-tools` · route `/server-tools` · under “Defining a tool” · in a `typescript` block
+
+6 code lines changed.
+
+````diff
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+- model: "openai:gpt-5.4-mini",
++ model: "openai:gpt-6-luna",
+````
+
+**Info — Dynamic Schema A2UI**
+
+`/generative-ui/a2ui/dynamic-schema` · route `/generative-ui/a2ui/dynamic-schema`
+
+Now tracked for the first time.
+
+**Info — Fixed Schema A2UI**
+
+`/generative-ui/a2ui/fixed-schema` · route `/generative-ui/a2ui/fixed-schema`
+
+Now tracked for the first time.
+
+**Info — Components and surfaces**
+
+`/generative-ui/components` · route `/generative-ui/components`
+
+Now tracked for the first time.
+
+**Info — Catalogs**
+
+`/generative-ui/components/catalogs` · route `/generative-ui/components/catalogs`
+
+Now tracked for the first time.
+
+**Info — Adopt from A2UI**
+
+`/generative-ui/components/from-a2ui` · route `/generative-ui/components/from-a2ui`
+
+Now tracked for the first time.
+
+**Info — Markdown mode**
+
+`/generative-ui/components/markdown-mode` · route `/generative-ui/components/markdown-mode`
+
+Now tracked for the first time.
+
+**Info — Standard catalog**
+
+`/generative-ui/components/standard-catalog` · route `/generative-ui/components/standard-catalog`
+
+Now tracked for the first time.
+
+**Info — State and actions**
+
+`/generative-ui/components/state-and-actions` · route `/generative-ui/components/state-and-actions`
+
+Now tracked for the first time.
+
+**Info — Surfaces**
+
+`/generative-ui/components/surfaces` · route `/generative-ui/components/surfaces`
+
+Now tracked for the first time.
+
+**Info — Theming**
+
+`/generative-ui/components/theming` · route `/generative-ui/components/theming`
+
+Now tracked for the first time.
+
+**Info — Transports**
+
+`/generative-ui/components/transports` · route `/generative-ui/components/transports`
+
+Now tracked for the first time.
+
+**Info — Hashbrown**
+
+`/generative-ui/hashbrown` · route `/generative-ui/hashbrown`
+
+Now tracked for the first time.
+
+**Info — JSON Render**
+
+`/generative-ui/json-render` · route `/generative-ui/json-render`
+
+Now tracked for the first time.
+
+**Info — MCP Apps**
+
+`/generative-ui/mcp-apps` · route `/generative-ui/mcp-apps`
+
+Now tracked for the first time.
+
+**Info — Open Generative UI**
+
+`/generative-ui/open-generative-ui` · route `/generative-ui/open-generative-ui`
+
+Now tracked for the first time.
+
+**Info — Components as Tools**
+
+`/generative-ui/tool-based` · route `/generative-ui/tool-based`
+
+Now tracked for the first time.
+
+**Info — Governed Action Approval UI**
+
+`/human-in-the-loop/governed-actions` · route `/human-in-the-loop/governed-actions`
+
+Now tracked for the first time.
+
+**Info — HITL Overview**
+
+`/human-in-the-loop/index` · route `/human-in-the-loop`
+
+Now tracked for the first time.
+
+**Info — MCP Servers**
+
+`/mcp-servers` · route `/mcp-servers`
+
+Now tracked for the first time.
+
+**Info — Sub-agents**
+
+`/multi-agent/subagents` · route `/multi-agent/subagents`
+
+Now tracked for the first time.
+
+**Info — Agent Read-Only Context**
+
+`/shared-state/agent-readonly` · route `/shared-state/agent-readonly`
+
+Now tracked for the first time.
+
+**Info — Render agent state in your app**
+
+`/shared-state/rendering-in-app` · route `/shared-state/rendering-in-app`
+
+Now tracked for the first time.
+
+**Info — WebMCP**
+
+`/webmcp` · route `/webmcp`
+
+Now tracked for the first time.
+
+---
+
 ## 2026-10-30
 
 ### 09:20 UTC — 8 pages, highest severity high
@@ -123,6 +381,8 @@ weeks between changes does not expire anything.
 `/backend/runtime-endpoints` · route `/backend/runtime-endpoints`
 
 Content changed.
+
+---
 
 ---
 
@@ -415,181 +675,6 @@ Content changed.
 + For a complete example of selecting a prepared control with structured AI judgments and returning user actions to the agent, follow the [CopilotKit + Jev cookbook](/cookbook/jev-generative-ui).
 + </Callout>
 + 
-````
-
----
-
----
-
-## 2026-09-04
-
-### 14:26 UTC — 11 pages, highest severity high
-
-**High — Copilot Runtime**
-
-`/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “CopilotKit Intelligence”
-
-4 code lines, 2 prose lines changed.
-
-````diff
-- The examples below take `intelligence` and `identifyUser` as given. `intelligence` is a `CopilotKitIntelligence` instance — see [Connect your runtime to Intelligence](/premium/connect-your-runtime) for the constructor and where the project API key comes from.
-+ The examples below take `intelligence` and `identifyUser` as given. `intelligence` is a `CopilotKitIntelligence` instance — see [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) for the constructor and where the project API key comes from.
-- apiKey: process.env.INTELLIGENCE_API_KEY!,
-+ apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
-- apiKey: process.env.INTELLIGENCE_API_KEY!,
-+ apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
-````
-
-**High — Use any model router**
-
-`/backend/custom-agent` · route `/backend/custom-agent` · under “With forwardedProps”
-
-22 code lines, 8 prose lines changed.
-
-````diff
-- Let the frontend override model, temperature, or other settings at runtime:
-+ Use `forwardedProps` only for non-secret, browser-controlled preferences. Validate
-+ each value against backend-owned limits before it affects execution. Never use
-+ these properties for credentials, tenant identity, authorization, or unrestricted
-+ model and provider selection.
-- resolveModel,
-- const model =
-- typeof props.model === "string"
-````
-
-**High — Runtime HTTP endpoints**
-
-`/backend/runtime-endpoints` · route `/backend/runtime-endpoints` · under “Provider and handler pairs”
-
-41 code lines, 55 prose lines changed.
-
-````diff
-- | Provider | `useSingleEndpoint` | Transport | Needs handler | Route file |
-- | --- | --- | --- | --- | --- |
-- | `<CopilotKitProvider>` | omitted | `auto` — detected from `/info` | either | matches the handler |
-- | `<CopilotKit>` | omitted | `single` in released versions — see below | single-route | `route.ts`, `POST` |
-- | `<CopilotKit>` or `<CopilotKitProvider>` | `{true}` | `single` | single-route | `route.ts`, `POST` |
-- | `<CopilotKit>` or `<CopilotKitProvider>` | `{false}` | `rest` | multi-route | `[[...slug]]/route.ts`, 4 verbs |
-+ | Provider                                 | `useSingleEndpoint` | Transport                                 | Needs handler | Route file                      |
-+ | ---------------------------------------- | ------------------- | ----------------------------------------- | ------------- | ------------------------------- |
-````
-
-**High — Headless Threads**
-
-`/headless-threads` · route `/headless-threads` · under “Configure your Runtime with CopilotKit Intelligence”
-
-2 code lines, 22 prose lines changed.
-
-````diff
-- Your `CopilotRuntime` must be connected to CopilotKit Intelligence before the thread UI can list and resume conversations. That connection is the `intelligence` option below — a `CopilotKitIntelligence` instance. If your app came from a CLI starter, this Runtime configuration is generated for you. Otherwise, follow [Connect your runtime to Intelligence](/premium/connect-your-runtime) for the full constructor, then return here to add the headless UI. Thread names are automatically generated by the LLM after the first message — you can disable this with `generateThreadNames: false`.
-+ Your `CopilotRuntime` must be connected to CopilotKit Intelligence before the thread UI can list and resume conversations. That connection is the `intelligence` option below — a `CopilotKitIntelligence` instance. If your app came from a CLI starter, this Runtime configuration is generated for you. Otherwise, follow [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) for the full constructor, then return here to add the headless UI. Thread names are automatically generated by the LLM after the first message — you can disable this with `generateThreadNames: false`.
-- apiKey: process.env.INTELLIGENCE_API_KEY!,
-+ apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
-- CLI-created starters write the cloud-hosted platform URLs and project-scoped `INTELLIGENCE_API_KEY` to `.env`; keep that key server-side. Existing Intelligence-enabled apps should keep their current server-side Runtime configuration. Production self-hosting uses the same React APIs and is deployed with CopilotKit Engineering through [Self-host CopilotKit Intelligence](/premium/self-hosting).
-+ CLI `init` and its `create` alias write the cloud-hosted platform URLs,
-+ `SL_ENABLED`, project-scoped `CPK_INTELLIGENCE_API_KEY`, and optional
-+ `CPK_TELEMETRY_ID` to `.env`.
-````
-
-**High — Introduction**
-
-`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Setup Copilot Runtime” · in a `ts` block
-
-4 code lines, 4 prose lines changed.
-
-````diff
-- apiKey: process.env.INTELLIGENCE_API_KEY!,
-+ apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
-- The runtime reads the license key from step 1. Add it to the app that serves
-+ The runtime reads the project API key from step 1. Add it to the app that serves
-- INTELLIGENCE_API_KEY=your_license_key
-+ CPK_INTELLIGENCE_API_KEY=cpk-...
-- [Connect your runtime to Intelligence](/premium/connect-your-runtime) for the
-+ [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) for the
-````
-
-**High — Thread & History Lifecycle**
-
-`/threads-lifecycle` · route `/threads-lifecycle` · under “The lifecycle at a glance”
-
-2 code lines, 8 prose lines changed.
-
-````diff
-- 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [Threads & Persistence Architecture](/premium/threads-explained) for the full server-side model.
-+ 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [Threads & Persistence Architecture](/intelligence/threads-explained) for the full server-side model.
-- Replay requires a **server-side store to replay from**: CopilotKit Intelligence, or a persisting `AgentRunner` (e.g. the SQLite runner). A self-hosted runtime with no persistence layer has nothing to replay, so `connectAgent()` returns an empty stream and the conversation starts blank. If history isn't restoring, check that a store is configured, not the client code. The [Persistence Architecture](/premium/threads-explained) page covers how replay works server-side.
-+ Replay requires a **server-side store to replay from**: CopilotKit Intelligence, or a persisting `AgentRunner` (e.g. the SQLite runner). A self-hosted runtime with no persistence layer has nothing to replay, so `connectAgent()` returns an empty stream and the conversation starts blank. If history isn't restoring, check that a store is configured, not the client code. The [Persistence Architecture](/intelligence/threads-explained) page covers how replay works server-side.
-- apiKey: process.env.INTELLIGENCE_API_KEY!,
-+ apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
-- [Connect your runtime to Intelligence](/premium/connect-your-runtime) covers the
-+ [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) covers the
-````
-
-**Low — Agent Context**
-
-`/agent-app-context` · route `/agent-app-context` · under “Agent Context”
-
-9 prose lines changed.
-
-````diff
-- Share your application's state and context with the Built-in Agent using the `useAgentContext` hook. The agent automatically receives this context — no backend configuration needed.
-+ Share your application's state and context with the Built-in Agent using the `useAgentContext` hook. The Built-in Agent receives this context automatically, with no backend configuration.
-+ 
-+ <Callout>
-+ That last part is specific to the Built-in Agent. An agent you host yourself receives the same
-+ entries on the AG-UI run input, and each framework decides what reaches the model from there —
-+ see your framework's own Agent App Context page, such as [ADK](/adk/agent-app-context),
-+ [LangGraph](/langgraph/agent-app-context) or [Mastra](/mastra/agent-app-context).
-````
-
-**Low — Authentication**
-
-`/auth` · route `/auth` · under “CopilotKit Intelligence scopes most thread routes”
-
-2 prose lines changed.
-
-````diff
-- The Intelligence runtime requires an `identifyUser` callback — construction throws without one (or without at least one Channel). It runs on the server, once per request, and the id it returns is the scope the runtime hands to the platform. (`intelligence` below is a `CopilotKitIntelligence` instance; [Connect your runtime to Intelligence](/premium/connect-your-runtime) covers building it.)
-+ The Intelligence runtime requires an `identifyUser` callback — construction throws without one (or without at least one Channel). It runs on the server, once per request, and the id it returns is the scope the runtime hands to the platform. (`intelligence` below is a `CopilotKitIntelligence` instance; [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) covers building it.)
-````
-
-**Low — AgentRunner and persistence**
-
-`/backend/agent-runner` · route `/backend/agent-runner` · under “Related”
-
-2 prose lines changed.
-
-````diff
-- - [Self-host CopilotKit Intelligence](/premium/self-hosting): the durable, multi-instance `IntelligenceAgentRunner` backend.
-+ - [Self-host CopilotKit Intelligence](/intelligence/self-hosting): the durable, multi-instance `IntelligenceAgentRunner` backend.
-````
-
-**Low — Inspector**
-
-`/inspector` · route `/inspector` · under “Showing or hiding the Inspector”
-
-2 prose lines changed.
-
-````diff
-- a **different credential** from the server-side `INTELLIGENCE_API_KEY` that
-+ a **different credential** from the server-side `CPK_INTELLIGENCE_API_KEY` that
-````
-
-**Low — Model Selection**
-
-`/model-selection` · route `/model-selection` · under “OpenRouter, proxies, and bring-your-own LLM”
-
-8 prose lines changed.
-
-````diff
-- [Groq](https://groq.com), or your own fine-tuned endpoint, works through the same
-+ [Groq](https://groq.com), [Novita](https://novita.ai), or your own fine-tuned endpoint, works through the same
-+ 
-+ <Callout type="warn" title="Novita: use provider.chat(model)">
-+ Novita only implements the Chat Completions endpoint, not Responses. Call it as
-+ `provider.chat("model")` (not `provider("model")`) — the bare call form used in
-+ the example below routes through Responses and returns an error on Novita.
-+ </Callout>
 ````
 
 ---
