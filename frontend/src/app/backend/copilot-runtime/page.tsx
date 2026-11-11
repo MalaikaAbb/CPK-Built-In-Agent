@@ -31,7 +31,7 @@ const DEFAULT_AGENT = `import { BuiltInAgent } from "@copilotkit/runtime/v2";
 
 const runtime = new CopilotRuntime({
   agents: {
-    default: new BuiltInAgent({ model: "openai:gpt-4.1" }),
+    default: new BuiltInAgent({ model: "openai:gpt-6-luna" }),
   },
 });`;
 
