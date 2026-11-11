@@ -8,7 +8,7 @@ const DOC_ROUTE = `import {
 } from "@copilotkit/runtime/v2";
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
 const builtInAgent = new BuiltInAgent({
-  model: "openai:gpt-5.4-mini",
+  model: "openai:gpt-6-luna",
 });
 const runtime = new CopilotRuntime({
   agents: { default: builtInAgent }, //,
