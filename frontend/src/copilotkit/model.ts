@@ -9,12 +9,12 @@
 /**
  * The id every classic-mode agent reads.
  *
- * The default is the Quickstart's own `openai:gpt-5.4-mini`, which the Server
- * Tools and Advanced Configuration samples use as well, and which the Model
- * Selection page now lists among its supported OpenAI models.
+ * The default is the Quickstart's own `openai:gpt-6-luna` (changed from
+ * `openai:gpt-5.4-mini` on 2026-11-11), which the Server Tools and Advanced
+ * Configuration samples use as well.
  * `BuiltInAgentModel` accepts both `provider:model` and `provider/model`.
  */
-export const MODEL = process.env.OPENAI_MODEL ?? "openai:gpt-5.4-mini";
+export const MODEL = process.env.OPENAI_MODEL ?? "openai:gpt-6-luna";
 
 //#region model-table
 /**

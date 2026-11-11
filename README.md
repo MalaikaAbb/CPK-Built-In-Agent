@@ -80,7 +80,7 @@ Several rather than one because what these pages teach *is* constructor configur
 |---|---|---|
 | Node.js | **24+** | `@modelcontextprotocol/server-everything` 2.1 (MCP Servers route) requires 24. Developed on 24.16. |
 | npm | 10+ | npm 12 refuses some lockfile tarballs by default — use `npm install --allow-remote=all` if `npm install` fails with `EALLOWREMOTE`. |
-| OpenAI API key | — | Required. The default model is `openai:gpt-5.4-mini`; several pages hard-code `gpt-5.4`, `gpt-5.5` or `gpt-4o`, kept as published. |
+| OpenAI API key | — | Required. The default model is `openai:gpt-6-luna`; several pages hard-code `gpt-5.4`, `gpt-5.5` or `gpt-4o`, kept as published. |
 | Anthropic / Google / MiniMax keys | — | Optional. Only `/model-selection` uses them. |
 
 No Python, no separate agent process, no framework CLI.
@@ -100,7 +100,7 @@ Then edit `frontend/.env.local`:
 | Variable | What it does |
 |---|---|
 | `OPENAI_API_KEY` | **Required.** Read server-side by `BuiltInAgent`; never exposed to the browser. |
-| `OPENAI_MODEL` | Model id for every classic-mode agent outside Model Selection. Defaults to the Quickstart's `openai:gpt-5.4-mini`. |
+| `OPENAI_MODEL` | Model id for every classic-mode agent outside Model Selection. Defaults to the Quickstart's `openai:gpt-6-luna`. |
 | `ANTHROPIC_API_KEY` / `GOOGLE_API_KEY` / `MINIMAX_API_KEY` | Optional. Needed only for those providers' rows on `/model-selection`; the dropdown marks providers whose key is missing. |
 | `MINIMAX_BASE_URL` | Optional. MiniMax's China endpoint, as the Model Selection page documents. |
 | `MCP_HTTP_URL` / `MCP_SSE_URL` | Optional. Override the local MCP server URLs used on `/mcp-servers` (default `http://localhost:3001/mcp` and `http://localhost:3002/sse`). |
@@ -396,7 +396,7 @@ The page now lists hyphenated ids (`claude-opus-4-8`, `claude-sonnet-4-6`, …) 
 The working id is `claude-sonnet-4-5`, confirmed against `GET https://api.anthropic.com/v1/models`. Agent C uses the hyphenated form. This does not affect the other two providers — `gpt-4.1` and `gemini-2.5-flash` are exactly what OpenAI and Google expect, dots included.
 
 **14. ✅ RESOLVED 2026-10-30 — Four different model ids, one of them unsupported**
-`openai:gpt-5.4-mini` is now in the Model Selection table, so this repo's default `OPENAI_MODEL` is the Quickstart's `openai:gpt-5.4-mini`. The original finding:
+`openai:gpt-5.4-mini` is now in the Model Selection table, so this repo's default `OPENAI_MODEL` is the Quickstart's `openai:gpt-5.4-mini`. **Update 2026-11-11:** the Quickstart moved to `openai:gpt-6-luna`, and so did this repo's `OPENAI_MODEL` default. Set `OPENAI_MODEL=openai:gpt-5.4-mini` to keep the old model. The original finding:
 
 `openai:gpt-5.4-mini` (Quickstart, Server Tools, Advanced Configuration), `openai:gpt-4.1` (Copilot Runtime, Model Selection), `openai/gpt-4o-mini` (Runtime endpoints, AgentRunner), `gpt-4o` (custom-agent). `gpt-5.4-mini` does not appear in the Model Selection page's own list of supported OpenAI models, so the Quickstart pasted verbatim fails with a model-not-found error. All agents here read one `OPENAI_MODEL`.
 
@@ -543,8 +543,8 @@ Doc samples are reproduced verbatim, which is this repo's whole purpose — corr
 |---|---|---|
 | Every chat errors immediately | No `OPENAI_API_KEY` | Set it in `frontend/.env.local` and restart — Next reads env at startup. |
 | `RUN_ERROR: Incorrect API key provided` | Placeholder or wrong key | The key reaches the provider fine; it is the key itself that is rejected. |
-| Model-not-found errors | The default `openai:gpt-5.4-mini`, or a page's hard-coded `gpt-5.4`/`gpt-5.5`/`gpt-4o`, is not on your account | Set `OPENAI_MODEL` for the classic agents; hard-coded ids are the page's and are kept. `/model-selection` shows exactly which ids your keys can reach. |
-| `/backend/custom-agent` alone fails | That factory hardcodes the doc's `gpt-6-luna` | Either grant the key access or edit the model in `src/copilotkit/agents.ts`. |
+| Model-not-found errors | The default `openai:gpt-6-luna`, or a page's hard-coded `gpt-5.4`/`gpt-5.5`/`gpt-4o`, is not on your account | Set `OPENAI_MODEL` for the classic agents; hard-coded ids are the page's and are kept. `/model-selection` shows exactly which ids your keys can reach. |
+| `/backend/custom-agent` alone fails | That factory hardcodes the doc's `gpt-4o` | Either grant the key access or edit the model in `src/copilotkit/agents.ts`. |
 | Tool runs but custom UI never renders | Renderer name ≠ tool name | `useRenderTool({ name })` must equal the tool's `name` exactly — `get_weather` ≠ `getWeather`. |
 | Tool result appears, then silence | `maxSteps` is 1 | The run ended on the tool call. Raise `maxSteps` on that agent. |
 | Agent never writes shared state | State was empty at run start | Seed a shape with `agent.setState` first; an empty `{}` means no state tools are offered. |
