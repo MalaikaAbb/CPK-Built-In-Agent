@@ -526,6 +526,9 @@ This repo's agent lacked the page's `topK: 40` and `stopSequences: ["END"]`, and
 **49. Intelligence is scoped to its own runtime here, which no page does**
 The Threads pages put `intelligence` on the app's one runtime at `/api/copilotkit`. With it there, every route depends on the platform: an inactive project or failed entitlement lookup makes every run fail with `Timed out joining channel` (`CHANNEL_JOIN_TIMEOUT`) while the client waits on the realtime channel. This repo therefore keeps the shared runtime SSE-only, as the Quickstart now publishes it, and serves the Threads Drawer and Headless Threads demos from `/api/copilotkit-threads`. The drawer's verbatim variants 2–3 have their published `runtimeUrl="/api/copilotkit"` changed to that path, labelled in each file.
 
+**51. Use any model router's model allowlist now picks the same model either way (2026-11-11)**
+[`/backend/custom-agent`](https://docs.copilotkit.ai/backend/custom-agent) changed every model id on the page to `gpt-6-luna`. In the hardened `forwardedProps` sample (§9.25's allowlist), that turned `props.model === "openai/gpt-4o-mini" ? openai("gpt-4o-mini") : openai("gpt-4o")` into `props.model === "openai/gpt-6-luna" ? openai("gpt-6-luna") : openai("gpt-6-luna")`: both branches are the same, so the check no longer does anything. Kept as published on the route. The two live factories in `src/copilotkit/agents.ts` follow the page to `openai("gpt-6-luna")` / `openaiText("gpt-6-luna")`. `gpt-6-luna` is in `@tanstack/ai-openai`'s typed model list, so the TanStack adapter type-checks.
+
 ### Why `typescript.ignoreBuildErrors` is on
 
 Doc samples are reproduced verbatim, which is this repo's whole purpose — correcting them would defeat it. `npm run typecheck` prints every resulting error; each is listed above (items 5–7, 29, 30, 35, 38–40, 43) and called out on its route page. `next.config.ts` sets `ignoreBuildErrors: true` so those type errors do not stop `next build`; it does not cover module-resolution errors (§9.47).
@@ -539,7 +542,7 @@ Doc samples are reproduced verbatim, which is this repo's whole purpose — corr
 | Every chat errors immediately | No `OPENAI_API_KEY` | Set it in `frontend/.env.local` and restart — Next reads env at startup. |
 | `RUN_ERROR: Incorrect API key provided` | Placeholder or wrong key | The key reaches the provider fine; it is the key itself that is rejected. |
 | Model-not-found errors | The default `openai:gpt-5.4-mini`, or a page's hard-coded `gpt-5.4`/`gpt-5.5`/`gpt-4o`, is not on your account | Set `OPENAI_MODEL` for the classic agents; hard-coded ids are the page's and are kept. `/model-selection` shows exactly which ids your keys can reach. |
-| `/backend/custom-agent` alone fails | That factory hardcodes the doc's `gpt-4o` | Either grant the key access or edit the model in `src/copilotkit/agents.ts`. |
+| `/backend/custom-agent` alone fails | That factory hardcodes the doc's `gpt-6-luna` | Either grant the key access or edit the model in `src/copilotkit/agents.ts`. |
 | Tool runs but custom UI never renders | Renderer name ≠ tool name | `useRenderTool({ name })` must equal the tool's `name` exactly — `get_weather` ≠ `getWeather`. |
 | Tool result appears, then silence | `maxSteps` is 1 | The run ended on the tool call. Raise `maxSteps` on that agent. |
 | Agent never writes shared state | State was empty at run start | Seed a shape with `agent.setState` first; an empty `{}` means no state tools are offered. |

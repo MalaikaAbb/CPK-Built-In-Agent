@@ -34,13 +34,13 @@ const MODES: {
     agentId: "aiSdkAgent",
     title: "AI SDK",
     type: 'type: "aisdk"',
-    blurb: "streamText() + openai('gpt-4o') — the factory returns a fullStream.",
+    blurb: "streamText() + openai('gpt-6-luna') — the factory returns a fullStream.",
   },
   {
     agentId: "tanStackAgent",
     title: "TanStack AI",
     type: 'type: "tanstack"',
-    blurb: "chat() + openaiText('gpt-4o') — the factory returns an async iterable.",
+    blurb: "chat() + openaiText('gpt-6-luna') — the factory returns an async iterable.",
   },
 ];
 

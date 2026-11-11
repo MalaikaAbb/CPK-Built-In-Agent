@@ -141,14 +141,14 @@ export const modelSelectionAgent = new BuiltInAgent({
  *
  * In factory mode the built-in agent stops making the model call and only
  * manages the run lifecycle and the AG-UI event stream; `streamText` here is
- * ours. The model id is the doc's own `gpt-4o`, not `MODEL`, because this is
+ * ours. The model id is the doc's own `gpt-6-luna`, not `MODEL`, because this is
  * the sample's point: the router is yours to choose.
  */
 export const aiSdkAgent = new BuiltInAgent({
   type: "aisdk",
   factory: ({ input, abortSignal }) =>
     streamText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-6-luna"),
       messages: convertMessagesToVercelAISDKMessages(input.messages),
       abortSignal,
     }),
@@ -174,7 +174,7 @@ export const tanStackAgent = new BuiltInAgent({
   factory: ({ input, abortController }) => {
     const { messages, systemPrompts } = convertInputToTanStackAI(input);
     return chat({
-      adapter: openaiText("gpt-4o"),
+      adapter: openaiText("gpt-6-luna"),
       messages,
       systemPrompts,
       abortController,
