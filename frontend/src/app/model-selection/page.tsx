@@ -4,7 +4,7 @@ import { Callout, CodeBlock, Panel, TryIt } from "@/components/ui";
 import { MODEL_TABLE } from "@/copilotkit/model";
 
 const PER_PROVIDER = `const agent = new BuiltInAgent({
-  model: "openai:gpt-5.4-mini",
+  model: "openai:gpt-6-luna",
 });
 const agent = new BuiltInAgent({
   model: "anthropic:claude-sonnet-4-6",
@@ -34,7 +34,7 @@ OPENAI_BASE_URL=https://my-gateway.example.com/v1
 COPILOTKIT_OPENAI_API=responses`;
 
 const CUSTOM_KEY = `const agent = new BuiltInAgent({
-  model: "openai:gpt-5.4-mini",
+  model: "openai:gpt-6-luna",
   apiKey: process.env.MY_OPENAI_KEY,
 });`;
 
@@ -177,6 +177,13 @@ export default function Page() {
 
       <Callout tone="warn" title="Changed on the page since the last sync">
         <ul className="space-y-1.5">
+          <li>
+            · 2026-11-11: the OpenAI table is now a single row,{" "}
+            <code>openai:gpt-6-luna</code>, and the OpenAI samples use it.
+            The dropdown follows. Not yet checked against the OpenAI API.
+            The page&apos;s model-string resolution table lost the OpenAI
+            provider/call cells in the same edit (README §9.50).
+          </li>
           <li>
             · OpenAI table gained <code>gpt-5.5</code>, <code>gpt-5.4</code>,{" "}
             <code>gpt-5.4-mini</code>; Anthropic now lists{" "}
