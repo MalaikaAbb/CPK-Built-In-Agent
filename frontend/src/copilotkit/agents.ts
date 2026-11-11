@@ -130,7 +130,7 @@ export const sharedStateAgent = new BuiltInAgent({
  * selection. Fine for a local harness; not a production pattern.
  */
 export const modelSelectionAgent = new BuiltInAgent({
-  model: "openai:gpt-5.4-mini",
+  model: "openai:gpt-6-luna",
   overridableProperties: ["model"],
 });
 //#endregion

@@ -477,7 +477,7 @@ export const NAV: NavGroup[] = [
           "Every specifier on the page, selectable per run on one agent through overridableProperties: [\"model\"].",
         status: "working",
         statusNote:
-          "One agent, model chosen per message from a dropdown of all 22 specifiers. A provider runs only if its key is set.",
+          "One agent, model chosen per message from a dropdown of all 10 specifiers. A provider runs only if its key is set. The only OpenAI row is now openai:gpt-6-luna, not yet checked against the API.",
       },
       {
         path: "/advanced-configuration",
