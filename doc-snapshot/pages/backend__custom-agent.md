@@ -11,7 +11,7 @@ the stream to AG-UI events, managing lifecycle, and wiring it into the runtime.
 | | Simple Mode | Factory Mode |
 |---|---|---|
 | **Setup** | Minimal: pass a model string | You own the LLM call and stream |
-| **Model resolution** | Built-in (`"openai/gpt-4o"`) | You set up the model yourself |
+| **Model resolution** | Built-in (`"openai/gpt-6-luna"`) | You set up the model yourself |
 | **Tools, MCP, state tools** | Automatically wired | You wire them in your factory |
 | **Backend support** | Vercel AI SDK only | Any backend: AI SDK, TanStack AI, or custom |
 | **Best for** | Quick setup, standard use cases | Full control, non-standard backends |
@@ -45,7 +45,7 @@ const agent = new BuiltInAgent({
   type: "aisdk",
   factory: ({ input, abortSignal }) =>
     streamText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-6-luna"),
       messages: convertMessagesToVercelAISDKMessages(input.messages),
       abortSignal,
     }),
@@ -80,7 +80,7 @@ const agent = new BuiltInAgent({
   factory: ({ input, abortController }) => {
     const { messages, systemPrompts } = convertInputToTanStackAI(input);
     return chat({
-      adapter: openaiText("gpt-4o"),
+      adapter: openaiText("gpt-6-luna"),
       messages,
       systemPrompts,
       abortController,
@@ -199,7 +199,7 @@ The factory can be async. Return a `Promise` if you need to do setup before stre
 ```typescript
 factory: async ({ input, abortSignal }) => {
   const apiKey = await getApiKeyFromVault();
-  return streamText({ model: openai("gpt-4o", { apiKey }), ... });
+  return streamText({ model: openai("gpt-6-luna", { apiKey }), ... });
 }
 ```
 
@@ -223,7 +223,7 @@ const agent = new BuiltInAgent({
   factory: ({ input, abortSignal }) => {
     const tools = convertToolsToVercelAITools(input.tools);
     return streamText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-6-luna"),
       messages: convertMessagesToVercelAISDKMessages(input.messages),
       tools,
       abortSignal,
@@ -253,7 +253,7 @@ const agent = new BuiltInAgent({
   factory: ({ input, abortController }) => {
     const { messages, systemPrompts } = convertInputToTanStackAI(input);
     return chat({
-      adapter: openaiText("gpt-4o"),
+      adapter: openaiText("gpt-6-luna"),
       messages,
       systemPrompts,
       tools: [getWeather],
@@ -417,7 +417,7 @@ const agent = new BuiltInAgent({
     messages.unshift({ role: "system", content: systemParts.join("\n\n") });
 
     return streamText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-6-luna"),
       messages,
       abortSignal,
     });
@@ -442,7 +442,7 @@ const agent = new BuiltInAgent({
     systemPrompts.unshift("You are a helpful assistant.");
 
     return chat({
-      adapter: openaiText("gpt-4o"),
+      adapter: openaiText("gpt-6-luna"),
       messages,
       systemPrompts,
       abortController,
@@ -477,9 +477,9 @@ const agent = new BuiltInAgent({
   factory: ({ input, abortSignal }) => {
     const props = (input.forwardedProps ?? {}) as Record<string, unknown>;
 
-    const model = props.model === "openai/gpt-4o-mini"
-      ? openai("gpt-4o-mini")
-      : openai("gpt-4o");
+    const model = props.model === "openai/gpt-6-luna"
+      ? openai("gpt-6-luna")
+      : openai("gpt-6-luna");
 
     const temperature =
       typeof props.temperature === "number" &&
@@ -513,7 +513,7 @@ const agent = new BuiltInAgent({
     const adapter =
       props.model === "anthropic/claude-sonnet-4-6"
         ? anthropicText("claude-sonnet-4-6")
-        : openaiText("gpt-4o");
+        : openaiText("gpt-6-luna");
 
     const modelOptions: Record<string, unknown> = {};
     if (
@@ -541,7 +541,7 @@ Forward those preferences from the frontend provider:
 
 ```tsx title="app/page.tsx"
 <CopilotKit
-  properties={{ model: "openai/gpt-4o-mini", temperature: 0.3 }}
+  properties={{ model: "openai/gpt-6-luna", temperature: 0.3 }}
   useSingleEndpoint={false}
 >
   <CopilotChat />
@@ -570,4 +570,4 @@ These utilities are exported from `@copilotkit/runtime/v2` to help convert betwe
 | `convertMessagesToVercelAISDKMessages(messages)` | Converts AG-UI messages to Vercel AI SDK's `ModelMessage[]` format. |
 | `convertToolsToVercelAITools(tools)` | Converts frontend-defined tools (JSON Schema) to AI SDK's `ToolSet`. |
 | `convertToolDefinitionsToVercelAITools(tools)` | Converts `defineTool()` definitions (Standard Schema) to AI SDK's `ToolSet`. |
-| `resolveModel(spec)` | Resolves `"openai/gpt-4o"` strings to AI SDK `LanguageModel` instances. |
+| `resolveModel(spec)` | Resolves `"openai/gpt-6-luna"` strings to AI SDK `LanguageModel` instances. |
