@@ -241,7 +241,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 
 **`/mcp-servers`** — needs `npm run mcp:everything` (+ `mcp:everything:sse`). Ten samples in a picker. **Try:** `Use the echo tool to say hello` or `Add 17 and 25 with the sum tool`. **Pass:** the tool row completes (no sample sets `maxSteps`, so the run stops there). Collisions sample: `staging_echo`/`production_echo`; multiple servers: `mcp1_`/`mcp2_`/`mcp3_` prefixes; with server tools: `getUser` returns Jane, Admin. **Fail:** a run error naming 3001/3002; on the `mcpClients` samples, every message failing means the server was down at first import — restart `next dev`.
 
-**`/model-selection`** — One agent, a dropdown of all 22 specifiers on the page (13 OpenAI, 4 Anthropic, 3 Google, 2 MiniMax); the choice goes out as `forwardedProps.model` on each run. **Try:** `Which model and provider are you?`, switch model, ask again. **Pass:** each message runs on the model shown when it was sent (check the Inspector's run input), in one continuing conversation; providers without a key are marked and do not run. **Fail:** a run error naming the model — that id or key is the finding; or every reply comes from `gpt-5.4-mini`, meaning the override is not reaching the agent.
+**`/model-selection`** — One agent, a dropdown of all 10 specifiers on the page (1 OpenAI, 4 Anthropic, 3 Google, 2 MiniMax); the choice goes out as `forwardedProps.model` on each run. **Try:** `Which model and provider are you?`, switch model, ask again. **Pass:** each message runs on the model shown when it was sent (check the Inspector's run input), in one continuing conversation; providers without a key are marked and do not run. **Fail:** a run error naming the model — that id or key is the finding; or every reply comes from `gpt-6-luna`, meaning the override is not reaching the agent.
 
 **`/advanced-configuration`** — Every knob, `overridableProperties`, and (new) `urlDownload`. **Try:** the same question under each preset. **Pass:** the pirate prompt takes effect (whitelisted) and the token cap does not.
 
@@ -312,7 +312,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 | `/agent-app-context` | same | ✅ Working | **Not in the doc sidebar.** |
 | `/server-tools` | `/server-tools` | ✅ Working | Prose-only change; other samples still reference undefined helpers (§9.10). |
 | `/mcp-servers` | `/mcp-servers` | ✅ Working | Needs `npm run mcp:everything`; placeholder hosts → local server (§9.40). |
-| `/model-selection` | `/model-selection` | ✅ Working | All 22 specifiers, chosen per run on one agent via `overridableProperties: ["model"]` (§9.48). A provider runs only if its key is set. |
+| `/model-selection` | `/model-selection` | ✅ Working | All 10 specifiers, chosen per run on one agent via `overridableProperties: ["model"]` (§9.48). OpenAI row is now only `gpt-6-luna`, not verified against the API (§9.50). A provider runs only if its key is set. |
 | `/advanced-configuration` | same | ✅ Working | `urlDownload` added; agent re-aligned with the page (§9.45). |
 | `/multi-agent/subagents` | same | ⚠️ Partial | Supervisor prompt unpublished (§9.35). |
 | `/threads-lifecycle` | same | ✅ Working | Not re-synced in this pass. Now on the SSE runtime, so history lasts only for the dev server's lifetime. |
@@ -525,6 +525,9 @@ This repo's agent lacked the page's `topK: 40` and `stopSequences: ["END"]`, and
 
 **49. Intelligence is scoped to its own runtime here, which no page does**
 The Threads pages put `intelligence` on the app's one runtime at `/api/copilotkit`. With it there, every route depends on the platform: an inactive project or failed entitlement lookup makes every run fail with `Timed out joining channel` (`CHANNEL_JOIN_TIMEOUT`) while the client waits on the realtime channel. This repo therefore keeps the shared runtime SSE-only, as the Quickstart now publishes it, and serves the Threads Drawer and Headless Threads demos from `/api/copilotkit-threads`. The drawer's verbatim variants 2–3 have their published `runtimeUrl="/api/copilotkit"` changed to that path, labelled in each file.
+
+**50. Model Selection's OpenAI table is down to one model, and its resolution table has a broken row (2026-11-11)**
+[`/model-selection`](https://docs.copilotkit.ai/model-selection) replaced its 13 OpenAI rows with a single one, `openai:gpt-6-luna`, and every OpenAI sample on the page now uses it. The route's dropdown follows the table (10 specifiers in all) and defaults to it. Two things to know: `gpt-6-luna` has not been checked against the OpenAI API from this repo, so a model-not-found error on that row is a finding about the docs, not the harness; and in the page's "how model strings resolve" table, the OpenAI row was replaced by `| GPT-6 Luna | openai:gpt-6-luna |`, two cells in a three-column table (model string / AI SDK provider / resolved call), so the OpenAI provider and resolved call are no longer stated. That table is prose, so the route does not reproduce it. §9.14's "`openai:gpt-5.4-mini` is in the table" no longer holds either.
 
 ### Why `typescript.ignoreBuildErrors` is on
 

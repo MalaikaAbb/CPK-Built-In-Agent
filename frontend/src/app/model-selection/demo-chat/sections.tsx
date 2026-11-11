@@ -22,7 +22,7 @@ import { MODEL_TABLE } from "@/copilotkit/model";
  */
 
 const AGENT_ID = "modelSelectionAgent";
-const DEFAULT_SPECIFIER = "openai:gpt-5.4-mini";
+const DEFAULT_SPECIFIER = "openai:gpt-6-luna";
 
 export function ModelPicker({
   configured,
