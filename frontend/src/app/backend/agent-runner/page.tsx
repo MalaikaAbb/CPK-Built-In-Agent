@@ -15,7 +15,7 @@ abstract class AgentRunner {
 const CONFIG = `import { CopilotRuntime, BuiltInAgent, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
 
 const runtime = new CopilotRuntime({
-  agents: { default: new BuiltInAgent({ model: "openai/gpt-4o-mini" }) },
+  agents: { default: new BuiltInAgent({ model: "openai/gpt-6-luna" }) },
   runner: new InMemoryAgentRunner(),
 });`;
 

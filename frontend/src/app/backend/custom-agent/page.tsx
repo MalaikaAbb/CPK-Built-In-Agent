@@ -53,9 +53,9 @@ const FORWARDED_NOW = `const agent = new BuiltInAgent({
   factory: ({ input, abortSignal }) => {
     const props = (input.forwardedProps ?? {}) as Record<string, unknown>;
 
-    const model = props.model === "openai/gpt-4o-mini"
-      ? openai("gpt-4o-mini")
-      : openai("gpt-4o");
+    const model = props.model === "openai/gpt-6-luna"
+      ? openai("gpt-6-luna")
+      : openai("gpt-6-luna");
 
     const temperature =
       typeof props.temperature === "number" &&
@@ -128,7 +128,7 @@ export default function Page() {
               "Write two sentences about tide pools  (then switch tabs and send it again)",
             ]}
             expect="Both tabs stream in exactly as any other route does — the client cannot tell them apart, because both come out as AG-UI events. Each tab keeps its own transcript across switches."
-            fail="An immediate run error. The most common cause is the model id inside the factories, which is the doc's hardcoded gpt-4o rather than OPENAI_MODEL, so a key without gpt-4o access fails on this route and nowhere else."
+            fail="An immediate run error. The most common cause is the model id inside the factories, which is the doc's hardcoded gpt-6-luna rather than OPENAI_MODEL, so a key without gpt-6-luna access fails on this route and nowhere else."
           />
         </div>
       </Panel>
@@ -214,6 +214,16 @@ export default function Page() {
           fallback, which passed the string straight through. The frontend
           example changed model too, from a Claude id to{" "}
           <code>openai/gpt-4o-mini</code> — the one the backend now allows.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          <strong>2026-11-11:</strong> every model id on the page became{" "}
+          <code>gpt-6-luna</code>, both live factories included. That edit
+          left the allowlist check above with the same model on both sides:
+          the allowed id <code>openai/gpt-6-luna</code> gets{" "}
+          <code>openai(&quot;gpt-6-luna&quot;)</code>, and so does everything
+          else. The sample still shows the pattern, but its ternary no longer
+          changes anything. It is kept as published. The frontend example now
+          sends <code>openai/gpt-6-luna</code>. README §9.51.
         </p>
       </Panel>
 

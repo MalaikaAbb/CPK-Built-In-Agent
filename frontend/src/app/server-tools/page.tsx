@@ -29,7 +29,7 @@ const createTicket = defineTool({
 });
 
 const builtInAgent = new BuiltInAgent({
-  model: "openai:gpt-5.4-mini",
+  model: "openai:gpt-6-luna",
   tools: [searchDocs, createTicket],
   maxSteps: 2
 });`;

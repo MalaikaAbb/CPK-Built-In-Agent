@@ -3,16 +3,16 @@ import { SourceCode, SourceCodeGroup } from "@/components/source-code";
 import { Callout, CodeBlock, Panel, TryIt } from "@/components/ui";
 
 const TOOL_CHOICE = `const agent = new BuiltInAgent({
-  model: "openai:gpt-5.4-mini",
+  model: "openai:gpt-6-luna",
   toolChoice: "auto",       // Let the model decide (default)
   // toolChoice: "required", // Force the model to call a tool
   // toolChoice: "none",     // Disable tool calling
   // toolChoice: { type: "tool", toolName: "searchDocs" }, // Force a specific tool
 });`;
 
-const PROVIDER_OPTIONS = `// OpenAI reasoning models (o3, o4-mini) with reasoning effort
+const PROVIDER_OPTIONS = `// OpenAI reasoning models (\`gpt-6-luna\`) with reasoning effort
 const agent = new BuiltInAgent({
-  model: "openai:o3",
+  model: "openai:gpt-6-luna",
   providerOptions: {
     openai: { reasoningEffort: "high" },
   },
