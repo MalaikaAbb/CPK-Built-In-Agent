@@ -8,6 +8,216 @@ Holds the 3 most recent dated entries. When a change lands on a fourth
 date, the oldest entry is dropped. Entries are counted, not aged, so a gap of
 weeks between changes does not expire anything.
 
+## 2026-11-13
+
+### 11:08 UTC — 12 pages, highest severity high
+
+**High — Dynamic Schema A2UI**
+
+`/generative-ui/a2ui/dynamic-schema` · route `/generative-ui/a2ui/dynamic-schema` · under “Implement the React renderers” · in a `typescript` block
+
+9 code lines changed.
+
+````diff
+- up: "#059669",
+- down: "#dc2626",
++ up: "light-dark(#059669, #34d399)",
++ down: "light-dark(#dc2626, #f87171)",
++ stroke="var(--card)"
+- <Tooltip />
++ <Tooltip contentStyle={tooltipStyle} />
+- <Tooltip />
+````
+
+**High — Fixed Schema A2UI**
+
+`/generative-ui/a2ui/fixed-schema` · route `/generative-ui/a2ui/fixed-schema` · under “Implement the React renderers” · in a `typescript` block
+
+16 code lines changed.
+
+````diff
+- <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
++ <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500 dark:text-muted-foreground">
+- <h3 className="text-base font-semibold leading-none tracking-tight text-neutral-900">
++ <h3 className="text-base font-semibold leading-none tracking-tight text-neutral-900 dark:text-foreground">
+- <span className="font-mono text-2xl font-semibold tracking-wider text-neutral-900">
++ <span className="font-mono text-2xl font-semibold tracking-wider text-neutral-900 dark:text-foreground">
+- <Separator className="flex-1 bg-neutral-200" />
++ <Separator className="flex-1 bg-neutral-200 dark:bg-border" />
+````
+
+**High — Components and surfaces**
+
+`/generative-ui/components` · route `/generative-ui/components` · under “What is this?”
+
+118 code lines, 44 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- With components and surfaces, the agent renders real React or Angular components while it answers:
++ With components and surfaces, the agent renders real React, Angular, React Native or Vue components while it answers:
+- These steps add generative UI to a Next.js or Angular app, with an OpenAI model through TanStack AI.
++ These steps add generative UI to a Next.js, Angular, React Native or Vue app, with an OpenAI model through TanStack AI.
+- Already have CopilotKit running? Do step 3 only. Your runtime needs no change: when the provider sends a catalog, the runtime gives that run a `render_ui` tool and a short guide. Your agent must pass the run's tools and context to its model, as in step 2. For a LangGraph Python agent, add `CopilotKitMiddleware`.
++ Already have CopilotKit running? Do step 3 only. Your runtime needs no change: when the provider sends a catalog with at least one component, the runtime gives that run a `render_ui` tool and a short guide. Your agent must pass the run's tools and context to its model, as in step 2. For a LangGraph Python agent, add `CopilotKitMiddleware`.
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
+````
+
+**High — Catalogs**
+
+`/generative-ui/components/catalogs` · route `/generative-ui/components/catalogs` · under “Create a catalog”
+
+128 code lines, 43 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
++ <Tab value="React Native">
++ A component of the catalog is a React Native component. It renders native views, and a slot arrives as React nodes:
++ 
++ ```tsx title="src/shopUI.tsx"
++ import { Image, StyleSheet, Text, View } from "react-native";
++ import { z } from "zod";
+````
+
+**High — Adopt from A2UI**
+
+`/generative-ui/components/from-a2ui` · route `/generative-ui/components/from-a2ui` · under “Adopt from A2UI”
+
+49 code lines, 1 heading, 35 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- > Move an app from the a2ui renderer (A2UI v0.9) to components and surfaces (A2UI 1.0): the provider, the catalog, the operations, and what the agent receives.
++ > Move an app from the a2ui renderer to components and surfaces: the provider, the catalog, the operations, and what the agent receives.
+- The `a2ui` provider option and `@copilotkit/a2ui-renderer` render A2UI v0.9: you build a catalog with `createCatalog`, and the agent streams a fixed or a generated schema into it. Components and surfaces is the A2UI 1.0 engine. The idea is the same: the agent writes operations, and the browser renders your components. The engine adds typed catalogs, the [standard catalog](/generative-ui/components/standard-catalog), areas of the page as targets, two transports, dynamic values that compute in the browser, and functions the agent can call. This page maps one to the other.
++ The `a2ui` provider option and `@copilotkit/a2ui-renderer` render A2UI v0.9 by default, with explicit A2UI 1.0 support in React: you build a catalog with `createCatalog`, and the agent streams a fixed or a generated schema into it. Components and surfaces is a separate A2UI 1.0 engine. The idea is the same: the agent writes operations, and the browser renders your components. The engine adds typed catalogs, the [standard catalog](/generative-ui/components/standard-catalog), areas of the page as targets, two transports, dynamic values that compute in the browser, and functions the agent can call. This page maps one to the other.
++ ## Use 1.0 with the React a2ui renderer
++ 
++ You can keep the `a2ui` provider option and opt into the native 1.0 basic catalog:
++ 
+````
+
+**High — Markdown mode**
+
+`/generative-ui/components/markdown-mode` · route `/generative-ui/components/markdown-mode` · under “What is this?”
+
+18 code lines, 14 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ <Callout type="info" title="React Native">
++ Markdown mode is not available on React Native yet. `GenerativeUIProvider` from `@copilotkit/react-native/generative-ui` uses the [tool transport](/generative-ui/components/transports#tool-transport) only: `transport: "markdown"` is a type error, and passed from JavaScript it is dropped, with a warning in development.
++ </Callout>
++ 
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "Vue"]} persist>
++ <Tab value="Vue">
++ ```vue title="src/App.vue"
+````
+
+**High — Standard catalog**
+
+`/generative-ui/components/standard-catalog` · route `/generative-ui/components/standard-catalog` · under “What is this?”
+
+42 code lines, 25 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ <Callout type="info" title="React Native">
++ The standard components render DOM, so React Native has no `standardUI` yet. Build a catalog of your own native components with `createGenerativeUI`; see [Catalogs](/generative-ui/components/catalogs) and [Generative UI with your own components](/react-native#generative-ui-with-your-own-components).
++ </Callout>
++ 
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "Vue"]} persist>
++ <Tab value="Vue">
++ ```vue
+````
+
+**High — State and actions**
+
+`/generative-ui/components/state-and-actions` · route `/generative-ui/components/state-and-actions` · under “Show live app state”
+
+175 code lines, 52 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
++ <Tab value="React Native">
++ ```tsx title="src/shopUI.tsx"
++ const cartSchema = z.object({
++ items: z.array(z.object({ productId: z.string(), quantity: z.number() })),
++ });
++ 
+````
+
+**High — Surfaces**
+
+`/generative-ui/components/surfaces` · route `/generative-ui/components/surfaces` · under “What is this?”
+
+149 code lines, 59 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- - **The chat.** Always there. The agent can use every component of the catalog.
+- - **A page target.** An area of your page that you mark with `GenerativeUISurface`, or `<copilot-generative-ui-surface>` in Angular. The agent sees it only while it is on screen.
++ - **The chat.** Always there. The agent can use every component of the catalog. On React Native, you draw chat surfaces yourself, with `GenerativeUIActivity`; see [Chat surfaces on React Native](#chat-surfaces-on-react-native). The agent is offered the chat target even when the app shows no chat, so a React Native app that renders only `GenerativeUISurface` targets, or only the prebuilt `CopilotChat` (which does not draw surfaces yet), never shows a surface aimed at the chat.
++ - **A page target.** An area of your page that you mark with `GenerativeUISurface`, or `<copilot-generative-ui-surface>` in Angular. The agent sees it only while it is mounted.
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
++ <Tab value="React Native">
++ ```tsx title="src/FeaturedProducts.tsx"
+````
+
+**High — Theming**
+
+`/generative-ui/components/theming` · route `/generative-ui/components/theming` · under “What is this?”
+
+35 code lines, 18 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "Vue"]} persist>
++ <Tab value="Vue">
++ ```vue
++ <script setup lang="ts">
++ import { CopilotKitProvider } from "@copilotkit/vue/v2";
++ import { standardUI, type GenerativeUITheme } from "@copilotkit/vue/v2/generative-ui";
++ 
+````
+
+**High — Transports**
+
+`/generative-ui/components/transports` · route `/generative-ui/components/transports` · under “What is this?”
+
+18 code lines, 29 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- The agent must send the UI to the browser somehow. Some agents are good at tool calls. Others only stream text, or you build their prompt yourself. A **transport** is the way the UI travels:
++ The agent must send the UI to the app somehow: the browser, or a React Native app. Some agents are good at tool calls. Others only stream text, or you build their prompt yourself. A **transport** is the way the UI travels:
+- Both transports use the same catalogs, surfaces, and components. Only the path between the agent and the browser changes.
++ Both transports use the same catalogs, surfaces, and components. Only the path between the agent and the app changes.
+- | Checked before the browser gets it | yes, by the runtime, and again in the browser | in the browser |
++ | Checked before the app gets it | yes, by the runtime, and again in the app | in the app |
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
+````
+
+**High — Sub-agents**
+
+`/multi-agent/subagents` · route `/multi-agent/subagents` · under “Rendering a live delegation log” · in a `typescript` block
+
+30 code lines changed.
+
+````diff
+- className="w-full h-full flex flex-col bg-white rounded-2xl shadow-sm border border-[#DBDBE5] overflow-hidden"
++ className="w-full h-full flex flex-col bg-white rounded-2xl shadow-sm border border-[#DBDBE5] overflow-hidden dark:bg-card dark:border-border"
+- <div className="flex items-center justify-between px-6 py-3 border-b border-[#E9E9EF] bg-[#FAFAFC]">
++ <div className="flex items-center justify-between px-6 py-3 border-b border-[#E9E9EF] bg-[#FAFAFC] dark:border-border dark:bg-muted">
+- <span className="text-lg font-semibold text-[#010507]">
++ <span className="text-lg font-semibold text-[#010507] dark:text-foreground">
+- className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[#BEC2FF] bg-[#BEC2FF1A] text-[#010507] text-[10px] font-semibold uppercase tracking-[0.12em]"
++ className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[#BEC2FF] bg-[#BEC2FF1A] text-[#010507] text-[10px] font-semibold uppercase tracking-[0.12em] dark:text-foreground"
+````
+
+---
+
 ## 2026-11-11
 
 ### 14:07 UTC — 31 pages, highest severity high
@@ -266,6 +476,8 @@ Now tracked for the first time.
 
 ---
 
+---
+
 ## 2026-10-30
 
 ### 09:20 UTC — 8 pages, highest severity high
@@ -381,301 +593,6 @@ Now tracked for the first time.
 `/backend/runtime-endpoints` · route `/backend/runtime-endpoints`
 
 Content changed.
-
----
-
----
-
-## 2026-10-21
-
-### 14:32 UTC — 18 pages, highest severity high
-
-**High — Authentication**
-
-`/auth` · route `/auth` · under “When to use this”
-
-3 code lines, 44 prose lines changed.
-
-````diff
-- If you don't need any of those, skip auth entirely. The agent runs anonymously and the frontend never has to care about tokens.
-+ If you run the TypeScript runtime without Intelligence and do not need any of those, your agent can run anonymously. Intelligence runtimes require a trusted application-user identity for protected web requests.
-+ <Callout type="info" title="Runtime authentication APIs">
-+ The runtime hooks on this page use the TypeScript API. Python, Go, Ruby, and C#/.NET use their host's request and authentication APIs; follow their [Intelligence setup examples](/intelligence/quickstart#connect-your-runtime). In every language, resolve the user from a verified session or token and keep the Intelligence API key on the server.
-+ </Callout>
-+ 
-- The Intelligence runtime requires an `identifyUser` callback — construction throws without one (or without at least one Channel). It runs on the server, once per request, and the id it returns is the scope the runtime hands to the platform. (`intelligence` below is a `CopilotKitIntelligence` instance; [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) covers building it.)
-+ The Intelligence runtime requires an `identifyUser` callback — construction throws without one (or without at least one Channel). It runs on the server, once per request, and the id it returns is the scope the runtime hands to the platform. (`intelligence` below is a `CopilotKitIntelligence` instance; [Connect your runtime to Intelligence](/intelligence/quickstart) covers building it.)
-````
-
-**High — AgentRunner and persistence**
-
-`/backend/agent-runner` · route `/backend/agent-runner` · under “AgentRunner and persistence”
-
-4 code lines, 39 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- Every CopilotKit runtime delegates agent execution and persistence to an
-+ The TypeScript CopilotKit runtime delegates agent execution and persistence to an
-+ <Callout type="info" title="TypeScript runner APIs">
-+ The runner classes and customization examples on this page belong to the TypeScript runtime. Python, Go, Ruby, and C#/.NET runtimes use Intelligence for persistence and do not expose these runner classes. See the [Intelligence quickstart](/intelligence/quickstart#connect-your-runtime) for their setup.
-+ </Callout>
-+ 
-- | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with durable threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
-+ | `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
-````
-
-**High — Copilot Runtime**
-
-`/backend/copilot-runtime` · route `/backend/copilot-runtime` · under “Copilot Runtime”
-
-15 code lines, 3 headings, 71 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ 
-+ ## Runtime languages
-+ 
-+ **TypeScript is the default and most fully featured runtime. It is the only runtime that can run without CopilotKit Intelligence.** Use it for an open-source setup, or connect it to Intelligence when you need its services.
-+ 
-+ Python, Go, Ruby, and C#/.NET runtimes require an Intelligence project and server-side API key. They work with both [cloud-hosted](/intelligence/managed-intelligence-platform) and [self-hosted](/intelligence/self-hosting) Intelligence; they do not provide an in-memory or SQLite runner.
-+ 
-+ | Language | Host | Without Intelligence |
-````
-
-**High — Use any model router**
-
-`/backend/custom-agent` · route `/backend/custom-agent` · under “When to use Simple Mode vs Factory Mode”
-
-3 code lines, 13 prose lines changed.
-
-````diff
-+ To write the whole agent yourself instead of a factory, extend AG-UI's
-+ `AbstractAgent`. See [Write your own AG-UI agent](/backend/custom-ag-ui-agent).
-+ 
-- The factory receives an `AgentFactoryContext` (from `@copilotkit/runtime/v2`):
-+ The factory receives an `BuiltInAgentFactoryContext` (from `@copilotkit/runtime/v2`):
-- interface AgentFactoryContext {
-+ interface BuiltInAgentFactoryContext {
-+ learnedSkills: BuiltInAgentLearnedSkills; // catalog and read-only AI SDK tools, empty when disabled
-````
-
-**High — Runtime HTTP endpoints**
-
-`/backend/runtime-endpoints` · route `/backend/runtime-endpoints` · under “Runtime HTTP endpoints”
-
-77 code lines, 9 headings, 218 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ <Callout type="info" title="Other runtime languages">
-+ Python, Go, Ruby, and C#/.NET runtimes require Intelligence and serve multi-route endpoints. Use `useSingleEndpoint={false}` with the React provider; do not send a single-route envelope to those servers. The JavaScript handler factories, legacy endpoints, and optional TypeScript features below are specific to the TypeScript runtime. See the [Intelligence quickstart](/intelligence/quickstart#connect-your-runtime) for native server setup.
-+ </Callout>
-+ 
-- | Provider                                 | `useSingleEndpoint` | Transport                                 | Needs handler | Route file                      |
-- | ---------------------------------------- | ------------------- | ----------------------------------------- | ------------- | ------------------------------- |
-- | `<CopilotKitProvider>`                   | omitted             | `auto` — detected from `/info`            | either        | matches the handler             |
-- | `<CopilotKit>`                           | omitted             | `single` in released versions — see below | single-route  | `route.ts`, `POST`              |
-````
-
-**High — Slots**
-
-`/custom-look-and-feel/slots` · route `/custom-look-and-feel/slots` · under “Reshaping the Message List”
-
-41 code lines, 2 headings, 16 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ ## Reshaping the Message List
-+ 
-+ Slots change how each message renders. To change _which_ messages render — hide some, replace them, reorder them — pass `transformMessages` to the message view. It receives the whole list and returns the list to render.
-+ 
-+ ```tsx title="page.tsx"
-+ import { useCallback } from "react";
-+ import { CopilotChat, type Message } from "@copilotkit/react-core/v2";
-+ 
-````
-
-**High — Headless Threads**
-
-`/headless-threads` · route `/headless-threads` · under “Headless Threads”
-
-7 code lines, 1 heading, 47 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ Intelligence’s AG-UI streams power the history and delivery behind this custom UI. Use `useThreads` to list and manage conversations, and pass their `threadId` to your chat.
-+ 
-- CopilotKit Rich Threads enable persistent, resumable multi-turn conversations. The `useThreads` hook lists, creates, renames, archives, and deletes CopilotKit Intelligence threads with realtime synchronization via WebSocket. Threads work with any agent framework — CopilotKit Intelligence stores conversation history server-side, so users can close their browser and pick up where they left off. It does not list or mutate native LangGraph, ADK, or other framework stores unless your backend explicitly bridges those systems. Thread metadata updates (renames, archives, new threads) appear on connected clients without polling.
-+ The `useThreads` hook lists, creates, renames, archives, and deletes CopilotKit Intelligence threads with realtime synchronization via WebSocket. Threads work with any agent framework — CopilotKit Intelligence stores conversation history server-side, so users can close their browser and pick up where they left off. It does not list or mutate native LangGraph, ADK, or other framework stores unless your backend explicitly bridges those systems. Thread metadata updates (renames, archives, new threads) appear on connected clients without polling.
-- [scope Rich Threads to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)
-+ [scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)
-- <Callout type="info" title="Migrating existing history?">
-- Threads capture new CopilotKit conversations once your app is connected to
-````
-
-**High — Inspector**
-
-`/inspector` · route `/inspector` · under “Inspector”
-
-4 code lines, 5 headings, 89 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- > Inspector for debugging actions, readables, agent status, messages, and context.
-+ > Verify your setup, debug agent runs, reproduce issues, and review Threads and Learning.
-- ## What it shows
-+ The CopilotKit Inspector overlays your development application so you can
-+ verify the connection, investigate a run, and work with Threads and Learning
-+ without leaving the page.
-- The CopilotKit Inspector is a built-in debugging tool that overlays on your app.
-- The first open lands on **Home**. Later opens return to the last pane you used.
-````
-
-**High — Model Selection**
-
-`/model-selection` · route `/model-selection` · under “Supported Models”
-
-9 code lines, 24 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ The tables list the models these docs use. The quickstart uses `openai:gpt-5.4-mini`.
-+ The Built-in Agent sends the model id to the provider unchanged, so other model ids
-+ from the same provider also work.
-+ 
-+ | GPT-5.5      | `openai:gpt-5.5`      |
-+ | GPT-5.4      | `openai:gpt-5.4`      |
-+ | GPT-5.4 Mini | `openai:gpt-5.4-mini` |
-- model: "openai:gpt-4.1",
-````
-
-**High — Threads Drawer**
-
-`/prebuilt-components/copilot-threads-drawer` · route `/prebuilt-components/copilot-threads-drawer` · under “When should I use this?”
-
-27 code lines, 3 headings, 54 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- server-side). <SignupLink surface="docs_drawer">Get a free developer account</SignupLink> to set that up.
-+ server-side). <SignupLink surface="docs_drawer">Start cloud-hosted setup</SignupLink> to create or select a project.
-- [scope Rich Threads to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
-+ [scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
-- body="Get persistent threads and realtime sync on the free Developer tier."
-+ body="Connect a cloud-hosted project to get persistent threads and realtime sync."
-+ <Callout type="warn">
-+ **The Drawer ships only in `@copilotkit/react-core/v2`.** There is no v1
-````
-
-**High — Introduction**
-
-`/quickstart` · routes `/`, `/quickstart`, `/doc-sync` · under “Quickstart”
-
-35 code lines, 5 headings, 68 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- > Get started with CopilotKit's Built-in Agent in minutes.
-+ > Build a working AI chat with CopilotKit in minutes.
-- <IntelligenceOnboardingPrompt
-- feature="learning"
-- surface="docs_built_in_agent_quickstart"
-- />
-+ ## Start with your coding agent
-+ Use this prompt to build a working chat with CopilotKit's built-in agent. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
-````
-
-**Medium — Headless UI**
-
-`/custom-look-and-feel/headless-ui` · route `/custom-look-and-feel/headless-ui` · under “Fully Headless UI”
-
-2 headings changed.
-
-````diff
-- # Fully Headless UI
-+ # Headless UI
-````
-
-**Medium — Thread & History Lifecycle**
-
-`/threads-lifecycle` · route `/threads-lifecycle` · under “The lifecycle at a glance”
-
-3 headings, 17 prose lines changed.
-
-````diff
-- 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [Threads & Persistence Architecture](/intelligence/threads-explained) for the full server-side model.
-+ 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [AG-UI Streams & Framework Threads](/intelligence/threads-explained) for the full server-side model.
-- ## Scope Rich Threads to the signed-in user
-+ <span id="scope-rich-threads-to-the-signed-in-user" />
-+ ## Scope AG-UI Streams to the signed-in user
-+ 
-- [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) covers the
-+ [Connect your runtime to Intelligence](/intelligence/quickstart) covers the
-````
-
-**Low — Agent Context**
-
-`/agent-app-context` · route `/agent-app-context` · under “Implementation”
-
-17 prose lines changed.
-
-````diff
-+ 
-+ <Callout type="warn" title="Context values arrive as JSON strings">
-+ The AG-UI protocol defines a context value as a string. Therefore
-+ `useAgentContext` calls `JSON.stringify` on any `value` that is not already a
-+ string, and your agent receives the JSON text instead of the object or the
-+ array.
-+ 
-+ Parse the value before you read a field from it. Use `json.loads(item["value"])`
-````
-
-**Low — Connect AG-UI agents**
-
-`/backend/ag-ui` · route `/backend/ag-ui` · under “How agents slot into the runtime”
-
-3 prose lines changed.
-
-````diff
-+ To write the custom implementation yourself, and keep its own fields through
-+ the clone in step 2, see [Write your own AG-UI agent](/backend/custom-ag-ui-agent).
-+ 
-````
-
-**Low — Programmatic Control**
-
-`/programmatic-control` · route `/programmatic-control` · under “Overview”
-
-4 prose lines changed.
-
-````diff
-- title="Fully Headless UI"
-+ title="Headless UI"
-- - **`agent.runAgent()`** — Low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or handle follow-ups. Use this only when you need direct control over the agent execution (e.g., resuming from an interrupt with `forwardedProps`).
-+ - **`agent.runAgent()`** — Low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or handle follow-ups. Use this only when you need direct control over the agent execution. To resume from an interrupt, use `copilotkit.runAgent({ agent, resume })` for standard AG-UI interrupts, or `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` for legacy `on_interrupt` custom events, so that the subscriber lifecycle still wraps the resumed run.
-````
-
-**Low — Server Tools**
-
-`/server-tools` · route `/server-tools` · under “When should I use this?”
-
-47 prose lines changed.
-
-````diff
-+ <Callout type="warn" title="The tool runs on the server; the UI still runs in the browser">
-+ `execute` runs on your server, so it can reach secrets, a database, or an internal service —
-+ and it cannot touch the DOM, component state, or anything else in the page. When the *action*
-+ itself belongs in the browser, register it as a [frontend tool](/frontend-tools) instead.
-+ 
-+ Rendering is separate from executing. A server tool's call still streams to the browser, so
-+ you can give it UI with a render-only registration under the same tool name while `execute`
-+ keeps running on the server.
-````
-
-**Low — Shared State**
-
-`/shared-state` · route `/shared-state` · under “When should I use this?”
-
-4 prose lines changed.
-
-````diff
-+ <Callout type="info">
-+ For a complete example of selecting a prepared control with structured AI judgments and returning user actions to the agent, follow the [CopilotKit + Jev cookbook](/cookbook/jev-generative-ui).
-+ </Callout>
-+ 
-````
 
 ---
 
