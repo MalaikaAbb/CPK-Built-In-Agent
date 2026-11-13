@@ -294,7 +294,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 | `/generative-ui/components/theming` | same | ⚠️ Partial | Colour-scheme script in body; placeholder `mapStyle` URLs. |
 | `/generative-ui/components/transports` | same | ⚠️ Partial | Runtime snippet's `agent` undefined; `shop` agent is glue. |
 | `/generative-ui/components/markdown-mode` | same | ⚠️ Partial | `sendContext: false` has only a Python backend on the page. |
-| `/generative-ui/components/from-a2ui` | same | ⚠️ Partial | "After" runs; `Airport`/`Arrow` scaffolding. |
+| `/generative-ui/components/from-a2ui` | same | ⚠️ Partial | "After" runs; `Airport`/`Arrow` scaffolding. "Use 1.0 with the React a2ui renderer" shown as text: 1.83 pin lacks `basicCatalogV1`/`DynamicStringSchemaV1` (§9.53). |
 | `/generative-ui/a2ui/dynamic-schema` | same | ✅ Working | Prose path: `injectA2UITool: true` on the runtime, Quickstart agent (§9.37). |
 | `/generative-ui/a2ui/fixed-schema` | same | ✅ Working | Needs the scoped zod 3 link (§9.31). |
 | `/generative-ui/json-render` | same | ✅ Working | Test-plumbing imports commented out. |
@@ -530,6 +530,12 @@ The Threads pages put `intelligence` on the app's one runtime at `/api/copilotki
 [`/backend/custom-agent`](https://docs.copilotkit.ai/backend/custom-agent) changed every model id on the page to `gpt-6-luna`. In the hardened `forwardedProps` sample (§9.25's allowlist), that turned `props.model === "openai/gpt-4o-mini" ? openai("gpt-4o-mini") : openai("gpt-4o")` into `props.model === "openai/gpt-6-luna" ? openai("gpt-6-luna") : openai("gpt-6-luna")`: both branches are the same, so the check no longer does anything. Kept as published on the route. The two live factories in `src/copilotkit/agents.ts` follow the page to `openai("gpt-6-luna")` / `openaiText("gpt-6-luna")`. `gpt-6-luna` is in `@tanstack/ai-openai`'s typed model list, so the TanStack adapter type-checks.
 **50. Model Selection's OpenAI table is down to one model, and its resolution table has a broken row (2026-11-11)**
 [`/model-selection`](https://docs.copilotkit.ai/model-selection) replaced its 13 OpenAI rows with a single one, `openai:gpt-6-luna`, and every OpenAI sample on the page now uses it. The route's dropdown follows the table (10 specifiers in all) and defaults to it. Two things to know: `gpt-6-luna` has not been checked against the OpenAI API from this repo, so a model-not-found error on that row is a finding about the docs, not the harness; and in the page's "how model strings resolve" table, the OpenAI row was replaced by `| GPT-6 Luna | openai:gpt-6-luna |`, two cells in a three-column table (model string / AI SDK provider / resolved call), so the OpenAI provider and resolved call are no longer stated. That table is prose, so the route does not reproduce it. §9.14's "`openai:gpt-5.4-mini` is in the table" no longer holds either.
+
+**52. A2UI renderers gained dark-mode styling that leans on undefined theme tokens (2026-11-13)**
+Both A2UI Code tabs were refreshed verbatim. Fixed schema adds `dark:text-foreground` / `dark:text-muted-foreground` / `dark:bg-border`; dynamic schema adds `tooltipStyle` and `barCursor` (defined in its own `renderers.tsx`) plus `light-dark(...)` trend colours and `stroke="var(--card)"` on the pie. `light-dark()` only switches when the page sets `color-scheme`, and `--card`/`--border`/`--accent` are the same unpublished theme variables as §9.37, so in this app dark mode may fall back to the light values or a transparent stroke.
+
+**53. "Use 1.0 with the React a2ui renderer" needs a newer renderer than this repo pins (2026-11-13)**
+[`/generative-ui/components/from-a2ui`](https://docs.copilotkit.ai/generative-ui/components/from-a2ui) added a section that keeps the `a2ui` provider option and opts into A2UI 1.0 with `basicCatalogV1`, or a custom catalog built with `DynamicStringSchemaV1` and `protocolVersion: "1.0"`. `@copilotkit/a2ui-renderer` 1.83.0 (this repo's pin) exports neither, and the page publishes no agent that emits native 1.0 `a2ui_operations`, so both snippets are shown as text on the route, not run.
 
 ### Why `typescript.ignoreBuildErrors` is on
 

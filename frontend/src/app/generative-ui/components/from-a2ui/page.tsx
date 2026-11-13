@@ -27,6 +27,30 @@ export const myCatalog = createCatalog(definitions, renderers, {
   includeBasicCatalog: true,
 });`;
 
+// "Use 1.0 with the React a2ui renderer" — published snippets, kept as text:
+// @copilotkit/a2ui-renderer is pinned at 1.83.0 here, which has no
+// basicCatalogV1 / DynamicStringSchemaV1 exports.
+const V1_PROVIDER = `import { basicCatalogV1 } from "@copilotkit/a2ui-renderer";
+
+<CopilotKit runtimeUrl="/api/copilotkit" a2ui={{ catalog: basicCatalogV1 }}>
+  {/* Your app */}
+</CopilotKit>`;
+const V1_CUSTOM_CATALOG = `import { z } from "zod";
+import {
+  createCatalog,
+  DynamicStringSchemaV1,
+} from "@copilotkit/a2ui-renderer";
+
+const myCatalog = createCatalog(
+  { Greeting: { props: z.object({ name: DynamicStringSchemaV1 }) } },
+  { Greeting: ({ props }) => <p>Hello {props.name}</p> },
+  {
+    catalogId: "acme/greetings@1",
+    protocolVersion: "1.0",
+    includeBasicCatalog: true,
+  },
+);`;
+
 export default function Page() {
   return (
     <>
@@ -65,6 +89,8 @@ export default function Page() {
           <CodeBlock code={RUNTIME_BEFORE} filename="Runtime, before" language="ts" />
           <CodeBlock code={RUNTIME_AFTER} filename="Runtime, after" language="ts" />
           <CodeBlock code={CATALOG_BEFORE} filename="Convert a custom catalog — Before" language="ts" />
+          <CodeBlock code={V1_PROVIDER} filename="Use 1.0 with the React a2ui renderer — basic catalog" language="tsx" />
+          <CodeBlock code={V1_CUSTOM_CATALOG} filename="Use 1.0 with the React a2ui renderer — custom catalog" language="tsx" />
         </div>
       </Panel>
 
@@ -80,6 +106,14 @@ export default function Page() {
             {"{ agents }"})</code>; the shared{" "}
             <code>/api/copilotkit-genui</code> runtime has no A2UI option either,
             so it stands in.
+          </li>
+          <li>
+            · &ldquo;Use 1.0 with the React a2ui renderer&rdquo; (new on the
+            page) is shown as text only: it imports <code>basicCatalogV1</code>{" "}
+            and <code>DynamicStringSchemaV1</code> from{" "}
+            <code>@copilotkit/a2ui-renderer</code>, which the repo&rsquo;s
+            1.83.0 pin does not export, and the page publishes no agent that
+            emits native 1.0 <code>a2ui_operations</code>.
           </li>
           <li>
             · The Before catalog is shown only: running it belongs to the A2UI
