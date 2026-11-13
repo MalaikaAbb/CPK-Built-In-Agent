@@ -14,8 +14,8 @@
     "mcp:apps": "PORT=3108 npx -y @modelcontextprotocol/server-basic-react@2.0.4"
   },
   "dependencies": {
-    "@ag-ui/client": "1.0.3",
-    "@ag-ui/core": "1.0.3",
+    "@ag-ui/client": "1.0.2",
+    "@ag-ui/core": "1.0.2",
     "@ag-ui/mcp-apps-middleware": "^0.1.2",
     "@ai-sdk/mcp": "^1.0.100",
     "@ai-sdk/openai": "^3.0.90",
@@ -53,5 +53,11 @@
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@ag-ui/client": "1.0.2",
+    "@ag-ui/core": "1.0.2",
+    "@ag-ui/encoder": "1.0.2",
+    "@ag-ui/proto": "1.0.2"
   }
 }
