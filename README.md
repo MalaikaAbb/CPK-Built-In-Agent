@@ -294,7 +294,7 @@ Code on a page is never a re-typed approximation: each page reads real files via
 | `/generative-ui/components/theming` | same | ⚠️ Partial | Colour-scheme script in body; placeholder `mapStyle` URLs. |
 | `/generative-ui/components/transports` | same | ⚠️ Partial | Runtime snippet's `agent` undefined; `shop` agent is glue. |
 | `/generative-ui/components/markdown-mode` | same | ⚠️ Partial | `sendContext: false` has only a Python backend on the page. |
-| `/generative-ui/components/from-a2ui` | same | ⚠️ Partial | "After" runs; `Airport`/`Arrow` scaffolding. |
+| `/generative-ui/components/from-a2ui` | same | ⚠️ Partial | "After" runs; `Airport`/`Arrow` scaffolding. "Use 1.0 with the React a2ui renderer" shown as text: 1.83 pin lacks `basicCatalogV1`/`DynamicStringSchemaV1` (§9.53). |
 | `/generative-ui/a2ui/dynamic-schema` | same | ✅ Working | Prose path: `injectA2UITool: true` on the runtime, Quickstart agent (§9.37). |
 | `/generative-ui/a2ui/fixed-schema` | same | ✅ Working | Needs the scoped zod 3 link (§9.31). |
 | `/generative-ui/json-render` | same | ✅ Working | Test-plumbing imports commented out. |
@@ -533,6 +533,9 @@ The Threads pages put `intelligence` on the app's one runtime at `/api/copilotki
 
 **52. A2UI renderers gained dark-mode styling that leans on undefined theme tokens (2026-11-13)**
 Both A2UI Code tabs were refreshed verbatim. Fixed schema adds `dark:text-foreground` / `dark:text-muted-foreground` / `dark:bg-border`; dynamic schema adds `tooltipStyle` and `barCursor` (defined in its own `renderers.tsx`) plus `light-dark(...)` trend colours and `stroke="var(--card)"` on the pie. `light-dark()` only switches when the page sets `color-scheme`, and `--card`/`--border`/`--accent` are the same unpublished theme variables as §9.37, so in this app dark mode may fall back to the light values or a transparent stroke.
+
+**53. "Use 1.0 with the React a2ui renderer" needs a newer renderer than this repo pins (2026-11-13)**
+[`/generative-ui/components/from-a2ui`](https://docs.copilotkit.ai/generative-ui/components/from-a2ui) added a section that keeps the `a2ui` provider option and opts into A2UI 1.0 with `basicCatalogV1`, or a custom catalog built with `DynamicStringSchemaV1` and `protocolVersion: "1.0"`. `@copilotkit/a2ui-renderer` 1.83.0 (this repo's pin) exports neither, and the page publishes no agent that emits native 1.0 `a2ui_operations`, so both snippets are shown as text on the route, not run.
 
 ### Why `typescript.ignoreBuildErrors` is on
 
